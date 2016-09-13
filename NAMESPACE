@@ -1,0 +1,9 @@
+export(AUC.plot)
+export(AUCell.buildRankings)
+export(AUCell.calcAUC)
+export(AUCell.exploreThresholds)
+export(plotGeneCount)
+export(read.gmt)
+
+import(data.table)
+

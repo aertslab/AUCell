@@ -1,0 +1,26 @@
+---
+title: "AUCell: Identifying cells with active gene sets"
+package: "`r pkg_ver('AUCell')`"
+abstract: >
+  This tutorial shows how to use **AUCell** to identify cells with an active 'gene set' (i.e. a gene signature...) in single-cell RNA-seq data. 
+vignette: >
+  %\VignetteIndexEntry{AUCell: Identifying cells with active gene sets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output: 
+  BiocStyle::html_document:
+    number_sections: false
+  pdf_document:
+    toc: yes
+---
+
+# Overview of the workflow to run AUCell
+```{r eval=FALSE}
+library(AUCell)
+cells_rankings <- AUCell.buildRankings(exprMatrix)
+cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings)
+par(mfrow=c(3,3))
+cells_assignment <- AUCell.exploreThresholds(cells_AUC, seed=123, plotHist=TRUE, nCores=1, assign=TRUE)
+```
+
+A more detailed tutorial is coming soon.
