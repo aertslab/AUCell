@@ -6,7 +6,7 @@
 ####                - Threshold: Testing diferent thresholds (3 versions are calculated, and the maximum is chosen automatically)
 ####                TO DO: decide what to do with global distr (i.e. for HK...)
 # auc <- cells_AUC[,5] # grep("egulation of stress", colnames(AUCell.auc))
-.auc.assignmnetThreshold <- function(auc, seed=123, plotHist=TRUE, gSetName="", popPercent=.25, densAdjust=2, thrP=0.01)
+.auc.assignmnetThreshold <- function(auc, seed=123, plotHist=TRUE, gSetName="", popPercent=.25, densAdjust=2, thrP=0.01, nBreaks=100)
 {
   nCells <- length(auc)
   skipGlobal <- TRUE
@@ -39,7 +39,7 @@
       if((max(densCurve$y[nextMaxs])/max(densCurve$y))<.05) 
       {
         densTrh <- NULL
-        print(gSetName)
+        # print(gSetName)
       }
     }
   }
@@ -145,7 +145,7 @@
     
   if(plotHist)
   {
-    histInfo <- AUC.plot(auc, gSetName=gSetName, aucThr=aucThr, returnInfo=TRUE)
+    histInfo <- AUC.plot(auc, gSetName=gSetName, aucThr=aucThr, returnInfo=TRUE, nBreaks=nBreaks)
 	#hist(auc, breaks=100, col="#6666aa80", border="#5588bb", main=gSetName, xlab="AUC histogram", xlim=c(0,max(c(auc, aucThr))))
     histMax <- max(histInfo$counts)
 

@@ -2,7 +2,7 @@
 title: "AUCell: Identifying cells with active gene sets"
 package: "`r pkg_ver('AUCell')`"
 abstract: >
-  This tutorial shows how to use **AUCell** to identify cells with an active 'gene set' (i.e. a gene signature...) in single-cell RNA-seq data. 
+  This tutorial shows how to use **AUCell** to identify cells with a active 'gene set' (i.e. gene signatures) in single-cell RNA-seq data. 
 vignette: >
   %\VignetteIndexEntry{AUCell: Identifying cells with active gene sets}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,13 +14,447 @@ output:
     toc: yes
 ---
 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages({
+library(AUCell)
+library(Biobase)
+library(data.table)
+library(DT)
+library(NMF)
+library(plotly)
+library(GEOquery)
+library(doMC);library(doRNG) # Loaded by AUCell, to avoid messages
+})
+```
+
 # Overview of the workflow to run AUCell
-```{r eval=FALSE}
+AUCell allows to identify cells with active gene sets (e.g. signatures, gene modules) in single-cell RNA-seq data. 
+In brief, the workflow to run AUCell is based on three steps:
+
+1. Build the rankings
+
+2. Calculate the Area Under the Curve (AUC)
+
+3. Set the assignment thresholds
+
+```{r Overview, eval=FALSE}
 library(AUCell)
 cells_rankings <- AUCell.buildRankings(exprMatrix)
-cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings)
+
+genes <- c("gene1", "gene2", "gene3")
+geneSets <- list(geneSet1=genes)
+cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05)
+
 par(mfrow=c(3,3))
 cells_assignment <- AUCell.exploreThresholds(cells_AUC, seed=123, plotHist=TRUE, nCores=1, assign=TRUE)
 ```
 
-A more detailed tutorial is coming soon.
+In the following sections we explain and explore the output of each of these steps. The details of the methods behind AUCell are described in the following article: *(TO DO: update citation)*
+```{r citation, echo=FALSE}
+print(citation("AUCell"), style="textVersion")
+```
+Please, also cite this article if you use AUCell in your research.
+
+
+# Before starting
+## Setup
+By default, AUCell is installed only with the minimum dependencies. 
+To run AUCell in parallel or run the examples in this tutorial, we recommend to install these packages:
+  
+```{r setup, eval=FALSE}
+source("http://bioconductor.org/biocLite.R")
+# To support paralell execution:
+biocLite(c("doMC", "doRNG"))
+# For the main example:
+biocLite(c("mixtools", "GEOquery"))
+# For the examples in the follow-up section of the tutorial:
+biocLite(c("DT", "plotly", "NMF", "d3heatmap"))
+```
+
+## Some tips...
+### Help
+At any time, remember you an access the help files for any function (i.e. `?AUCell.buildRankings`). It is also possible to open this tutorial directly from R with the following commands:
+```{r vignette, eval=FALSE}
+# Explore tutorials in the web browser:
+browseVignettes(package="AUCell") 
+
+# Commnad line-based:
+vignette(package="AUCell") # list
+vignette("AUCell") # open
+```
+
+### Report template
+To generate an HTML report with your own data and comments, you can use the [Markdown](http://rmarkdown.rstudio.com/authoring_quick_tour.html#markdown_basics) file of this tutorial as template: i.e. copy the file, edit it in RStudio, and click "Knit HTML" when it is ready.
+```{r editRmd, eval=FALSE}
+vignetteFile <- paste(file.path(system.file('doc', package='AUCell')), "AUCell.Rmd", sep="/")
+# Copy to edit as markdown
+file.copy(vignetteFile, ".")
+# Alternative: extract R code
+Stangle(vignetteFile)
+```
+
+# Running AUCell
+
+## 0. Load scRNA-seq dataset and gene sets
+The input data for AUCell are the expression matrix and the gene-sets.
+
+### Working directory
+During this tutorial some plots and files are saved. To keep them tidy, we recommend to set the working directory to a new folder:
+```{r setwd}
+dir.create("AUCell_tutorial")
+setwd("AUCell_tutorial")
+```
+
+### Expression matrix
+The expression matrix, from a single-cell RNA-seq dataset, should be formatted with the genes/features as rows and cells as columns.
+
+Typically, this matrix will be loaded from a counts file, or from another R object. i.e.:
+```{r loadingExprMat, eval=FALSE}
+# i.e. Reading from a text file
+exprMatrix <- read.table("myCountsMatrix.tsv")
+exprMatrix <- as.matrix(exprMatrix)
+
+# or using an expression set
+exprMatrix <- exprs(myExpressionSet)
+```
+
+In this tutorial we use a dataset containing 3005 cells from mouse cortex and hippocampus. The dataset can be downloaded from GEO accession number GSE60361.  
+
+> Zeisel, A., et al. (2015). Cell types in the mouse cortex and hippocampus revealed by single-cell RNA-seq. Science 347, 1138–1142. doi: [10.1126/science.aaa1934](http://dx.doi.org/10.1126/science.aaa1934)
+
+```{r GEOdataset, cache=TRUE, results='hide', message=FALSE}
+# (This may take a few minutes)
+library(GEOquery)
+geoFile <- getGEOSuppFiles("GSE60361", makeDirectory=FALSE)
+gzFile <- basename(rownames(geoFile))
+txtFile <- gsub(".gz", "", gzFile)
+gunzip(gzFile, destname=txtFile, remove=TRUE)
+
+library(data.table)
+geoData <- fread(txtFile, sep="\t")
+geneNames <- unname(unlist(geoData[,1, with=FALSE]))
+exprMatrix <- as.matrix(geoData[,-1, with=FALSE])
+rm(geoData)
+dim(exprMatrix)
+rownames(exprMatrix) <- geneNames
+exprMatrix[1:5,1:4]
+
+# Remove file downloaded: 
+file.remove(txtFile)
+
+# Save for future use
+mouseBrainExprMatrix <- exprMatrix
+save(mouseBrainExprMatrix, file="exprMatrix_AUCellVignette_MouseBrain.RData")
+```
+
+To speed-up the execution of the tutorial, we will use only 5000 random genes from this dataset.
+```{r randomSamples}
+set.seed(333)
+exprMatrix <- mouseBrainExprMatrix[sample(rownames(mouseBrainExprMatrix), 5000),]
+```
+
+In this way, we will be using an expression matrix with (`r nrow(exprMatrix)` gene and `r ncol(exprMatrix)` cells):
+```{r dimExprMat}
+dim(exprMatrix)
+```
+
+### Gene sets
+The other input AUCell needs is the 'gene-sets' or signatures to test on the cells. These gene-sets should be provided in as 'named list', with the following format:
+```{r geneSetsFake}
+genes <- c("gene1", "gene2", "gene3")
+geneSets <- list(geneSet1=genes)
+geneSets
+```
+
+In this example we will use gene-sets representing diferent cell types in the brain: 
+
+1. Big gene signatures (> 1000 genes) for **astrocytes**, **oligodendrocytes** and **neurons**.
+
+> Cahoy, J.D., et al. (2008). A Transcriptome Database for Astrocytes, Neurons, and Oligodendrocytes: A New Resource for Understanding Brain Development and Function. J. Neurosci. 28, 264–278. doi: [10.1523/JNEUROSCI.4178-07.2008](http://dx.doi.org/10.1523/JNEUROSCI.4178-07.2008)
+
+2. Big gene signature (> 500 genes) for **microglia**. Obtained by comparing bulk RNA-seq profiles of microglia (brain-resident macrophages) to macrophages from other tissues. 
+
+> Lein, E.S., et al. (2007). Genome-wide atlas of gene expression in the adult mouse brain*. Nature 445, 168–176.  doi: [10.1038/nature05453](http://dx.doi.org/10.1038/nature05453)
+
+3. Small gene signatures (<100 genes) for astrocytes and neurons.
+
+> Lavin, Y., et al. (2014) Tissue-Resident Macrophage Enhancer Landscapes Are Shaped by the Local Microenvironment. Cell 159, 1312–1326. doi: [10.1016/j.cell.2014.11.018](http://dx.doi.org/10.1016/j.cell.2014.11.018)
+
+```{r geneSets}
+library(AUCell)
+gmtFile <- paste(file.path(system.file('examples', package='AUCell')), "geneSignatures.gmt", sep="/")
+geneSets <- read.gmt(gmtFile)
+```
+Let's check how many of these genes are in the expression matrix:
+```{r geneSetsNgenes}
+geneSets <- lapply(geneSets, function(x) x[x %in% rownames(exprMatrix)])
+cbind(lengths(geneSets))
+```
+
+To ease the interpretation of the tutorial, we will also add the gene-set size into its name:
+```{r geneSetsRename}
+names(geneSets) <- paste(names(geneSets), " (", lengths(geneSets) ,"g)", sep="")
+```
+
+For the example, let's also add a few sets of random genes and 100 genes expressed in many cells (i.e. housekeeping-like):
+```{r hkGs}
+set.seed(321)
+# Random
+geneSets[["Random (50g)"]] <- sample(rownames(exprMatrix), 50)
+geneSets[["Random (500g)"]] <- sample(rownames(exprMatrix), 500)
+
+# Housekeeping-like
+countsPerGene <- apply(exprMatrix, 1, function(x) sum(x>0))
+geneSets[["HK-like (100g)"]] <- sample(names(countsPerGene)[which(countsPerGene>quantile(countsPerGene, probs=.95))], 100)
+```
+
+Since we are using an expression matrix with only 5000 random genes, most of these genes are acutally not available in the dataset. 
+However, AUCell is robust enough to use this 'noisy' data. 
+
+## 1. Build gene-expression rankings for each cell
+The first step to calculate the enrichment of a signature is to create the "rankings". These rankings are only an intermediate step to calculate the AUC, but they are kept as a separate step in the workflow in order to provide more flexibility (i.e. to save them for future analyses, to merge datasets, or process them by parts).
+
+For each cell, the genes are ranked from highest to lowest value. The genes with same expression value are shuffled. Therefore, genes with expression '0' are randomly sorted at the end of the ranking. It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (`aucMaxRank` in `calcAUC()`). The histogram provided by `AUCell.buildRankings()` allows to quickly check this distribution. `plotGeneCount(exprMatrix)` allows to obtain only the plot before building the rankings.
+
+Since the rankings are created individually for each cell, in principle, it is possible to merge cell-rankings from different datasets. However, the datasets should be similar in regards to their "sensitivity" (e.g. the number of genes detected in the cells of each datasets), and the genes they include (e.g. same gene IDs).
+
+```{r buildRankings, cache=TRUE, fig.width=6, fig.height=6}
+cells_rankings <- AUCell.buildRankings(exprMatrix, nCores=10, plotStats=TRUE)
+```
+
+Note that the rankings are a `r CRANpkg("data.table")` object, and that the gene names are stored in a column rather than 'row.names' (therefore, it will contain one more column than the number of cells).
+```{r echo=FALSE}
+class(cells_rankings)
+dim(cells_rankings)
+cells_rankings[1:5,1:5, with=FALSE]
+```
+
+The "rankings" can be seen as a new representation of the original dataset. Once they are calculated, they can be saved for future analyses. 
+
+```{r saveRankings, eval=FALSE}
+save(cells_rankings, file="cells_rankings.RData")
+```
+
+## 2. Calculate enrichment for the gene signatures (AUC)
+To determine whether the gene set is enriched at the top of the gene-ranking for each cell, AUCell uses the "Area Under the Curve" (AUC) of the recovery curve.
+
+```{r explainAUC, echo=FALSE}
+geneSet <- geneSets$Astrocyte_Cahoy
+geneSet <- geneSet[which(geneSet %in% cells_rankings$rn)]
+
+gSetRanks <- as.matrix(subset(cells_rankings, rn %in% geneSet)[,-"rn", with=FALSE])
+
+par(mfrow=c(1,2))
+set.seed(222)
+aucMaxRank <- nrow(cells_rankings)*0.05
+na <- sapply(sample(1:3005, 2), function(i){
+  x <- sort(gSetRanks[,i])
+  aucCurve <- cbind(c(0, x, nrow(cells_rankings)), c(0:length(x), length(x)))
+  op <- par(mar=c(5, 6, 4, 2) + 0.1)
+  plot(aucCurve, 
+       type="s", col="darkblue", lwd=1, 
+       xlab="Gene rank", ylab="# genes in the gene set \n Gene set: Astrocyte markers", 
+       xlim=c(0, aucMaxRank*2), ylim=c(0, length(geneSet)*.20), 
+       main="Recovery curve", 
+       sub=paste("Cell:", colnames(gSetRanks)[i]))
+  aucShade <- aucCurve[which(aucCurve[,1] < aucMaxRank),]
+  aucShade <- rbind(aucShade, c(aucMaxRank, nrow(aucShade)))
+  aucShade[,1] <-  aucShade[,1]-1
+  aucShade <- rbind(aucShade, c(max(aucShade),0))
+  polygon(aucShade, col="#0066aa40", border=FALSE)
+  
+  abline(v=aucMaxRank, lty=2)
+  text(aucMaxRank-50, 5, "AUC")
+})
+```
+
+The function `AUCell.calcAUC` calculates this score, and returns a matrix with an AUC score for each gene-set in each cell.
+```{r calcAUC, cache=TRUE, warning=FALSE}
+cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings)
+save(cells_AUC, file="cells_AUC.RData")
+```
+The threshold to calculate the AUC, is determined by *aucMaxRank*. By default, it is set to 5% of the number of genes in the ranking (i.e. checks whether the genes in the gene-set or signature are within the top 5%). However, for datasets where most cells (or "samples") express many genes, or these have high expression values, it might be good to increase this threshold. Check the histogram provided by `AUCell.buildRankings` to get an estimation on where this threshold lies within the dataset.
+
+## 3. Determine the cells with the given gene signatures or active gene sets
+
+> *In summary:* The AUC represents the proportion of expressed genes in the signature, and their relative expression value compared to the other genes within the cell. 
+We can use this propperty to explore the population of cells that are present in the dataset according to the expression of the gene-set. 
+
+The AUC estimates the proportion of genes in the gene-set that are highly expressed in each cell. However, choosing a "threshold" to determine whether the signature is active in a given cell is not always trivial. The AUC is not an absolute value, but it depends on the the cell type (i.e. sell size, amount of transcripts), the specific dataset (i.e. sensitivity of the measures) and the gene-set. It is often not straight forward to obtain a pruned *signature* of clear *marker* genes that are completely "on" in the cell type of interest and off" in every other cell. In addition, at single-cell level, most genes are not expressed or detected at a constant level.
+
+However, cells expressing many genes from the gene-set will have higher AUC values than cells expressing fewer (i.e. compensating for housekeeping genes, or genes that are highly expressed in all the cells in the dataset). Since the AUC represents the proportion of expressed genes in the signature, we can use the relative AUCs across the cells to explore the population of cells that are present in the dataset according to the expression of the gene-set. 
+
+The ideal situation will be a bi-modal distribution, in which most cells in the dataset have a low "AUC" compared to a population of cells with a clearly higher value (i.e. see "Oligodendrocites" in the next figure). This is normally the case on gene sets that are active mostly in a population of cells with a good representation in the dataset (e.g. ~ 5-30% of cells in the dataset). Similar cases of "marker" gene sets but with different proportions of cells in the datasets are the "neurons" and "microglia" (see figure). When there are very few cells within the dataset, the distribution might look normal-like, but with some outliers to the higher end (e.g. microglia). While if the gene set is marker of a high percentage of cells in the dataset (i.e. neurons), the distribution might start approaching the look of a gene-set of housekeeping genes. As example, the 'housekeeping' gene-set in the figure includes genes that are detected in most cells in the dataset.
+
+Note that the size of the gene-set will also affect the results. With smaller gene-genes (fewer genes), it is more likely to get cells with AUC = 0. 
+While this is the case of the "perfect markers" it is also easier to get it by chance with smal datasets. (i.e. Random gene set with 50 genes in the figure). Bigger gene-sets (100-2k) can be more stable and easier to evaluate, as big random gene sets will approach the normal distibution.
+
+To ease the exploration of the distributions, the function `AUCell.exploreThresholds()` automatically plots all the histograms and calculates several possible thresholds for each gene-set (returned in `$aucThr`). The distributions are plotted as dotted lines over the histogram and the corresponding thresholds as vertical bars in the matching color. The thicker vertical line indicates the threshold selected by default (`$aucThr$selected`): the highest value to reduce the false positives. 
+
+> Note: This function makes use of package "mixtools" to explore the distributions. It is not essential, but we recommend to install it: `source("http://bioconductor.org/biocLite.R"); biocLite("mixtools")`
+
+```{r exploreThresholds, warning=FALSE, fig.width=7, fig.height=7}
+par(mfrow=c(3,3)) 
+cells_assignment <- AUCell.exploreThresholds(cells_AUC, seed=123, plotHist=TRUE, assign=TRUE) 
+```
+
+The thresholds calcuated for each gene set are stored in the `$aucThr` slot. 
+For example, the thresholds suggested for the oligodendrocyte gene-set: 
+```{r explThr1}
+cells_assignment$Oligodendrocyte_Cahoy$aucThr$thresholds
+```
+
+To ease for the inclusion of AUCell in workflows (e.g. SCENIC), this function can also provide the list of cells with an AUC value over this threshold (`$assignment`). However, keep in mind that the threshold selection in the current version is not exhaustive, so we highly recommend to check the AUC histograms and manually select the threshold if needed. 
+
+To obtain the threshold selected automatically for a given gene set(e.g. Oligodendrocytes):
+```{r explThr2}
+cells_assignment$Oligodendrocyte_Cahoy$aucThr$selected
+```
+Cells assigned at this threshold:
+```{r cellsAssigned}
+oligodencrocytesAssigned <- cells_assignment$Oligodendrocyte_Cahoy$assignment
+length(oligodencrocytesAssigned)
+head(oligodencrocytesAssigned)
+```
+
+Plotting the AUC histogram of a specific gene set, and setting a new threshold:
+```{r AUC.plot}
+geneSetName <- colnames(cells_AUC)[grep("Oligodendrocyte_Cahoy", colnames(cells_AUC))]
+AUC.plot(cells_AUC[,geneSetName], gSetName=geneSetName)
+abline(v=0.08)
+```
+Assigning cells to this new threshold:
+```{r explThr3}
+newSelectedCells <- names(which(cells_AUC[,geneSetName]>0.08))
+length(newSelectedCells)
+head(newSelectedCells)
+```
+
+# Follow up: Examples of further analyses
+## Exploring the cell-assignment (table & heatmap)
+
+The cell assignment is stored in the `$assignment` slot. Here we show a few ideas on how they can be extracted and visualized.
+
+Extract these cells for all the gene-sets and transform it into a table:
+```{r explAssignment}
+cellsAssigned <- lapply(cells_assignment, function(x) x$assignment)
+assignmentTable <- melt(cellsAssigned, value.name="cell")
+head(assignmentTable)
+```
+
+Convert into an incidence matrix and plot as a histogram:
+```{r assignmentMat}
+assignmentMat <- table(assignmentTable[,"cell"], assignmentTable[,"L1"])
+assignmentMat[1:5,1:2]
+```
+
+```{r assignHeatmap}
+set.seed(123)
+miniAssigMat <- assignmentMat[sample(1:nrow(assignmentMat),100),]
+library(NMF)
+aheatmap(t(miniAssigMat), scale="none", color="black", legend=FALSE)
+```
+
+Some interactive options (output not shown):
+```{r assignHeatmap_interactive, eval=FALSE}
+library(d3heatmap)
+d3heatmap(t(miniAssigMat), scale="none", colors=c("white", "black"))
+
+library(DT)
+datatable(assignmentTable, options = list(pageLength = 10), filter="top")
+```
+
+## Explore cells/clusters based on the signature score
+
+The AUC score can also be used to explore the output from previous clustering analyses (or vice-versa).
+
+In this example, we will use the AUC obtained for the diferent signatures to color a t-SNE based previously run on the whole expression matrix (i.e. not the 5000 random genes).
+
+```{r loadtSNE, fig.width=4, fig.height=4}
+# Load the tSNE (included in the package)
+load(paste(file.path(system.file('examples', package='AUCell')), "cellsTsne.RData", sep="/"))
+plot(cellTsne$Y, pch=16)
+```
+
+This t-SNE was created with this code (it takes a while to run):
+```{r runTsne, eval=FALSE}
+load("exprMatrix_AUCellVignette_MouseBrain.RData")
+sumByGene <- apply(mouseBrainExprMatrix, 1, sum)
+exprMatSubset <- mouseBrainExprMatrix[which(sumByGene>0),]
+logMatrix <- log2(exprMatSubset+1)
+
+library(Rtsne)
+set.seed(123)
+cellTsne <- Rtsne(t(logMatrix)); rownames(cellTsne$Y) <- colnames(logMatrix)
+save(cellTsne, file="cellsTsne.RData")
+```
+
+This t-SNE can be colored based on the AUC scores. To highlight the cluster of cells that are more likely of the cell type according to the signatures, we will split the cells into the cells that pass the assignment threshold (colored in shades of pink-red), and the cells that don't (colored in black-blue). 
+
+Of course, the origin of the signatures should also be kept in mind for the interpretation (for example, these signatures were obtained from bulk RNA-seq analyses). Also, keep in mind that this tutorial (i.e. cell assignment) is run only on 5000 genes, which probably introduced some extra noise.
+
+For this example we have used the thresholds assigned automatically:
+```{r plotTsne, fig.width=7, fig.height=6}
+selectedThresholds <- sapply(cells_assignment, function(x) unname(x$aucThr$selected))
+
+par(mfrow=c(2,3)) # Splits the plot into two rows and three columns
+for(geneSetName in names(selectedThresholds))
+{
+  nBreaks <- 5 # Number of levels in the color palettes
+  # Color palette for the cells that do not pass the threshold
+  colorPal_Neg <- grDevices::colorRampPalette(c("black","blue", "skyblue"))(nBreaks)
+  # Color palette for the cells that pass the threshold
+  colorPal_Pos <- grDevices::colorRampPalette(c("pink", "magenta", "red"))(nBreaks)
+  
+  # Split cells according to their AUC value for the gene set
+  passThreshold <- cells_AUC[,geneSetName] >  selectedThresholds[geneSetName]
+  if(sum(passThreshold) >0 )
+  {
+     aucSplit <- split(cells_AUC[,geneSetName], passThreshold)
+    # Assign cell color
+    cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
+                  setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
+    
+    # Plot
+    plot(cellTsne$Y, main=geneSetName,
+         sub="Pink/red cells pass the threshold",
+         col=cellColor[rownames(cellTsne$Y)], pch=16) 
+  }
+}
+```
+
+This kind of plots can also be used to explore the assignment thresholds. i.e.:
+```{r tsneThreshold}
+newThreshold <- 0.07
+
+par(mfrow=c(1,2))
+geneSetName <- colnames(cells_AUC)[grep("Astrocyte_Cahoy", colnames(cells_AUC))]
+cells_assignment[[geneSetName]]$aucThr
+AUC.plot(cells_AUC[,geneSetName])
+abline(v=newThreshold)
+
+plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
+       col=c("#90909030","blue")[as.numeric(cells_AUC[rownames(cellTsne$Y),geneSetName]>newThreshold)+1],
+       pch=16)
+```
+
+```{r tSNE_interactive, echo=FALSE}
+# cellTsne <- data.frame(tsne1=cellTsne$Y[,1], tsne2=cellTsne$Y[,2])
+# library(plotly)
+# AUC_oligodendrocytes <- cells_AUC[, "Oligodendrocyte_Cahoy"]
+# plot_ly(cellTsne, x=tsne1, y=tsne2, mode="markers",
+#   text=paste("Cell: ", rownames(cellTsne), sep=""),
+#   color=AUC_oligodendrocytes)
+```
+
+
+
+
+# sessionInfo
+
+This is the output of `sessionInfo()` on the system on which this document was compiled:
+```{r}
+date()
+sessionInfo()
+```

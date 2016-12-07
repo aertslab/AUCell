@@ -1,28 +1,30 @@
-
-# AUCell(rankings, geneSets)
-# seed: add to return
-# plotHist: or filename?
-# AUCell.calcAUC <- function(geneSets, rankings, nCores=4, aucMaxRank=0.05*nrow(rankings), verbose=TRUE)
-# {
-#   calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores, aucMaxRank=aucMaxRank, verbose=verbose)
-# }
-
-
 # Help files will be automatically generated from the coments starting with #'
 # (https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
 #' @import data.table
 #'
-#' @title to do
-#' @description to do
-#' @param to do
-#' @return to do
-#' @examples  #to do
+#' @title AUCell.calcAUC
+#' @description Calculates the 'AUC' for each gene-set in each cell.
+#' @param geneSets List of gene-sets (or signatures) to test in the cells. The gene-sets should be provided as a 'named list' in which each element is a gene-set (i.e. \code{list(geneSet1=c("gene1", "gene2"))})
+#' @param rankings 'Rankings' created for this dataset with \code{\link{AUCell.buildRankings}}.
+#' @param nCores Number of cores to use for computation.
+#' @param aucMaxRank Threshold to calculate the AUC (see 'details' section).
+#' @param verbose Should the function show progress messages? (TRUE / FALSE)
+#' @return Matrix with the AUC values (cells as rows, gene-sets as columns).
+#' @details In a simplified way, the AUC value represents the fraction of genes, within the top X genes in the ranking, that are included in the signature.
+#' The parameter 'aucMaxRank' allows to modify the number of genes (maximum ranking) that is used to perform this computation.
+#' By default, it is set to 5\% of the total number of genes in the rankings. Common values may range from 1 to 20\%.
+#' @seealso Previous step in the workflow: \code{\link{AUCell.buildRankings}}. Next step in the workflow: \code{\link{AUCell.exploreThresholds}}.
+#'
+#' See the package vignette for examples and more details: \code{vignette("AUCell")}
+#' @example inst/examples/example_AUCell.calcAUC.R
 #' @export
-AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=0.03*nrow(rankings), verbose=TRUE) #, seed=123, plotHist=TRUE
+AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE) #, seed=123, plotHist=TRUE
 {
   if(!is.list(geneSets)) stop("geneSets should be a named list.")
   if(is.null(names(geneSets))) stop("geneSets should be a named list.")
   if(nCores > length(geneSets)) nCores <- length(geneSets) # No point in using more...
+  # if(aucMaxRank < 300) warning(paste("Using only the first ", aucMaxRank, " genes (aucMaxRank) to calculate the AUC."))
+  if(aucMaxRank < 300) warning(paste("Using only the first ", aucMaxRank, " genes (aucMaxRank) to calculate the AUC."), immediate.=TRUE)
 
   if(!is.data.table(rankings)) stop("Rankings should be a data.table (i.e. genes x [cells or motifs])")
   # if(!key(rankings) == "rn") stop("The rankings key should be 'rn'.")
@@ -88,15 +90,15 @@ AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=0.03*nrow(ra
   gSetRanks <- subset(rankings, rn %in% geneSet)[,-"rn", with=FALSE] # gene names are no longer needed
   rm(rankings)
 
-  aucThreshold <- round(aucMaxRank)            # 5%: same as .ini, but Stein said 3%
+  aucThreshold <- round(aucMaxRank)
   maxAUC <- aucThreshold * nrow(gSetRanks)     # database.gene_count  ->  IS THIS CORRECT?
+  # maxAUC <- sum(diff(c(1:min(nGenes,(aucThreshold-1)), aucThreshold)) * 1:(aucThreshold-1))
 
   # Apply by columns (i.e. to each ranking)
   auc <- sapply(gSetRanks, .calcAUC, aucThreshold, maxAUC)
 
   c(auc, missing=missing, nGenes=nGenes)
 }
-
 
 # oneRanking <- gSetRanks[,3, with=F]
 .calcAUC <- function(oneRanking, aucThreshold, maxAUC)

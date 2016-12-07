@@ -1,16 +1,25 @@
-# Version 2: Using data.table
-
-
-
 # Help files will be automatically generated from the coments starting with #'
 # (https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
+
 #' @import data.table
 #'
-#' @title to do
-#' @description to do
-#' @param to do
-#' @return to do
-#' @examples  # to do
+#' @title Build gene expression rankings for each cell
+#' @description Builds the "rankings" for each cell: expression-based ranking for all the genes in each cell.
+#'
+#' The genes with same expression value are shuffled. Therefore, genes with expression '0' are randomly sorted at the end of the ranking.
+#'
+#' These "rankings" can be seen as a new representation of the original dataset. Once they are calculated, they can be saved for future analyses.
+#' @param exprMat Expression matrix (genes as rows, cells as columns)
+#' @param plotStats Should the function plot the expression boxplots/histograms? (TRUE / FALSE). These plots can also be produced with the function \code{\link{plotGeneCount}}.
+#' @param nCores Number of cores to use for computation.
+#' @param verbose Should the function show progress messages? (TRUE / FALSE)
+#' @return data.table of genes (row) by cells (columns) with the ranking of the gene within the cell.
+#' @details
+#' It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (`aucMaxRank` in `calcAUC()`). The histogram provided by `AUCell.buildRankings()` allows to quickly check this distribution. `plotGeneCount(exprMatrix)` allows to obtain only the plot before building the rankings.
+#' @seealso Next step in the workflow: \code{\link{AUCell.calcAUC}}.
+#'
+#' See the package vignette for examples and more details: \code{vignette("AUCell")}
+#' @example inst/examples/example_AUCell.buildRankings.R
 #' @export
 AUCell.buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
 {

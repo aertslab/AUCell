@@ -2,20 +2,36 @@
 % Please edit documentation in R/aux_plotGeneCount.R
 \name{plotGeneCount}
 \alias{plotGeneCount}
-\title{to do}
+\title{plotGeneCount}
 \usage{
 plotGeneCount(exprMat, verbose = TRUE)
 }
 \arguments{
-\item{to}{do}
+\item{exprMat}{Expression matrix (genes as rows, cells as columns)}
+
+\item{verbose}{Should the function show progress messages? (TRUE / FALSE)}
 }
 \value{
-to do
+Quantiles with the number of genes detected by cell (invisible). This result is also printed if verbose=TRUE.
 }
 \description{
-to do
+Plots a histogram and boxplot for the number of genes detected in each cell.
+}
+\details{
+It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (`aucMaxRank` in `calcAUC()`). The histogram provided by `AUCell.buildRankings()` allows to quickly check this distribution. `plotGeneCount(exprMatrix)` allows to obtain only the plot before building the rankings.
 }
 \examples{
- # to do
+### (Fake expression matrix)
+exprMatrix <- matrix(sample(c(rep(0, 500), sample(1:3, 500, replace=TRUE))), nrow=20)
+rownames(exprMatrix) <- paste("Gene", 1:20, sep="")
+colnames(exprMatrix) <- paste("Sample", 1:50, sep="")
+###
+
+plotGeneCount(exprMatrix)
+title(sub="Fake expression matrix")
+
+}
+\seealso{
+See the package vignette for more details: \code{vignette("AUCell")}
 }
 

@@ -2,21 +2,59 @@
 % Please edit documentation in R/aux_AUC.plot.R
 \name{AUC.plot}
 \alias{AUC.plot}
-\title{to do}
+\title{Plot AUC histogram}
 \usage{
 AUC.plot(auc, gSetName = "AUC distribution for this geneset",
-  aucThr = max(auc), returnInfo = FALSE)
+  aucThr = max(auc), nBreaks = 100, returnInfo = FALSE, ...)
 }
 \arguments{
-\item{to}{do}
+\item{auc}{A column from the matrix returned by \code{\link{AUCell.calcAUC}}}
+
+\item{gSetName}{Title for the plot (recommended: Gene set name or description)}
+
+\item{aucThr}{AUC value planned to use as threshold (to make sure the X axis includes it), if any. Otherwise, the X axis extends to cover all the AUC values plotted.}
+
+\item{nBreaks}{Number of 'bars' to plot (breaks argument for hist function).}
+
+\item{returnInfo}{Whether to return the histogram object (TRUE/FALSE).}
+
+\item{...}{Other arguments to pass to \code{\link{hist}} function.}
 }
 \value{
-to do
+Histogram object (if requested with returnInfo=TRUE).
 }
 \description{
-to do
+Plots the distribution of AUC across the cells (for a given gene-set) as an histogram.
 }
 \examples{
-#to do
+# This example is run using a fake expression matrix.
+# Therefore, the output will be meaningless.
+
+############# Fake expression matrix #############
+set.seed(123)
+exprMatrix <- matrix(data=sample(c(rep(0, 5000), sample(1:3, 5000, replace=TRUE))),
+                     nrow=20)
+rownames(exprMatrix) <- paste("Gene", 1:20, sep="")
+colnames(exprMatrix) <- paste("Cell", 1:500, sep="")
+dim(exprMatrix)
+##################################################
+
+############# Begining of the workflow ###########
+# Step 1.
+cells_rankings <- AUCell.buildRankings(exprMatrix, plotStats=FALSE)
+
+# Step 2.
+# (Gene set: 10 random genes)
+genes <- sample(rownames(exprMatrix), 10)
+geneSets <- list(geneSet1=genes)
+# (aucMaxRank=5 to run with this fake example, it will return 'high' AUC values)
+cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
+##################################################
+
+# Plot histogram:
+AUC.plot(cells_AUC[,"geneSet1"], gSetName="A fake gene-set", nBreaks=10)
+}
+\seealso{
+See the package vignette for examples and more details: \code{vignette("AUCell")}
 }
 
