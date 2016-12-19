@@ -13,6 +13,10 @@ To install this BETA version, you can run the following commands from R:
 ```
 library(devtools)
 install_github("aertslab/AUCell")
+
+# You might need to install these packages first:
+install.packages("devtools", "data.table", "zoo")
+source("https://bioconductor.org/biocLite.R"); biocLite("BiocInstaller")
 ```
 
 A tutorial (vignette) is included in the package.
