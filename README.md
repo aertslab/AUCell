@@ -19,6 +19,6 @@ install.packages("devtools", "data.table", "zoo")
 source("https://bioconductor.org/biocLite.R"); biocLite("BiocInstaller")
 ```
 
-A [tutorial](http://scenic.aertslab.org/tutorials/AUCell_tutorial.html) (vignette) is included in the package.
-An HTML version of the tutorial is available at http://scenic.aertslab.org.
+A tutorial (vignette) is included in the package.
+An HTML version of the [tutorial](http://scenic.aertslab.org/tutorials/AUCell_tutorial.html) is available at http://scenic.aertslab.org.
 
