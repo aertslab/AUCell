@@ -23,13 +23,5 @@ cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 ##################################################
 
 # Plot histogram:
-<<<<<<< HEAD
 AUC.plot(cells_AUC@AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
 
-=======
-<<<<<<< HEAD
-AUC.plot(cells_AUC@AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
-=======
-AUC.plot(cells_AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
->>>>>>> ec897a72b2198d7067ce977793913d91a3890894
->>>>>>> cc2c254cdbf00a611952d596a84b22a4e062b749
