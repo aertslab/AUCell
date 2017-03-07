@@ -34,4 +34,3 @@ title(sub="Fake expression matrix")
 \seealso{
 See the package vignette for more details: \code{vignette("AUCell")}
 }
-

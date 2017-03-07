@@ -1,11 +1,11 @@
 
-# Aux function for AUCell.assignCells 
+# Aux function for AUCell.assignCells
 
 
 #### This version:  - AUC calculation, same as always,
 ####                - Threshold: Testing diferent thresholds (3 versions are calculated, and the maximum is chosen automatically)
 ####                TO DO: decide what to do with global distr (i.e. for HK...)
-# auc <- cells_AUC[,5] # grep("egulation of stress", colnames(AUCell.auc))
+# auc <- cells_AUC[,5] # grep("regulation of stress", colnames(AUCell.auc))
 .auc.assignmnetThreshold <- function(auc, seed=123, plotHist=TRUE, gSetName="", popPercent=.25, densAdjust=2, thrP=0.01, nBreaks=100)
 {
   nCells <- length(auc)
@@ -27,29 +27,29 @@
       globalMax <- maximumsDens[which.max(densCurve$y[maximumsDens])]
     minimumDens <- which(inflPoints==2)
       minimumDens <- minimumDens[which(minimumDens > globalMax)]
-      
+
   # Density-based threshold (V4): First minimum after the biggest maximum   (adjust=2)
   densTrh <- NULL
-  if(length(minimumDens)>0) # && (!skipMinimumDens)) 
+  if(length(minimumDens)>0) # && (!skipMinimumDens))
   {
     densTrh <- densCurve$x[min(minimumDens)]
     if(length(maximumsDens)>0) # Only keep if it is a real inflextion point (i.e. next max at least 5% of the global max)
     {
       nextMaxs <- maximumsDens[which(densCurve$x[maximumsDens] > densTrh)]
-      if((max(densCurve$y[nextMaxs])/max(densCurve$y))<.05) 
+      if((max(densCurve$y[nextMaxs])/max(densCurve$y))<.05)
       {
         densTrh <- NULL
         # print(gSetName)
       }
     }
   }
-  
+
   ## TO DO: Check special cases with many zeroes
   auc <- sort(auc)
   distrs <- list()
   distrs[["Global_k1"]] <- list(mu=c(mean(auc), NA), sigma=c(sd(auc), NA), x=auc)
 
-  
+
   if("mixtools" %in% rownames(installed.packages()))
   {
     set.seed(seed)
@@ -61,7 +61,7 @@
                                                       #   warning(warnMsg, immediate.=TRUE)
                                                       return(NULL)
                                                     }))
-    
+
     na <- capture.output(distrs[["k3"]] <- tryCatch(mixtools::normalmixEM(auc, fast=FALSE, k=3, verb=FALSE),
                                                     error = function(e) {
                                                       #     warnMsg <- paste("Gene set '", gSetName, "': Check AUC distribution plots. ", sep="")
@@ -70,18 +70,18 @@
                                                       #     warning(warnMsg, immediate.=TRUE)
                                                       return(NULL)
                                                     }))
-    
-    if(is.null(distrs[["k2"]]) && is.null(distrs[["k3"]])) 
+
+    if(is.null(distrs[["k2"]]) && is.null(distrs[["k3"]]))
     {
       if(sum(auc==0)<(nCells*notPopPercent*.5)) skipGlobal <- FALSE    # only if not too many zeroes??
       # qpois(1-(thrP/nCells), 1, log = FALSE)
       # plot(sort(rpois(auc, lambda=var(auc)), decreasing=TRUE))
-      
+
       qPop <- quantile(auc, 1-popPercent)
       if(sum(auc<qPop) >0) distrs[["k2"]] <- list(mu=c(mean(auc[auc<qPop]), NA), sigma=c(sd(auc[auc<qPop]), NA), lambda=c(1,NA), x=auc)
     }
     # if(!skipGlobal) print(gSetName) Warning?
-    
+
     if(!is.null(distrs[["k2"]]))
     {
       compL <- which.min(distrs[["k2"]][["mu"]])
@@ -97,7 +97,7 @@
       if(taller || (globalInclInFirst && includedInGlobal))
       {
         skipGlobal <- FALSE
-        
+
         warnMsg <- paste(gSetName, ": ", sep="") # paste("Gene set '", gSetName, "': Check AUC distribution plots.", sep="") # TO DO
         if(globalInclInFirst && includedInGlobal) warnMsg <- paste(warnMsg, "Check AUC histogram. The global distribution overlaps the partial distributions.", sep="\t")
         if(taller && !includedInGlobal) warnMsg <- paste(warnMsg, "The right distribution is taller!", sep="\t")
@@ -130,7 +130,7 @@
   aucThr <- aucThrs
   if(skipGlobal) aucThr <- aucThrs[-1] # TO DO: Decide when to merge with GLOBAL
   aucThr <- aucThr[which.max(aucThr)] # to keep name
-  if((length(aucThr)>0) && (names(aucThr) == "minimumDens")) 
+  if((length(aucThr)>0) && (names(aucThr) == "minimumDens"))
   {
     maximumsDens <- maximumsDens[which(densCurve$y[maximumsDens]>1)]
     if(length(maximumsDens) > 2)
@@ -140,9 +140,9 @@
       if(any(FCs > 1.5)) warning(paste(gSetName, ":\tCheck the AUC histogram. 'minimumDens' was selected as the best threshold, but there might be several distributions in the AUC.", sep=""))
     }
   }
-  
+
   if(length(aucThr)==0) aucThr <- max(aucThrs)*1.01
-    
+
   if(plotHist)
   {
     histInfo <- AUC.plot(auc, gSetName=gSetName, aucThr=aucThr, returnInfo=TRUE, nBreaks=nBreaks)
@@ -155,7 +155,7 @@
     thisLwd <- ifelse((aucThrs["minimumDens"]==aucThr) && (!is.null(aucThr) && !is.null(aucThrs["minimumDens"])), 3, 1)
     lines(densCurve, lty=1, lwd=thisLwd, col="blue")
     if(!is.null(minimumDens)) points(densCurve$x[minimumDens], densCurve$y[minimumDens], pch=16, col="darkblue")
-    
+
     ### Plot distributions
     scalFact <- 1
     if(!skipGlobal)
@@ -191,7 +191,7 @@
            distrs[["k2"]][["mu"]][k2_L]+distrs[["k2"]][["sigma"]][k2_L],
            histMax, col="#70000030", border="#00009000")
     }
-    
+
     if(!is.null(distrs[["k3"]]))
     {
       k3_L <- which.min(distrs[["k3"]][["mu"]]) # L: left distribution (sometimes the indexes are shifted)

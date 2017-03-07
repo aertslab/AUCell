@@ -19,7 +19,7 @@ AUCell.calcAUC(geneSets, rankings, nCores = 1, aucMaxRank = ceiling(0.05 *
 \item{verbose}{Should the function show progress messages? (TRUE / FALSE)}
 }
 \value{
-Matrix with the AUC values (cells as rows, gene-sets as columns).
+Matrix with the AUC values (gene-sets as rows, cells as columns).
 }
 \description{
 Calculates the 'AUC' for each gene-set in each cell.
@@ -64,11 +64,10 @@ geneSets
 cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 
 dim(cells_AUC)
-head(cells_AUC)
+cells_AUC[,1:5]
 }
 \seealso{
 Previous step in the workflow: \code{\link{AUCell.buildRankings}}. Next step in the workflow: \code{\link{AUCell.exploreThresholds}}.
 
 See the package vignette for examples and more details: \code{vignette("AUCell")}
 }
-

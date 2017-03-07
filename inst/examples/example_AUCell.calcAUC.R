@@ -32,4 +32,4 @@ geneSets
 cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 
 dim(cells_AUC)
-head(cells_AUC)
+cells_AUC[,1:5]

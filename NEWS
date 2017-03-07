@@ -1,1 +1,1 @@
-This version created: 29 aug 2016
+Version 0.6: AUC matrix is transposed. NOW: geneSets as rows, cells as columns.
