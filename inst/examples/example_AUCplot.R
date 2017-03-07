@@ -24,3 +24,4 @@ cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 
 # Plot histogram:
 AUC.plot(cells_AUC@AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
+

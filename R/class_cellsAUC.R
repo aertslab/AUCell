@@ -32,6 +32,7 @@ setMethod("show",
           }
 )
 
+#' @export
 setGeneric(name="auc", def=function(object) standardGeneric("auc"))
 setMethod("auc",
           signature="cellsAUC",
@@ -40,6 +41,7 @@ setMethod("auc",
           }
 )
 
+#' @export
 setGeneric(name="geneSetNames", def=function(object) standardGeneric("geneSetNames"))
 setMethod("geneSetNames",
           signature="cellsAUC",
@@ -48,6 +50,7 @@ setMethod("geneSetNames",
             }
 )
 
+#' @export
 setGeneric(name="cellNames", def=function(object) standardGeneric("cellNames"))
 setMethod("cellNames",
           signature="cellsAUC",

@@ -62,9 +62,11 @@ geneSets
 # To be able to run this fake example (which contain only 20 genes),
 # we use aucMaxRank=5 (top 25\% of the genes in the ranking)
 cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
+
 cells_AUC
 dim(cells_AUC@AUC)
 cells_AUC@AUC[,1:5]
+
 }
 \seealso{
 Previous step in the workflow: \code{\link{AUCell.buildRankings}}. Next step in the workflow: \code{\link{AUCell.exploreThresholds}}.
