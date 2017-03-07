@@ -87,15 +87,8 @@ vignette("AUCell") # open
 ```
 
 ### Report template
-<<<<<<< HEAD
 To generate an HTML report with your own data and comments, you can use the `.Rmd file` of this tutorial as template (i.e. copy the .Rmd file, and edit it as [R notebook](http://rmarkdown.rstudio.com/r_notebooks.html) in RStudio).
-=======
-<<<<<<< HEAD
-To generate an HTML report with your own data and comments, you can use the `.Rmd file` of this tutorial as template (i.e. copy the .Rmd file, and edit it as [R notebook](http://rmarkdown.rstudio.com/r_notebooks.html) in RStudio).
-=======
-To generate an HTML report with your own data and comments, you can use the `.Rmd file` of this tutorial as template for your own data (i.e. copy the .Rmd file, and edit it as [R notebook](http://rmarkdown.rstudio.com/r_notebooks.html) in RStudio).
->>>>>>> ec897a72b2198d7067ce977793913d91a3890894
->>>>>>> cc2c254cdbf00a611952d596a84b22a4e062b749
+
 
 ```{r editRmd, eval=FALSE}
 vignetteFile <- paste(file.path(system.file('doc', package='AUCell')), "AUCell.Rmd", sep="/")
@@ -331,31 +324,13 @@ head(oligodencrocytesAssigned)
 
 Plotting the AUC histogram of a specific gene set, and setting a new threshold:
 ```{r AUC.plot}
-<<<<<<< HEAD
 geneSetName <- geneSetNames(cells_AUC)[grep("Oligodendrocyte_Cahoy", geneSetNames(cells_AUC))]
 AUC.plot(cells_AUC@AUC[geneSetName,], gSetName=geneSetName)
-=======
-<<<<<<< HEAD
-geneSetName <- geneSetNames(cells_AUC)[grep("Oligodendrocyte_Cahoy", geneSetNames(cells_AUC))]
-AUC.plot(cells_AUC@AUC[geneSetName,], gSetName=geneSetName)
-=======
-geneSetName <- rownames(cells_AUC)[grep("Oligodendrocyte_Cahoy", rownames(cells_AUC))]
-AUC.plot(cells_AUC[geneSetName,], gSetName=geneSetName)
->>>>>>> ec897a72b2198d7067ce977793913d91a3890894
->>>>>>> cc2c254cdbf00a611952d596a84b22a4e062b749
 abline(v=0.08)
 ```
 Assigning cells to this new threshold:
 ```{r explThr3}
-<<<<<<< HEAD
 newSelectedCells <- names(which(cells_AUC@AUC[geneSetName,]>0.08))
-=======
-<<<<<<< HEAD
-newSelectedCells <- names(which(cells_AUC@AUC[geneSetName,]>0.08))
-=======
-newSelectedCells <- names(which(cells_AUC[geneSetName,]>0.08))
->>>>>>> ec897a72b2198d7067ce977793913d91a3890894
->>>>>>> cc2c254cdbf00a611952d596a84b22a4e062b749
 length(newSelectedCells)
 head(newSelectedCells)
 ```
@@ -438,24 +413,11 @@ for(geneSetName in names(selectedThresholds))
   colorPal_Pos <- grDevices::colorRampPalette(c("pink", "magenta", "red"))(nBreaks)
   
   # Split cells according to their AUC value for the gene set
-<<<<<<< HEAD
   passThreshold <- cells_AUC@AUC[geneSetName,] >  selectedThresholds[geneSetName]
   if(sum(passThreshold) >0 )
   {
      aucSplit <- split(cells_AUC@AUC[geneSetName,], passThreshold)
-=======
-<<<<<<< HEAD
-  passThreshold <- cells_AUC@AUC[geneSetName,] >  selectedThresholds[geneSetName]
-  if(sum(passThreshold) >0 )
-  {
-     aucSplit <- split(cells_AUC@AUC[geneSetName,], passThreshold)
-=======
-  passThreshold <- cells_AUC[geneSetName,] >  selectedThresholds[geneSetName]
-  if(sum(passThreshold) >0 )
-  {
-     aucSplit <- split(cells_AUC[geneSetName,], passThreshold)
->>>>>>> ec897a72b2198d7067ce977793913d91a3890894
->>>>>>> cc2c254cdbf00a611952d596a84b22a4e062b749
+
     # Assign cell color
     cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
                   setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
@@ -473,31 +435,14 @@ This kind of plots can also be used to explore the assignment thresholds. i.e.:
 newThreshold <- 0.07
 
 par(mfrow=c(1,2))
-<<<<<<< HEAD
 geneSetName <- geneSetNames(cells_AUC)[grep("Astrocyte_Cahoy", geneSetNames(cells_AUC))]
-=======
-<<<<<<< HEAD
-geneSetName <- geneSetNames(cells_AUC)[grep("Astrocyte_Cahoy", geneSetNames(cells_AUC))]
+
 cells_assignment[[geneSetName]]$aucThr
 AUC.plot(cells_AUC@AUC[geneSetName,])
 abline(v=newThreshold)
 
 plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
        col=c("#90909030","blue")[as.numeric(cells_AUC@AUC[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
-=======
-geneSetName <- rownames(cells_AUC)[grep("Astrocyte_Cahoy", rownames(cells_AUC))]
->>>>>>> cc2c254cdbf00a611952d596a84b22a4e062b749
-cells_assignment[[geneSetName]]$aucThr
-AUC.plot(cells_AUC[geneSetName,])
-abline(v=newThreshold)
-
-plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
-<<<<<<< HEAD
-       col=c("#90909030","blue")[as.numeric(cells_AUC@AUC[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
-=======
-       col=c("#90909030","blue")[as.numeric(cells_AUC[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
->>>>>>> ec897a72b2198d7067ce977793913d91a3890894
->>>>>>> cc2c254cdbf00a611952d596a84b22a4e062b749
        pch=16)
 ```
 
