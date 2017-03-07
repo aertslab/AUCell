@@ -3,7 +3,7 @@
 
 #' @title Plot AUC histogram
 #' @description Plots the distribution of AUC across the cells (for a given gene-set) as an histogram.
-#' @param auc A column from the matrix returned by \code{\link{AUCell.calcAUC}}
+#' @param auc A row from the AUC matrix returned by \code{\link{AUCell.calcAUC}}
 #' @param gSetName Title for the plot (recommended: Gene set name or description)
 #' @param aucThr AUC value planned to use as threshold (to make sure the X axis includes it), if any. Otherwise, the X axis extends to cover all the AUC values plotted.
 #' @param nBreaks Number of 'bars' to plot (breaks argument for hist function).

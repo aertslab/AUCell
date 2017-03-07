@@ -12,6 +12,8 @@ output:
     number_sections: false
   pdf_document:
     toc: yes
+  html_notebook:
+    toc: yes
 ---
 
 
@@ -85,7 +87,8 @@ vignette("AUCell") # open
 ```
 
 ### Report template
-To generate an HTML report with your own data and comments, you can use the [Markdown](http://rmarkdown.rstudio.com/authoring_quick_tour.html#markdown_basics) file of this tutorial as template: i.e. copy the file, edit it in RStudio, and click "Knit HTML" when it is ready.
+To generate an HTML report with your own data and comments, you can use the `.Rmd file` of this tutorial as template (i.e. copy the .Rmd file, and edit it as [R notebook](http://rmarkdown.rstudio.com/r_notebooks.html) in RStudio).
+
 ```{r editRmd, eval=FALSE}
 vignetteFile <- paste(file.path(system.file('doc', package='AUCell')), "AUCell.Rmd", sep="/")
 # Copy to edit as markdown
@@ -320,13 +323,13 @@ head(oligodencrocytesAssigned)
 
 Plotting the AUC histogram of a specific gene set, and setting a new threshold:
 ```{r AUC.plot}
-geneSetName <- colnames(cells_AUC)[grep("Oligodendrocyte_Cahoy", colnames(cells_AUC))]
-AUC.plot(cells_AUC[,geneSetName], gSetName=geneSetName)
+geneSetName <- geneSetNames(cells_AUC)[grep("Oligodendrocyte_Cahoy", geneSetNames(cells_AUC))]
+AUC.plot(cells_AUC@AUC[geneSetName,], gSetName=geneSetName)
 abline(v=0.08)
 ```
 Assigning cells to this new threshold:
 ```{r explThr3}
-newSelectedCells <- names(which(cells_AUC[,geneSetName]>0.08))
+newSelectedCells <- names(which(cells_AUC@AUC[geneSetName,]>0.08))
 length(newSelectedCells)
 head(newSelectedCells)
 ```
@@ -340,26 +343,27 @@ Extract these cells for all the gene-sets and transform it into a table:
 ```{r explAssignment}
 cellsAssigned <- lapply(cells_assignment, function(x) x$assignment)
 assignmentTable <- melt(cellsAssigned, value.name="cell")
+colnames(assignmentTable)[2] <- "geneSet"
 head(assignmentTable)
 ```
 
 Convert into an incidence matrix and plot as a histogram:
 ```{r assignmentMat}
-assignmentMat <- table(assignmentTable[,"cell"], assignmentTable[,"L1"])
-assignmentMat[1:5,1:2]
+assignmentMat <- table(assignmentTable[,"geneSet"], assignmentTable[,"cell"])
+assignmentMat[,1:2]
 ```
 
 ```{r assignHeatmap}
 set.seed(123)
-miniAssigMat <- assignmentMat[sample(1:nrow(assignmentMat),100),]
+miniAssigMat <- assignmentMat[,sample(1:ncol(assignmentMat),100)]
 library(NMF)
-aheatmap(t(miniAssigMat), scale="none", color="black", legend=FALSE)
+aheatmap(miniAssigMat, scale="none", color="black", legend=FALSE)
 ```
 
 Some interactive options (output not shown):
 ```{r assignHeatmap_interactive, eval=FALSE}
 library(d3heatmap)
-d3heatmap(t(miniAssigMat), scale="none", colors=c("white", "black"))
+d3heatmap(miniAssigMat, scale="none", colors=c("white", "black"))
 
 library(DT)
 datatable(assignmentTable, options = list(pageLength = 10), filter="top")
@@ -408,10 +412,10 @@ for(geneSetName in names(selectedThresholds))
   colorPal_Pos <- grDevices::colorRampPalette(c("pink", "magenta", "red"))(nBreaks)
   
   # Split cells according to their AUC value for the gene set
-  passThreshold <- cells_AUC[,geneSetName] >  selectedThresholds[geneSetName]
+  passThreshold <- cells_AUC@AUC[geneSetName,] >  selectedThresholds[geneSetName]
   if(sum(passThreshold) >0 )
   {
-     aucSplit <- split(cells_AUC[,geneSetName], passThreshold)
+     aucSplit <- split(cells_AUC@AUC[geneSetName,], passThreshold)
     # Assign cell color
     cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
                   setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
@@ -429,13 +433,13 @@ This kind of plots can also be used to explore the assignment thresholds. i.e.:
 newThreshold <- 0.07
 
 par(mfrow=c(1,2))
-geneSetName <- colnames(cells_AUC)[grep("Astrocyte_Cahoy", colnames(cells_AUC))]
+geneSetName <- geneSetNames(cells_AUC)[grep("Astrocyte_Cahoy", geneSetNames(cells_AUC))]
 cells_assignment[[geneSetName]]$aucThr
-AUC.plot(cells_AUC[,geneSetName])
+AUC.plot(cells_AUC@AUC[geneSetName,])
 abline(v=newThreshold)
 
 plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
-       col=c("#90909030","blue")[as.numeric(cells_AUC[rownames(cellTsne$Y),geneSetName]>newThreshold)+1],
+       col=c("#90909030","blue")[as.numeric(cells_AUC@AUC[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
        pch=16)
 ```
 

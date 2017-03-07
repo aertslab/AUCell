@@ -14,3 +14,4 @@ write.gmt(geneSets, fileName="bothGeneSets.gmt", gmtDir=".")
 
 # read.gmt
 read.gmt("bothGeneSets.gmt")
+

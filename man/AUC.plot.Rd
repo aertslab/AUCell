@@ -8,7 +8,7 @@ AUC.plot(auc, gSetName = "AUC distribution for this geneset",
   aucThr = max(auc), nBreaks = 100, returnInfo = FALSE, ...)
 }
 \arguments{
-\item{auc}{A column from the matrix returned by \code{\link{AUCell.calcAUC}}}
+\item{auc}{A row from the AUC matrix returned by \code{\link{AUCell.calcAUC}}}
 
 \item{gSetName}{Title for the plot (recommended: Gene set name or description)}
 
@@ -52,9 +52,8 @@ cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 ##################################################
 
 # Plot histogram:
-AUC.plot(cells_AUC[,"geneSet1"], gSetName="A fake gene-set", nBreaks=10)
+AUC.plot(cells_AUC@AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
 }
 \seealso{
 See the package vignette for examples and more details: \code{vignette("AUCell")}
 }
-
