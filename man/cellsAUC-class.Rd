@@ -8,3 +8,25 @@
 \description{
 Class with only one slot: @AUC, a matrix which contains the AUC for the gene-sets & cells.
 }
+\examples{
+fakeAUC <- cellsAUC(AUC=matrix(1/1:30, nrow=3)) # gene-sets by cells.
+fakeAUC
+
+nGeneSets(fakeAUC)
+nCells(fakeAUC)
+cellNames(fakeAUC)
+geneSetNames(fakeAUC)
+
+class(fakeAUC)
+class(fakeAUC@AUC)
+dim(fakeAUC@AUC)
+
+# To subset & access the AUC slot:
+fakeAUC[1:2,]
+fakeAUC[,3:4]
+auc(fakeAUC)[,1:5] # fakeAUC@AUC[,1:5]
+
+# To subset the AUC slot, but keeping the class:
+subset(fakeAUC, 1:2, "geneSets")
+subset(fakeAUC, 3:4, "cells")
+}

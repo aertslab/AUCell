@@ -28,6 +28,10 @@ library(plotly)
 library(GEOquery)
 library(doMC);library(doRNG) # Loaded by AUCell, to avoid messages
 })
+
+# To build a personalized report, update this working directory:
+dir.create("AUCell_tutorial")
+knitr::opts_knit$set(root.dir = 'AUCell_tutorial')
 ```
 
 # Overview of the workflow to run AUCell
@@ -105,9 +109,9 @@ The input data for AUCell are the expression matrix and the gene-sets.
 
 ### Working directory
 During this tutorial some plots and files are saved. To keep them tidy, we recommend to set the working directory to a new folder:
-```{r setwd}
+```{r setwd, eval=FALSE}
 dir.create("AUCell_tutorial")
-setwd("AUCell_tutorial")
+setwd("AUCell_tutorial") # or in the first code chunk (kntr options), if running as Notebook
 ```
 
 ### Expression matrix
@@ -224,7 +228,7 @@ For each cell, the genes are ranked from highest to lowest value. The genes with
 Since the rankings are created individually for each cell, in principle, it is possible to merge cell-rankings from different datasets. However, the datasets should be similar in regards to their "sensitivity" (e.g. the number of genes detected in the cells of each datasets), and the genes they include (e.g. same gene IDs).
 
 ```{r buildRankings, cache=TRUE, fig.width=6, fig.height=6}
-cells_rankings <- AUCell.buildRankings(exprMatrix, nCores=10, plotStats=TRUE)
+cells_rankings <- AUCell.buildRankings(exprMatrix, nCores=5, plotStats=TRUE)
 ```
 
 Note that the rankings are a `r CRANpkg("data.table")` object, and that the gene names are stored in a column rather than 'row.names' (therefore, it will contain one more column than the number of cells).
