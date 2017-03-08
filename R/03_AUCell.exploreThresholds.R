@@ -52,7 +52,7 @@
 # Runs .auc.assignmnetThreshold on each gene set (AUC)
 AUCell.exploreThresholds <- function(cellsAUC, seed=987, thrP=0.01, nCores=1, plotHist=TRUE, densAdjust=2, assignCells=FALSE, nBreaks=100, verbose=TRUE) # nDist=NULL,
 {
-  aucMatrix <- cellsAUC@AUC
+  aucMatrix <- getAuc(cellsAUC)
   suppressPackageStartupMessages(library(data.table)) # NEW
   if(nCores > 1 && plotHist) {
     nCores <- 1

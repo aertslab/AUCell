@@ -11,4 +11,4 @@ dim(exprMatrix)
 ##################################################
 
 cells_rankings <- AUCell.buildRankings(exprMatrix, plotStats=TRUE)
-dim(cells_rankings)
+cells_rankings

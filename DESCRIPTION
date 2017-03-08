@@ -1,14 +1,14 @@
 Package: AUCell
 Type: Package
 Title: AUCell
-Version: 0.6.0
-Date: 2016-12-18
+Version: 0.6.2
+Date: 2017-03-08
 Author: Sara Aibar, Stein Aerts. Laboratory of Computational Biology, KU Leuven Center for Human Genetics. Leuven, Belgium.
 Maintainer: Sara Aibar <sara.aibar@kuleuven.vib.be>
 Description: AUCell: Analysis of 'gene set' activity in single-cell RNA-seq data (e.g. identify cells with specific gene signatures)
 URL: http://scenic.aertslab.org
 Imports:
-    data.table, mixtools
+    data.table, mixtools, BiocGenerics
 Enhances: doMC, doRNG
 Suggests:
     GEOquery,

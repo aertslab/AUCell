@@ -29,9 +29,26 @@ geneSets
 # Calculate AUC with the rankings from Step 1.
 # To be able to run this fake example (which contain only 20 genes),
 # we use aucMaxRank=5 (top 25% of the genes in the ranking)
-cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
+cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5, nCores=4)
 
+# Format of the output:
 cells_AUC
-dim(cells_AUC@AUC)
-cells_AUC@AUC[,1:5]
+
+# To subset & access the AUC slot (as matrix):
+cells_AUC[1:2,]
+cells_AUC[,3:4]
+getAuc(cells_AUC)[,1:5]
+
+# To subset the AUC matrix, but keeping the wrapper class:
+subset(cells_AUC, 1:2) # Default subsets on rows
+subset(cells_AUC, 3:4, "cell")
+
+# These methods are also available:
+dim(cells_AUC)
+nrow(cells_AUC)
+ncol(cells_AUC)
+colnames(cells_AUC)
+rownames(cells_AUC)
+
+
 

@@ -26,7 +26,7 @@ AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=ceiling(0.05
   # if(aucMaxRank < 300) warning(paste("Using only the first ", aucMaxRank, " genes (aucMaxRank) to calculate the AUC."))
   if(aucMaxRank < 300) warning(paste("Using only the first ", aucMaxRank, " genes (aucMaxRank) to calculate the AUC."), immediate.=TRUE)
 
-  if(!is.data.table(rankings)) stop("Rankings should be a data.table (i.e. genes x [cells or motifs])")
+  if(class(rankings)!="matrixWrapper") stop("Rankings should be a the object returned by AUCell.buildRankings()")
   # if(!key(rankings) == "rn") stop("The rankings key should be 'rn'.")
 
   ######################################################################
@@ -77,19 +77,18 @@ AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=ceiling(0.05
 
   ######################################################################
   #### End: Return
-  cellsAUC(AUC=aucMatrix)
+  matrixWrapper(matrix=aucMatrix, rowType="gene-set", colType="cell", matrixType="AUC")
 }
 
 .AUC.geneSet <- function(geneSet, rankings, aucMaxRank, gSetName="")  # add?: AUCThreshold
 {
   geneSet <- unique(geneSet)
   nGenes <- length(geneSet)
-  geneSet <- geneSet[which(geneSet %in% rankings$rn)]
+  geneSet <- geneSet[which(geneSet %in% rownames(rankings))]
   missing <- nGenes-length(geneSet)
 
-  # stop(paste(c(sum(!geneSet %in% rankings$rn), class(geneSet)), collapse=", "))
-  # gSetRanks <- rankings[geneSet][,-"rn", with=FALSE] # gene names are no longer needed
-  gSetRanks <- subset(rankings, rn %in% geneSet)[,-"rn", with=FALSE] # gene names are no longer needed
+  # gSetRanks <- subset(rankings, rn %in% geneSet)[,-"rn", with=FALSE] # gene names are no longer needed
+  gSetRanks <- rankings[which(rownames(rankings) %in% geneSet),,drop=FALSE]
   rm(rankings)
 
   aucThreshold <- round(aucMaxRank)
@@ -97,7 +96,7 @@ AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=ceiling(0.05
   # maxAUC <- sum(diff(c(1:min(nGenes,(aucThreshold-1)), aucThreshold)) * 1:(aucThreshold-1))
 
   # Apply by columns (i.e. to each ranking)
-  auc <- sapply(gSetRanks, .calcAUC, aucThreshold, maxAUC)
+  auc <- apply(gSetRanks, 2, .calcAUC, aucThreshold, maxAUC)
 
   c(auc, missing=missing, nGenes=nGenes)
 }

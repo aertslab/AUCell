@@ -231,11 +231,8 @@ Since the rankings are created individually for each cell, in principle, it is p
 cells_rankings <- AUCell.buildRankings(exprMatrix, nCores=5, plotStats=TRUE)
 ```
 
-Note that the rankings are a `r CRANpkg("data.table")` object, and that the gene names are stored in a column rather than 'row.names' (therefore, it will contain one more column than the number of cells).
-```{r echo=FALSE}
-class(cells_rankings)
-dim(cells_rankings)
-cells_rankings[1:5,1:5, with=FALSE]
+```{r}
+cells_rankings
 ```
 
 The "rankings" can be seen as a new representation of the original dataset. Once they are calculated, they can be saved for future analyses. 
@@ -249,9 +246,9 @@ To determine whether the gene set is enriched at the top of the gene-ranking for
 
 ```{r explainAUC, echo=FALSE}
 geneSet <- geneSets$Astrocyte_Cahoy
-geneSet <- geneSet[which(geneSet %in% cells_rankings$rn)]
+geneSet <- geneSet[which(geneSet %in% rownames(cells_rankings))]
 
-gSetRanks <- as.matrix(subset(cells_rankings, rn %in% geneSet)[,-"rn", with=FALSE])
+gSetRanks <- cells_rankings[which(rownames(cells_rankings) %in% geneSet),]
 
 par(mfrow=c(1,2))
 set.seed(222)
@@ -328,13 +325,13 @@ head(oligodencrocytesAssigned)
 
 Plotting the AUC histogram of a specific gene set, and setting a new threshold:
 ```{r AUC.plot}
-geneSetName <- geneSetNames(cells_AUC)[grep("Oligodendrocyte_Cahoy", geneSetNames(cells_AUC))]
-AUC.plot(cells_AUC@AUC[geneSetName,], gSetName=geneSetName)
+geneSetName <- rownames(cells_AUC)[grep("Oligodendrocyte_Cahoy", rownames(cells_AUC))]
+AUC.plot(cells_AUC[geneSetName,], gSetName=geneSetName)
 abline(v=0.08)
 ```
 Assigning cells to this new threshold:
 ```{r explThr3}
-newSelectedCells <- names(which(cells_AUC@AUC[geneSetName,]>0.08))
+newSelectedCells <- names(which(cells_AUC[geneSetName,]>0.08))
 length(newSelectedCells)
 head(newSelectedCells)
 ```
@@ -417,10 +414,10 @@ for(geneSetName in names(selectedThresholds))
   colorPal_Pos <- grDevices::colorRampPalette(c("pink", "magenta", "red"))(nBreaks)
   
   # Split cells according to their AUC value for the gene set
-  passThreshold <- cells_AUC@AUC[geneSetName,] >  selectedThresholds[geneSetName]
+  passThreshold <- cells_AUC[geneSetName,] >  selectedThresholds[geneSetName]
   if(sum(passThreshold) >0 )
   {
-     aucSplit <- split(cells_AUC@AUC[geneSetName,], passThreshold)
+     aucSplit <- split(cells_AUC[geneSetName,], passThreshold)
 
     # Assign cell color
     cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
@@ -439,14 +436,14 @@ This kind of plots can also be used to explore the assignment thresholds. i.e.:
 newThreshold <- 0.07
 
 par(mfrow=c(1,2))
-geneSetName <- geneSetNames(cells_AUC)[grep("Astrocyte_Cahoy", geneSetNames(cells_AUC))]
+geneSetName <- rownames(cells_AUC)[grep("Astrocyte_Cahoy", rownames(cells_AUC))]
 
 cells_assignment[[geneSetName]]$aucThr
-AUC.plot(cells_AUC@AUC[geneSetName,])
+AUC.plot(cells_AUC[geneSetName,])
 abline(v=newThreshold)
 
 plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
-       col=c("#90909030","blue")[as.numeric(cells_AUC@AUC[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
+       col=c("#90909030","blue")[as.numeric(cells_AUC[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
        pch=16)
 ```
 
