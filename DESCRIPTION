@@ -1,7 +1,7 @@
 Package: AUCell
 Type: Package
 Title: AUCell
-Version: 0.6.2
+Version: 0.7.2
 Date: 2017-03-08
 Author: Sara Aibar, Stein Aerts. Laboratory of Computational Biology, KU Leuven Center for Human Genetics. Leuven, Belgium.
 Maintainer: Sara Aibar <sara.aibar@kuleuven.vib.be>
