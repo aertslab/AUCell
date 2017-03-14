@@ -1,5 +1,6 @@
 
 #' @title Wrapper to the matrix that stores the AUC or the cell rankings.
+#' @aliases getAuc getRanking
 #' @description
 #' This class is a wrapper for the AUC matrix and cell rankings.
 #'
@@ -27,6 +28,7 @@ matrixWrapper <- setClass(
   )
 )
 
+
 #' @export
 setMethod("show",
           signature="matrixWrapper",
@@ -37,15 +39,17 @@ setMethod("show",
             if(object@matrixType == "Ranking") message <- paste(message, "\nTop-left corner of the ranking:\n", sep="")
 
             cat(message)
-            show(head(object@matrix[,0:min(5, ncol(object@matrix)),drop=FALSE]))
+            show(head(object@matrix[,0:min(5, ncol(object@matrix)),drop=FALSE]))  # seq_len or seq_along?
           }
 )
+
 
 #' @export
 setMethod('[', signature(x="matrixWrapper"),
           definition=function(x, i, j, drop){
             x@matrix[i,j, drop=drop]
           })
+
 
 #' @export
 setMethod("subset",
@@ -63,6 +67,7 @@ setMethod("subset",
           }
 )
 
+
 #' @export
 setMethod("dim",
           signature="matrixWrapper",
@@ -70,6 +75,7 @@ setMethod("dim",
             dim(x@matrix)
           }
 )
+
 
 #' @export
 setMethod("rownames",
@@ -79,6 +85,7 @@ setMethod("rownames",
           }
 )
 
+
 #' @export
 setMethod("colnames",
           signature="matrixWrapper",
@@ -86,6 +93,7 @@ setMethod("colnames",
             colnames(x@matrix)
           }
 )
+
 
 #' @export
 setMethod("nrow",

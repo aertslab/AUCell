@@ -2,8 +2,10 @@
 % Please edit documentation in R/class_matrixWrapper.R
 \docType{class}
 \name{matrixWrapper-class}
-\alias{matrixWrapper-class}
+\alias{getAuc}
+\alias{getRanking}
 \alias{matrixWrapper}
+\alias{matrixWrapper-class}
 \title{Wrapper to the matrix that stores the AUC or the cell rankings.}
 \description{
 This class is a wrapper for the AUC matrix and cell rankings.
@@ -44,3 +46,4 @@ colnames(fakeAUC)
 rownames(fakeAUC)
 
 }
+

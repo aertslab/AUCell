@@ -228,7 +228,7 @@ For each cell, the genes are ranked from highest to lowest value. The genes with
 Since the rankings are created individually for each cell, in principle, it is possible to merge cell-rankings from different datasets. However, the datasets should be similar in regards to their "sensitivity" (e.g. the number of genes detected in the cells of each datasets), and the genes they include (e.g. same gene IDs).
 
 ```{r buildRankings, cache=TRUE, fig.width=6, fig.height=6}
-cells_rankings <- AUCell.buildRankings(exprMatrix, nCores=5, plotStats=TRUE)
+cells_rankings <- AUCell.buildRankings(exprMatrix, nCores=1, plotStats=TRUE)
 ```
 
 ```{r}

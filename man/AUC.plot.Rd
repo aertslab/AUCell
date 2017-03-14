@@ -52,9 +52,10 @@ cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 ##################################################
 
 # Plot histogram:
-AUC.plot(cells_AUC@AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
+AUC.plot(cells_AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
 
 }
 \seealso{
 See the package vignette for examples and more details: \code{vignette("AUCell")}
 }
+
