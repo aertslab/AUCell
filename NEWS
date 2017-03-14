@@ -2,4 +2,4 @@ Version 0.6.
 
 The AUC is returned as an object of class 'cellsAUC'.
 AUC matrix is stored in cellsAUC@AUC
-The AUC matrix contaings: geneSets as rows, cells as columns (transposed according to previous version)
+The AUC matrix contains: geneSets as rows, cells as columns (transposed from previous version)
