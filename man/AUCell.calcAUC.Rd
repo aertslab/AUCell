@@ -61,7 +61,7 @@ geneSets
 # Calculate AUC with the rankings from Step 1.
 # To be able to run this fake example (which contain only 20 genes),
 # we use aucMaxRank=5 (top 25\% of the genes in the ranking)
-cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5, nCores=4)
+cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=5, nCores=1)
 
 # Format of the output:
 cells_AUC
