@@ -58,4 +58,3 @@ AUC.plot(cells_AUC["geneSet1",], gSetName="A fake gene-set", nBreaks=10)
 \seealso{
 See the package vignette for examples and more details: \code{vignette("AUCell")}
 }
-

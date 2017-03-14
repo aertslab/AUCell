@@ -26,7 +26,7 @@ library(DT)
 library(NMF)
 library(plotly)
 library(GEOquery)
-library(doMC);library(doRNG) # Loaded by AUCell, to avoid messages
+# library(doMC);library(doRNG) # Loaded by AUCell, to avoid messages. Not available in windows?
 })
 
 # To build a personalized report, update this working directory:

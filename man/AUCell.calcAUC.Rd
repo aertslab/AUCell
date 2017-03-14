@@ -90,4 +90,3 @@ Previous step in the workflow: \code{\link{AUCell.buildRankings}}. Next step in 
 
 See the package vignette for examples and more details: \code{vignette("AUCell")}
 }
-

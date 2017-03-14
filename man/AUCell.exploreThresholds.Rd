@@ -112,4 +112,3 @@ Previous step in the workflow: \code{\link{AUCell.calcAUC}}.
 
 See the package vignette for examples and more details: \code{vignette("AUCell")}
 }
-

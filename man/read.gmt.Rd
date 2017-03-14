@@ -59,4 +59,3 @@ write.gmt(geneSets, fileName="bothGeneSets.gmt", gmtDir=".")
 read.gmt("bothGeneSets.gmt")
 
 }
-
