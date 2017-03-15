@@ -20,7 +20,7 @@ output:
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 suppressPackageStartupMessages({
 library(AUCell)
-library(Biobase)
+#library(Biobase)
 library(data.table)
 library(DT)
 library(NMF)
