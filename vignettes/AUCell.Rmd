@@ -2,7 +2,7 @@
 title: "AUCell: Identifying cells with active gene sets"
 package: "`r pkg_ver('AUCell')`"
 abstract: >
-  This tutorial shows how to use **AUCell** to identify cells with a active 'gene set' (i.e. gene signatures) in single-cell RNA-seq data. 
+  This tutorial shows how to use **AUCell** to identify cells with an active 'gene set' (i.e. gene signatures) in single-cell RNA-seq data. 
 vignette: >
   %\VignetteIndexEntry{AUCell: Identifying cells with active gene sets}
   %\VignetteEngine{knitr::rmarkdown}
@@ -53,7 +53,8 @@ geneSets <- list(geneSet1=genes)
 cells_AUC <- AUCell.calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05)
 
 par(mfrow=c(3,3))
-cells_assignment <- AUCell.exploreThresholds(cells_AUC, seed=123, plotHist=TRUE, nCores=1, assign=TRUE)
+set.seed(123)
+cells_assignment <- AUCell.exploreThresholds(cells_AUC, plotHist=TRUE, nCores=1, assign=TRUE)
 ```
 
 In the following sections we explain and explore the output of each of these steps. The details of the methods behind AUCell are described in the following article: *(TO DO: update citation)*
@@ -131,7 +132,7 @@ In this tutorial we use a dataset containing 3005 cells from mouse cortex and hi
 
 > Zeisel, A., et al. (2015). Cell types in the mouse cortex and hippocampus revealed by single-cell RNA-seq. Science 347, 1138–1142. doi: [10.1126/science.aaa1934](http://dx.doi.org/10.1126/science.aaa1934)
 
-```{r GEOdataset, cache=TRUE, results='hide', message=FALSE}
+```{r GEOdataset, cache=TRUE, results='hide', message=FALSE, eval=TRUE}
 # (This may take a few minutes)
 library(GEOquery)
 geoFile <- getGEOSuppFiles("GSE60361", makeDirectory=FALSE)
@@ -158,6 +159,7 @@ save(mouseBrainExprMatrix, file="exprMatrix_AUCellVignette_MouseBrain.RData")
 
 To speed-up the execution of the tutorial, we will use only 5000 random genes from this dataset.
 ```{r randomSamples}
+# load("exprMatrix_AUCellVignette_MouseBrain.RData")
 set.seed(333)
 exprMatrix <- mouseBrainExprMatrix[sample(rownames(mouseBrainExprMatrix), 5000),]
 ```
@@ -227,7 +229,7 @@ For each cell, the genes are ranked from highest to lowest value. The genes with
 
 Since the rankings are created individually for each cell, in principle, it is possible to merge cell-rankings from different datasets. However, the datasets should be similar in regards to their "sensitivity" (e.g. the number of genes detected in the cells of each datasets), and the genes they include (e.g. same gene IDs).
 
-```{r buildRankings, cache=TRUE, fig.width=6, fig.height=6}
+```{r buildRankings, cache=TRUE, fig.width=5, fig.height=5}
 cells_rankings <- AUCell.buildRankings(exprMatrix, nCores=1, plotStats=TRUE)
 ```
 
@@ -300,8 +302,11 @@ To ease the exploration of the distributions, the function `AUCell.exploreThresh
 > Note: This function makes use of package "mixtools" to explore the distributions. It is not essential, but we recommend to install it: `source("http://bioconductor.org/biocLite.R"); biocLite("mixtools")`
 
 ```{r exploreThresholds, warning=FALSE, fig.width=7, fig.height=7}
+set.seed(123)
 par(mfrow=c(3,3)) 
-cells_assignment <- AUCell.exploreThresholds(cells_AUC, seed=123, plotHist=TRUE, assign=TRUE) 
+cells_assignment <- AUCell.exploreThresholds(cells_AUC, plotHist=TRUE, assign=TRUE) 
+warningMsg <- sapply(cells_assignment, function(x) x$aucThr$comment)
+warningMsg[which(warningMsg!="")]
 ```
 
 The thresholds calcuated for each gene set are stored in the `$aucThr` slot. 
@@ -380,7 +385,7 @@ In this example, we will use the AUC obtained for the diferent signatures to col
 ```{r loadtSNE, fig.width=4, fig.height=4}
 # Load the tSNE (included in the package)
 load(paste(file.path(system.file('examples', package='AUCell')), "cellsTsne.RData", sep="/"))
-plot(cellTsne$Y, pch=16)
+plot(cellTsne$Y, pch=16, cex=.3)
 ```
 
 This t-SNE was created with this code (it takes a while to run):
@@ -456,8 +461,63 @@ plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
 #   color=AUC_oligodendrocytes)
 ```
 
+# Why to use AUCell? 
 
+- TO DO
 
+```{r, fig.height=5, fig.width=5}
+nGenesPerCell <- apply(exprMatrix, 2, function(x) sum(x>0))
+colorPal <- grDevices::colorRampPalette(c("darkgreen", "yellow","red"))
+cellColorNgenes <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(nGenesPerCell,breaks=10, right=F,include.lowest=T))], names(nGenesPerCell))
+plot(cellTsne$Y, axes=FALSE, xlab="", ylab="",
+       sub="Number of detected genes",
+       col=cellColorNgenes[rownames(cellTsne$Y)], pch=16)
+```
+
+## Comparison with mean 
+
+One of the most intuitive ways to evaluate the expression of a gene signature is to calculate the mean expression. However, calculating the average of the gene signature on the raw counts will lead to cells with more reads (either for technical or biological reasons) to have higher average values for most signatures. To reduce this effect, some kind of library-size normalization would be required. 
+Since AUCell evaluates the dectection of the signatures on each cell individually, it automatically compensates for library-size and makes its application easier and independent of the units of the data and other normalizations applied  (e.g. raw counts, TPM, UMI counts).
+
+```{r}
+logMat <- log2(exprMatrix+2)
+meanByGs <- t(sapply(geneSets, function(gs) apply(logMat[gs,], 2, mean)))
+```
+
+```{r meanTsne, fig.width=7, fig.height=8}
+colorPal <- grDevices::colorRampPalette(c("black", "red"))(nBreaks)
+par(mfrow=c(3,3))
+for(geneSetName in names(geneSets))
+{
+  cellColor <- setNames(colorPal[cut(meanByGs[geneSetName,], breaks=nBreaks)], names(meanByGs[geneSetName,]))
+  plot(cellTsne$Y, main=geneSetName, axes=FALSE, xlab="", ylab="",
+       sub="Expression mean",
+       col=cellColor[rownames(cellTsne$Y)], pch=16)
+}
+```
+
+## How reliable is AUCell? (Confusion matrix)
+
+When using AUCell to identify cell types, the reliability of the cells identified will depend on the signatures used, and the differences within the cell types in the dataset. In any case, AUCell is quite robust to noise, both in the data and in the gene-set. 
+
+This is the comparison of the cells identified with AUCell (this example) and the cell-types assigned in the initial publication:
+  
+```{r}
+# "Real" cell type (e.g. provided in the publication)
+cellLabels <- paste(file.path(system.file('examples', package='AUCell')), "mouseBrain_cellLabels.tsv", sep="/")
+cellLabels <- read.table(cellLabels, row.names=1, header=TRUE, sep="\t")
+```
+
+Confusion matrix (cells-signature assigned by AUCell *vs* author's cell-type label):
+
+*Note* on interpretation: Interneurons & pyramidal are "neurons". According to other publications that have used this dataset to evaluate new methods, a relevant group of cells marked as oligodendrocytes are likely doublets (i.e. two cells, for example a mix of an oligodendrocyte + another cell type).
+```{r}
+cellTypeNames <- unique(cellLabels[,"level1class"])
+confMatrix <- t(sapply(cells_assignment[c(1,4,2,5,3,6:9)], function(x) table(cellLabels[x$assignment,])[cellTypeNames]))
+colnames(confMatrix) <- cellTypeNames
+confMatrix[which(is.na(confMatrix), arr.ind=T)] <- 0
+confMatrix
+```
 
 # sessionInfo
 
