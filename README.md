@@ -20,5 +20,5 @@ source("https://bioconductor.org/biocLite.R"); biocLite("BiocInstaller")
 ```
 
 A tutorial (vignette) is included in the package.
-An HTML version of the [tutorial](http://scenic.aertslab.org/tutorials/AUCell_tutorial.html) is available at http://scenic.aertslab.org.
+An HTML version of the [tutorial](http://scenic.aertslab.org/tutorials/AUCell.html) is available at http://scenic.aertslab.org.
 
