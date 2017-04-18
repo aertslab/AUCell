@@ -5,7 +5,6 @@
 #' @title AUCell.exploreThresholds
 #' @description Plots all the AUC histograms (per gene-set) and calculates several likely thresholds for each gene-set
 #' @param cellsAUC AUC object returned by \code{\link{AUCell.calcAUC}}.
-#' @param seed Random seed, for reproducibility of random computations.
 #' @param thrP Probability to determine outliers in some of the distributions (see 'details' section).
 #'
 #' By default it is set to 1\% (thrP): if there are 3000 cells in the dataset, it is expected that approximately 30 cells are over this threshold if the AUC is normally distributed.
@@ -20,7 +19,6 @@
 #' \item 'aucThr' Thresholds calculated with each method (see 'details' section), and the number of cells that would be assigned using that threshold.
 #'
 #' If assignCells=TRUE, the threshold selected automatically is the highest value (in most cases, excluding the global distribution).
-#' \item 'seed' Seed provided as argument
 #' \item 'assignment' List of cells that pass the selected AUC threshold (if \code{assignCells=TRUE})
 #' }
 #' If \code{plotHist=TRUE} the AUC histogram is also plot,
@@ -49,8 +47,8 @@
 #' @export
 
 
-# Runs .auc.assignmnetThreshold on each gene set (AUC)
-AUCell.exploreThresholds <- function(cellsAUC, seed=987, thrP=0.01, nCores=1, plotHist=TRUE, densAdjust=2, assignCells=FALSE, nBreaks=100, verbose=TRUE) # nDist=NULL,
+# Runs .auc_assignmnetThreshold on each gene set (AUC)
+AUCell.exploreThresholds <- function(cellsAUC, thrP=0.01, nCores=1, smallestPopPercent=.25, plotHist=TRUE, densAdjust=2, assignCells=FALSE, nBreaks=100, verbose=TRUE) # nDist=NULL,
 {
   aucMatrix <- getAuc(cellsAUC)
   suppressPackageStartupMessages(library(data.table)) # NEW
@@ -64,11 +62,18 @@ AUCell.exploreThresholds <- function(cellsAUC, seed=987, thrP=0.01, nCores=1, pl
     assigment <- lapply(rownames(aucMatrix), function(gSetName)
     {
       auc <- aucMatrix[gSetName,]
-      aucThr <- .auc.assignmnetThreshold(auc, thrP=thrP, seed=seed, plotHist=plotHist, gSetName=gSetName, densAdjust=densAdjust, nBreaks=nBreaks)
+      aucThr <- .auc_assignmnetThreshold_v6(auc,
+                                         thrP=thrP,
+                                         smallestPopPercent=smallestPopPercent,
+                                         plotHist=plotHist,
+                                         gSetName=gSetName,
+                                         densAdjust=densAdjust,
+                                         nBreaks=nBreaks)
       assignedCells <- NULL
-      if(!is.null(aucThr)) assignedCells <- names(auc)[which(auc>aucThr$selected)]
+      if(!is.null(aucThr))
+        assignedCells <- names(auc)[which(auc>aucThr$selected)]
 
-      list(aucThr=aucThr, seed=seed, assignment=assignedCells)
+      list(aucThr=aucThr, assignment=assignedCells)
 
     })
     names(assigment) <- rownames(aucMatrix)
@@ -78,23 +83,31 @@ AUCell.exploreThresholds <- function(cellsAUC, seed=987, thrP=0.01, nCores=1, pl
     # Run each geneSet in parallel
     suppressMessages(require("doMC", quietly=TRUE)); require("doRNG", quietly=TRUE)
     registerDoMC(nCores)
-    if(verbose) message(paste("Using", getDoParWorkers(), "cores."))
+    if(verbose)
+      message("Using ", getDoParWorkers(), " cores.")
 
     assigment <- foreach(gSetName=rownames(aucMatrix)) %dorng%
     {
       auc <- aucMatrix[gSetName,]
-      aucThr <- .auc.assignmnetThreshold(auc, thrP=thrP, seed=seed, plotHist=plotHist, gSetName=gSetName, nBreaks=nBreaks)
+      aucThr <- .auc_assignmnetThreshold_v6(auc,
+                                         thrP=thrP,
+                                         smallestPopPercent=smallestPopPercent,
+                                         plotHist=plotHist,
+                                         gSetName=gSetName,
+                                         nBreaks=nBreaks)
       assignedCells <- NULL
-      if(!is.null(aucThr)) assignedCells <- names(auc)[which(auc>aucThr$selected)]
+      if(!is.null(aucThr))
+        assignedCells <- names(auc)[which(auc>aucThr$selected)]
 
-      tmp <- list(aucThr=aucThr, seed=seed, assignment=assignedCells)
+      tmp <- list(aucThr=aucThr, assignment=assignedCells)
       return(setNames(list(tmp), gSetName))
     }
     attr(assigment, "rng") <- NULL
     assigment <- unlist(assigment, recursive = FALSE)[rownames(aucMatrix)]
   }
   # If cell assignment is not requested, remove from the output (it was initially calculated to know the number of cells)
-  if(!assignCells) assigment <- lapply(assigment, function(x) x[which(!names(x) %in% "assignment")])
+  if(!assignCells)
+    assigment <- lapply(assigment, function(x) x[which(!names(x) %in% "assignment")])
 
   assigment
 }

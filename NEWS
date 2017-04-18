@@ -1,5 +1,10 @@
-Version 0.6.
+Version 0.6:
 
 The AUC is returned as an object of class 'cellsAUC'.
 AUC matrix is stored in cellsAUC@AUC
 The AUC matrix contains: geneSets as rows, cells as columns (transposed from previous version)
+
+
+0.99.3:
+Improved thresholds (v6)
+Removed 'seed' arguments
