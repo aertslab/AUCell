@@ -15,7 +15,7 @@ library(devtools)
 install_github("aertslab/AUCell")
 
 # You might need to install these packages first:
-install.packages("devtools", "data.table", "zoo")
+install.packages(c("devtools", "data.table", "zoo"))
 source("https://bioconductor.org/biocLite.R"); biocLite("BiocInstaller")
 ```
 
