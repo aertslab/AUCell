@@ -59,7 +59,7 @@ cells_assignment <- AUCell.exploreThresholds(cells_AUC, plotHist=TRUE, nCores=1,
 
 In the following sections we explain and explore the output of each of these steps. The details of the methods behind AUCell are described in the following article: *(TO DO: update citation)*
 ```{r citation, echo=FALSE}
-print(citation("AUCell"), style="textVersion")
+print(citation("AUCell")[1], style="textVersion")
 ```
 Please, also cite this article if you use AUCell in your research.
 
@@ -256,7 +256,7 @@ par(mfrow=c(1,2))
 set.seed(222)
 aucMaxRank <- nrow(cells_rankings)*0.05
 na <- sapply(sample(1:3005, 2), function(i){
-  x <- sort(gSetRanks[,i])
+  x <- sort(getRanking(gSetRanks[,i]))
   aucCurve <- cbind(c(0, x, nrow(cells_rankings)), c(0:length(x), length(x)))
   op <- par(mar=c(5, 6, 4, 2) + 0.1)
   plot(aucCurve, 
@@ -331,12 +331,12 @@ head(oligodencrocytesAssigned)
 Plotting the AUC histogram of a specific gene set, and setting a new threshold:
 ```{r AUC.plot}
 geneSetName <- rownames(cells_AUC)[grep("Oligodendrocyte_Cahoy", rownames(cells_AUC))]
-AUC.plot(cells_AUC[geneSetName,], gSetName=geneSetName)
+AUC.plot(cells_AUC[geneSetName,])
 abline(v=0.08)
 ```
 Assigning cells to this new threshold:
 ```{r explThr3}
-newSelectedCells <- names(which(cells_AUC[geneSetName,]>0.08))
+newSelectedCells <- names(which(getAuc(cells_AUC)[geneSetName,]>0.08))
 length(newSelectedCells)
 head(newSelectedCells)
 ```
@@ -419,10 +419,10 @@ for(geneSetName in names(selectedThresholds))
   colorPal_Pos <- grDevices::colorRampPalette(c("pink", "magenta", "red"))(nBreaks)
   
   # Split cells according to their AUC value for the gene set
-  passThreshold <- cells_AUC[geneSetName,] >  selectedThresholds[geneSetName]
+  passThreshold <- getAuc(cells_AUC)[geneSetName,] >  selectedThresholds[geneSetName]
   if(sum(passThreshold) >0 )
   {
-     aucSplit <- split(cells_AUC[geneSetName,], passThreshold)
+    aucSplit <- split(getAuc(cells_AUC)[geneSetName,], passThreshold)
 
     # Assign cell color
     cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
@@ -448,7 +448,7 @@ AUC.plot(cells_AUC[geneSetName,])
 abline(v=newThreshold)
 
 plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
-       col=c("#90909030","blue")[as.numeric(cells_AUC[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
+       col=c("#90909030","blue")[as.numeric(getAuc(cells_AUC)[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
        pch=16)
 ```
 

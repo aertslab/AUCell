@@ -29,7 +29,7 @@
 
   meanAUC <- mean(auc)
   sdAUC <- sd(auc)
-  maybeNormalDistr <- !suppressWarnings(ks.test(auc, rnorm(max(1000,length(auc)), mean=meanAUC, sd = sdAUC), alternative = "less")$p.value < .01)
+  maybeNormalDistr <- !suppressWarnings(ks.test(auc, rnorm(max(100,length(auc)), mean=meanAUC, sd = sdAUC), alternative = "less")$p.value < .01)
   if(maybeNormalDistr){
     commentMsg <- paste0(commentMsg, "The AUC might follow a normal distribution (random gene-set?). ")
     skipGlobal <- FALSE
@@ -50,7 +50,7 @@
     skipGlobal <- FALSE
     # skipRed <- TRUE ?
     aucThrs["tenPercentOfMax"] <- max(auc)*.10
-    aucThrs["outlierOfGlobal"] <- qnorm(1-(thrP/nCells), mean=meanAUC, sd=sdAUC)
+    # aucThrs["outlierOfGlobal"] <- qnorm(1-(thrP/nCells), mean=meanAUC, sd=sdAUC)
   }
 
 

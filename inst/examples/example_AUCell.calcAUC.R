@@ -12,7 +12,7 @@ dim(exprMatrix)
 
 ######### Previous step in the workflow ##########
 # Step 1.
-cells_rankings <- AUCell.buildRankings(exprMatrix, plotStats=FALSE)
+cells_rankings <- AUCell.buildRankings(exprMatrix, plotStats=T)
 ##################################################
 
 ############## Step 2: Calculate AUC #############

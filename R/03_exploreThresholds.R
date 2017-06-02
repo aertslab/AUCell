@@ -50,7 +50,13 @@
 # Runs .auc_assignmnetThreshold on each gene set (AUC)
 AUCell.exploreThresholds <- function(cellsAUC, thrP=0.01, nCores=1, smallestPopPercent=.25, plotHist=TRUE, densAdjust=2, assignCells=FALSE, nBreaks=100, verbose=TRUE) # nDist=NULL,
 {
-  aucMatrix <- getAuc(cellsAUC)
+  if(is.matrix(cellsAUC)) {
+    aucMatrix <- cellsAUC
+  }
+  if(class(cellsAUC)=="matrixWrapper"){
+    aucMatrix <- getAuc(cellsAUC)
+  }
+
   suppressPackageStartupMessages(library(data.table)) # NEW
   if(nCores > 1 && plotHist) {
     nCores <- 1

@@ -23,16 +23,22 @@
 #' @export
 AUCell.buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
 {
-  if(!is.data.table(exprMat)) exprMat <- data.table(exprMat, keep.rownames=TRUE)
+  if(!is.data.table(exprMat)) exprMat <- data.table(exprMat, keep.rownames=TRUE)  # TO DO: Replace by sparse matrix??? (e.g. dgTMatrix)
   setkey(exprMat, "rn") # (reorders rows)
 
+  nGenesDetected <- numeric(0)
   if(plotStats)
   {
     msg <- tryCatch(plotGeneCount(exprMat[,-"rn", with=FALSE], verbose=verbose),
                                                     error = function(e) {
                                                       return(e)
                                                     })
-    if("error" %in% class(msg)) warning(paste("There has been an error in plotGeneCount() [Message: ", msg$message, "]. Proceeding to calculate the rankings...", sep=""))
+    if("error" %in% class(msg)) {
+      warning(paste("There has been an error in plotGeneCount() [Message: ", msg$message, "]. Proceeding to calculate the rankings...", sep=""))
+    }else{
+      if(is.numeric(nGenesDetected)) nGenesDetected <- msg
+    }
+
   }
 
   colsNam <- colnames(exprMat)[-1] # 1=row names
@@ -63,6 +69,6 @@ AUCell.buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE
   exprMat <- as.matrix(exprMat[,-1])
   rownames(exprMat) <- rn
 
-  return(matrixWrapper(matrix=exprMat, rowType="gene", colType="cell", matrixType="Ranking"))
+  return(matrixWrapper(matrix=exprMat, rowType="gene", colType="cell", matrixType="Ranking", nGenesDetected=nGenesDetected))
 }
 

@@ -26,7 +26,11 @@ AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=ceiling(0.05
   # if(aucMaxRank < 300) warning(paste("Using only the first ", aucMaxRank, " genes (aucMaxRank) to calculate the AUC."))
   if(aucMaxRank < 300) warning(paste("Using only the first ", aucMaxRank, " genes (aucMaxRank) to calculate the AUC."), immediate.=TRUE)
 
-  if(class(rankings)!="matrixWrapper") stop("Rankings should be a the object returned by AUCell.buildRankings()")
+  if(class(rankings)!="matrixWrapper"){
+    stop("Rankings should be a the object returned by AUCell.buildRankings()")
+  } else{
+    rankings <- getRanking(rankings)
+  }
   # if(!key(rankings) == "rn") stop("The rankings key should be 'rn'.")
 
   ######################################################################

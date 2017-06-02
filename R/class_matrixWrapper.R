@@ -24,6 +24,7 @@ matrixWrapper <- setClass(
     matrix = "matrix",
     colType = "character", # cell
     rowType = "character", # gene/region (ranking) or gene-set/region-set (AUC)
+    nGenesDetected = "numeric", #
     matrixType= "character"   # AUC or Ranking
   )
 )
@@ -40,14 +41,25 @@ setMethod("show",
 
             cat(message)
             show(head(object@matrix[,0:min(5, ncol(object@matrix)),drop=FALSE]))  # seq_len or seq_along?
+
+            if(is.numeric(object@nGenesDetected) && (length(object@nGenesDetected)>0)) {
+              cat("\nQuantiles for the number of genes detected by cell:\n")
+              show(object@nGenesDetected)
+            }
           }
 )
 
 
 #' @export
+# setMethod('[', signature(x="matrixWrapper"),
+#           definition=function(x, i, j, drop){
+#             x@matrix[i,j, drop=drop]
+#           })
+
 setMethod('[', signature(x="matrixWrapper"),
-          definition=function(x, i, j, drop){
-            x@matrix[i,j, drop=drop]
+          definition=function(x, i, j, drop=FALSE){
+            x@matrix <- x@matrix[i,j, drop=drop]
+            x
           })
 
 

@@ -15,6 +15,15 @@
 #' @export
 AUC.plot <- function(auc, gSetName="AUC distribution for this geneset", aucThr=max(auc), nBreaks=100, returnInfo=FALSE, ...)
 {
+  if(class(auc)=="matrixWrapper") {
+    if(nrow(auc) > 1) stop("The AUC can only be plotted for ONE gene set at a time. Please provide only one row.")
+
+    auc <- getAuc(auc)
+
+    if(gSetName=="AUC distribution for this geneset"){
+      gSetName <- rownames(auc)
+    }
+  }
   ret <- hist(auc, breaks=nBreaks, col="#6666aa80", border="#5588bb", main=gSetName, xlab="AUC histogram", xlim=c(0,max(c(auc, aucThr))), ...)
   if(returnInfo) return(ret)
 }
