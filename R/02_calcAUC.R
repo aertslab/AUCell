@@ -56,8 +56,10 @@ AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=ceiling(0.05
 
   ######################################################################
   ##### Messages for missing genes
-  missinGenes <- aucMatrix[,c("missing", "nGenes") , drop=FALSE]
-  missingPercent <- missinGenes[,"missing", drop=FALSE]/missinGenes[,"nGenes", drop=FALSE]
+  missingGenes <- as.matrix(aucMatrix[,c("missing", "nGenes") , drop=FALSE])
+  missingPercent <- as.numeric(missingGenes[,"missing"])/as.numeric(missingGenes[,"nGenes"])
+  missingPercent <- setNames(missingPercent, rownames(missingGenes))
+
   if(all(missingPercent>=.80)) stop("Fewer than 20% of the genes in the gene sets are included in the rankings. Check wether the gene IDs in the 'rankings' and 'geneSets' match.")
 
   if(any(missingPercent>.80))
@@ -67,12 +69,12 @@ AUCell.calcAUC <- function(geneSets, rankings, nCores=1, aucMaxRank=ceiling(0.05
     aucMatrix <- aucMatrix[which(missingPercent < .80),,drop=FALSE]
   }
 
-  if(sum(missinGenes[,"missing"])>0)
+  if(sum(missingGenes[,"missing"])>0)
   {
     msg1 <- "Genes in the gene sets NOT available in the dataset: \n"
-    msg2 <-  sapply(rownames(missinGenes)[which(missinGenes[,"missing"]>0)], function(gSetName)
-        paste("\t", gSetName, ": \t", missinGenes[gSetName,"missing"],
-          " (",round(missingPercent[gSetName,]*100),"% of ", missinGenes[gSetName,"nGenes"],")",sep=""))
+    msg2 <-  sapply(rownames(missingGenes)[which(missingGenes[,"missing"]>0)], function(gSetName){
+        paste("\t", gSetName, ": \t", missingGenes[gSetName,"missing"],
+          " (",round(missingPercent[gSetName]*100),"% of ", missingGenes[gSetName,"nGenes"],")",sep="")})
     if(verbose) message(paste(msg1, paste(msg2, collapse="\n"), sep=""))
   }
   # (remove missing genes info from AUC matrix)
