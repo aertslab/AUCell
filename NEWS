@@ -1,12 +1,6 @@
 
-VERSION 0.6
+VERSION 0.99.6
 ----------------------
-    - The AUC is returned as an object of class 'cellsAUC'.
-    - AUC matrix is stored in cellsAUC@AUC
-    - The AUC matrix contains: geneSets as rows, cells as columns (transposed from previous version)
+- Interface changes to conform to Bioconductor requirements. (Function names and parameters, usage of "GeneSet" from GSEABase...)
 
 
-VERSION 0.99.3
-----------------------
-    - Improved thresholds (v6)
-    - Removed 'seed' arguments

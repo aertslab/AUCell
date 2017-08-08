@@ -10,5 +10,5 @@ colnames(exprMatrix) <- paste("Cell", 1:500, sep="")
 dim(exprMatrix)
 ##################################################
 
-cells_rankings <- AUCell.buildRankings(exprMatrix, plotStats=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE)
 cells_rankings

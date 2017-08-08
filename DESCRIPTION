@@ -2,22 +2,27 @@ Package: AUCell
 Type: Package
 Title: AUCell: Analysis of 'gene set' activity in single-cell RNA-seq data (e.g.
     identify cells with specific gene signatures)
-Version: 0.99.5
-Date: 2017-04-18
+Version: 0.99.6
+Date: 2017-08-08
 Author: Sara Aibar, Stein Aerts. Laboratory of Computational Biology. VIB-KU
     Leuven Center for Brain & Disease Research. Leuven, Belgium
 Maintainer: Sara Aibar <sara.aibar@kuleuven.vib.be>
-Description: AUCell allows to identify cells with active gene sets (e.g.
-    signatures, gene modules...) in single-cell RNA-seq data.
+Description: AUCell allows to identify cells with active gene sets (e.g. signatures, gene modules...) in single-cell RNA-seq data. AUCell uses the "Area Under the Curve" (AUC) to calculate whether a critical subset of the input gene set is enriched within the expressed genes for each cell. The distribution of AUC scores across all the cells allows exploring the relative expression of the signature. Since the scoring method is ranking-based, AUCell is independent of the gene expression units and the normalization procedure. In addition, since the cells are evaluated individually, it can easily be applied to bigger datasets, subsetting the expression matrix if needed. 
 URL: http://scenic.aertslab.org
 Imports:
+    R.utils,
     data.table,
     mixtools,
+    GSEABase,
+    SummarizedExperiment,
+    methods,
     BiocGenerics
-Enhances: doMC, doRNG
+Enhances: doMC, doRNG, doParallel, foreach
 Suggests:
     Biobase,
     GEOquery,
+    devtools,
+    zoo,
     DT,
     NMF,
     plotly,

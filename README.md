@@ -8,6 +8,8 @@ AUCell is an R-package to analyze the state of gene-sets in single-cell RNA-seq 
 
 
 *Note:* This is a version in development. The main version of the package will be submitted Bioconductor. 
+Current version of **SCENIC** requires [AUCell 0.99.5](http://scenic.aertslab.org/downloads/Rpackages/AUCell_0.99.5.tar.gz)
+
 
 To install this BETA version, you can run the following commands from R:
 ```
