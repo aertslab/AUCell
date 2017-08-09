@@ -11,19 +11,25 @@ AUCell_exploreThresholds(cellsAUC, thrP = 0.01, nCores = 1,
 \arguments{
 \item{cellsAUC}{AUC object returned by \code{\link{AUCell_calcAUC}}.}
 
-\item{thrP}{Probability to determine outliers in some of the distributions (see 'details' section).
+\item{thrP}{Probability to determine outliers in some of the distributions
+ (see 'details' section).
 
-By default it is set to 1\% (thrP): if there are 3000 cells in the dataset, it is expected that approximately 30 cells are over this threshold if the AUC is normally distributed.}
+By default it is set to 1\% (thrP):
+if there are 3000 cells in the dataset,
+it is expected that approximately 30 cells are over this threshold
+if the AUC is normally distributed.}
 
 \item{nCores}{Number of cores to use for computation.}
 
-\item{smallestPopPercent}{Size (percentage) of the smallest population of cells expected. Used to calculate some of the thresholds.}
+\item{smallestPopPercent}{Size (percentage) of the smallest population
+of cells expected. Used to calculate some of the thresholds.}
 
 \item{plotHist}{Whether to plot the AUC histograms. (TRUE / FALSE)}
 
-\item{densAdjust}{Parameter for the density curve. (See ?density for details).}
+\item{densAdjust}{Parameter for the density curve. (See \code{density} for details).}
 
-\item{assignCells}{Return the list of cells that pass the automatically selected threshold? (TRUE/FALSE)}
+\item{assignCells}{Return the list of cells that pass the
+automatically selected threshold? (TRUE/FALSE)}
 
 \item{nBreaks}{Number of bars to plot in the histograms.}
 
@@ -32,33 +38,57 @@ By default it is set to 1\% (thrP): if there are 3000 cells in the dataset, it i
 \value{
 List with the following elements for each gene-set:
 \itemize{
-\item 'aucThr' Thresholds calculated with each method (see 'details' section), and the number of cells that would be assigned using that threshold.
+\item 'aucThr' Thresholds calculated with each method (see 'details' section),
+and the number of cells that would be assigned using that threshold.
 
-If assignCells=TRUE, the threshold selected automatically is the highest value (in most cases, excluding the global distribution).
+If assignCells=TRUE, the threshold selected automatically is the highest
+value (in most cases, excluding the global distribution).
 \item 'assignment' List of cells that pass the selected AUC threshold (if \code{assignCells=TRUE})
 }
 If \code{plotHist=TRUE} the AUC histogram is also plot,
-including the distributions calculated and the corresponding thresholds in the same color (dashed vertical lines).
-The threshold that is automatically selected is shown as a thicker non-dashed vertical line.
+including the distributions calculated and the corresponding thresholds
+in the same color (dashed vertical lines).
+The threshold that is automatically selected is shown as a thicker
+ non-dashed vertical line.
 }
 \description{
-Plots all the AUC histograms (per gene-set) and calculates several likely thresholds for each gene-set
+Plots all the AUC histograms (per gene-set)
+and calculates several likely thresholds for each gene-set
 }
 \details{
-To ease the selection of an assignment theshold, this function adjusts the AUCs of each gene-set to several distributions and calculates possible thresholds:
+To ease the selection of an assignment theshold,
+this function adjusts the AUCs of each gene-set to several distributions
+ and calculates possible thresholds:
 \itemize{
-\item \code{minimumDens} (plot in Blue): Inflection point of the density curve. This is usually a good option for the ideal situation with bimodal distributions.
+\item \code{minimumDens} (plot in Blue):
+Inflection point of the density curve.
+This is usually a good option for the ideal situation
+with bimodal distributions.
 
-To avoid false positives, by default this threshold will not be chosen if the second distribution is higher (i.e. the majority of cells have the gene-set "active").
-\item \code{L_k2} (plot in Red): Left distribution, after adjusting the AUC to a mixture of two distributions. The threshold is set to the right (prob: \code{1-(thrP/nCells)}). Only available if 'mixtools' package is installed.
-\item \code{R_k3} (plot in Pink): Right distribution, after adjusting the AUC to a mixture of three distributions. The threshold is set to the left (prob: \code{thrP}). Only available if 'mixtools' package is installed.
-\item \code{Global_k1} (plot in Grey): "global" distribution (i.e. mean and standard deviations of all cells). The threshold is set to the right (prob: \code{1-(thrP/nCells)}).
+To avoid false positives, by default this threshold will not be chosen
+if the second distribution is higher
+(i.e. the majority of cells have the gene-set "active").
+\item \code{L_k2} (plot in Red): Left distribution,
+after adjusting the AUC to a mixture of two distributions.
+The threshold is set to the right (prob: \code{1-(thrP/nCells)}).
+Only available if 'mixtools' package is installed.
+\item \code{R_k3} (plot in Pink): Right distribution,
+after adjusting the AUC to a mixture of three distributions.
+The threshold is set to the left (prob: \code{thrP}).
+Only available if 'mixtools' package is installed.
+\item \code{Global_k1} (plot in Grey): "global" distribution
+(i.e. mean and standard deviations of all cells).
+The threshold is set to the right (prob: \code{1-(thrP/nCells)}).
 
-The threshold based on the global distribution is ignored from the automatic selection unless the mixed models are overlapping.
+The threshold based on the global distribution is ignored from the automatic
+selection unless the mixed models are overlapping.
 }
 Note: If \code{assignCells=TRUE}, the highest threshold is used to select cells.
-However, keep in mind that this function is only meant to ease the selection of the threshold, and we highly recommend to look at the AUC histograms and adjust the threshold manually if needed.
-We recommend to be specially aware on gene-sets with few genes (10-15) and thresholds that are set extremely low.
+However, keep in mind that this function is only meant to ease the selection
+of the threshold, and we highly recommend to look at the AUC histograms and
+adjust the threshold manually if needed.
+We recommend to be specially aware on gene-sets with few genes (10-15) and
+thresholds that are set extremely low.
 }
 \examples{
 # This example is run using a fake expression matrix.
@@ -110,5 +140,6 @@ sapply(cells_assignment, function(x) x$aucThr$selected)
 \seealso{
 Previous step in the workflow: \code{\link{AUCell_calcAUC}}.
 
-See the package vignette for examples and more details: \code{vignette("AUCell")}
+See the package vignette for examples and more details:
+\code{vignette("AUCell")}
 }
