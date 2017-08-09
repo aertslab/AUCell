@@ -150,8 +150,8 @@ while(attemptsLeft>0)
 }
 
 gzFile <- basename(rownames(geoFile))
-txtFile <- gsub(".gz", "", gzFile)
-gunzip(gzFile, destname=txtFile, remove=TRUE)
+txtFile <- gsub(".gz", "", gzFile, fixed=TRUE)
+gunzip(filename=gzFile, destname=txtFile, remove=TRUE)
 
 library(data.table)
 geoData <- fread(txtFile, sep="\t")
