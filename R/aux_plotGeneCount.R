@@ -1,18 +1,32 @@
 # Help files will be automatically generated from the coments starting with #'
 # (https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
 
+#' @importFrom graphics plot.new
+#' @importFrom graphics par
+#' @importFrom graphics boxplot
+#' @importFrom graphics mtext
+#' @importFrom stats quantile
+#'
 #' @import data.table
 #' @title plotGeneCount
-#' @description Plots a histogram and boxplot for the number of genes detected in each cell.
+#' @description Plots a histogram and boxplot for the number of genes
+#' detected in each cell.
 #' @param exprMat Expression matrix (genes as rows, cells as columns)
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
-#' @return Quantiles with the number of genes detected by cell (invisible). This result is also printed if verbose=TRUE.
+#' @return Quantiles with the number of genes detected by cell (invisible).
+#' his result is also printed if verbose=TRUE.
 #' @details
-#' It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (`aucMaxRank` in `calcAUC()`). The histogram provided by `AUCell_buildRankings()` allows to quickly check this distribution. `plotGeneCount(exprMatrix)` allows to obtain only the plot before building the rankings.
+#' It is important to check that most cells have at least the number of
+#' expressed/detected genes that are going to be used to calculate the AUC
+#' (`aucMaxRank` in `calcAUC()`). The histogram provided by
+#' `AUCell_buildRankings()` allows to quickly check this distribution.
+#' `plotGeneCount(exprMatrix)` allows to obtain only the plot before
+#' building the rankings.
 #' @seealso See the package vignette for more details: \code{vignette("AUCell")}
 #' @examples
 #' ### (Fake expression matrix)
-#' exprMatrix <- matrix(sample(c(rep(0, 500), sample(1:3, 500, replace=TRUE))), nrow=20)
+#' exprMatrix <- matrix(sample(c(rep(0, 500), sample(1:3, 500, replace=TRUE))),
+#'  nrow=20)
 #' rownames(exprMatrix) <- paste("Gene", 1:20, sep="")
 #' colnames(exprMatrix) <- paste("Sample", 1:50, sep="")
 #' ###

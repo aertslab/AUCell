@@ -7,9 +7,12 @@
 AUCell_plot(cellsAUC, aucThr = max(cellsAUC), nBreaks = 100, ...)
 }
 \arguments{
-\item{cellsAUC}{Subset of the object returned by \code{\link{AUCell_calcAUC}} (i.e. including only the gene-sets to plot)}
+\item{cellsAUC}{Subset of the object returned by \code{\link{AUCell_calcAUC}}
+(i.e. including only the gene-sets to plot)}
 
-\item{aucThr}{AUC value planned to use as threshold (to make sure the X axis includes it), if any. Otherwise, the X axis extends to cover only the AUC values plotted.}
+\item{aucThr}{AUC value planned to use as threshold
+(to make sure the X axis includes it), if any.
+Otherwise, the X axis extends to cover only the AUC values plotted.}
 
 \item{nBreaks}{Number of 'bars' to plot (breaks argument for hist function).}
 
@@ -19,7 +22,8 @@ AUCell_plot(cellsAUC, aucThr = max(cellsAUC), nBreaks = 100, ...)
 List of histogram objects (invisible).
 }
 \description{
-Plots the distribution of AUC across the cells (for each gene-set) as an histogram.
+Plots the distribution of AUC across the cells
+(for each gene-set) as an histogram.
 }
 \examples{
 # This example is run using a fake expression matrix.
@@ -51,5 +55,6 @@ AUCell_plot(cells_AUC["geneSet1",], nBreaks=10)
 
 }
 \seealso{
-See the package vignette for examples and more details: \code{vignette("AUCell")}
+See the package vignette for examples and more details:
+\code{vignette("AUCell")}
 }

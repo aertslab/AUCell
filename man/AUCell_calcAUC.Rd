@@ -26,9 +26,11 @@ AUCell_calcAUC(geneSets, rankings, nCores = 1, aucMaxRank = ceiling(0.05 *
 }
 \arguments{
 \item{geneSets}{List of gene-sets (or signatures) to test in the cells.
-The gene-sets should be provided as \code{\link{GSEABase::GeneSet}}, \code{\link{GSEABase::GeneSetCollection}} or character list (see examples).}
+The gene-sets should be provided as \code{\link[GSEABase]{GeneSet}},
+\code{\link[GSEABase]{GeneSetCollection}} or character list (see examples).}
 
-\item{rankings}{'Rankings' created for this dataset with \code{\link{AUCell_buildRankings}}.}
+\item{rankings}{'Rankings' created for this dataset with
+\code{\link{AUCell_buildRankings}}.}
 
 \item{nCores}{Number of cores to use for computation.}
 
@@ -43,9 +45,12 @@ Matrix with the AUC values (gene-sets as rows, cells as columns).
 Calculates the 'AUC' for each gene-set in each cell.
 }
 \details{
-In a simplified way, the AUC value represents the fraction of genes, within the top X genes in the ranking, that are included in the signature.
-The parameter 'aucMaxRank' allows to modify the number of genes (maximum ranking) that is used to perform this computation.
-By default, it is set to 5\% of the total number of genes in the rankings. Common values may range from 1 to 20\%.
+In a simplified way, the AUC value represents the fraction of genes,
+ within the top X genes in the ranking, that are included in the signature.
+The parameter 'aucMaxRank' allows to modify the number of genes
+(maximum ranking) that is used to perform this computation.
+By default, it is set to 5\% of the total number of genes in the rankings.
+Common values may range from 1 to 20\%.
 }
 \examples{
 # This example is run using a fake expression matrix.
@@ -126,7 +131,9 @@ geneSets
 test <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 }
 \seealso{
-Previous step in the workflow: \code{\link{AUCell_buildRankings}}. Next step in the workflow: \code{\link{AUCell_exploreThresholds}}.
+Previous step in the workflow: \code{\link{AUCell_buildRankings}}.
+Next step in the workflow: \code{\link{AUCell_exploreThresholds}}.
 
-See the package vignette for examples and more details: \code{vignette("AUCell")}
+See the package vignette for examples and more details:
+\code{vignette("AUCell")}
 }

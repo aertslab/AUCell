@@ -1,6 +1,18 @@
-
 # Aux function for AUCell.assignCells
-
+#' @importFrom stats sd
+#' @importFrom stats ks.test
+#' @importFrom stats rnorm
+#' @importFrom stats qnorm
+#' @importFrom stats dnorm
+#' @importFrom stats density
+#' @importFrom utils installed.packages
+#' @importFrom utils capture.output
+#' @importFrom graphics lines
+#' @importFrom graphics points
+#' @importFrom graphics hist
+#' @importFrom graphics rect
+#' @importFrom graphics abline
+#' @importFrom graphics text
 
 #### This version:
 ####    - AUC calculation, same as always,
@@ -70,11 +82,12 @@
   minimumDens <- which(inflPoints==2)
   smallMin <- NULL
   if(!skipSmallDens)
-    smallMin <- last(minimumDens[which(minimumDens < globalMax)]) # 1 previous to maximum
+    smallMin <- last(minimumDens[which(minimumDens < globalMax)]) #1prev to max
   minimumDens <- c(smallMin,
-                        minimumDens[which(minimumDens > globalMax)]) # all after maximum
+        minimumDens[which(minimumDens > globalMax)]) # all after maximum
 
-  # Density-based threshold (V4): First minimum after the biggest maximum   (adjust=2)
+  # Density-based threshold (V4):
+  # First minimum after the biggest maximum   (adjust=2)
   densTrh <- NULL
   if(length(minimumDens)>0) # && (!skipMinimumDens))
   {
@@ -208,11 +221,13 @@
     maximumsDens <- maximumsDens[which(densCurve$y[maximumsDens]>1)]
     if(length(maximumsDens) > 2)
     {
-      tmp <- cbind(minimumDens[seq_len(length(maximumsDens)-1)], maximumsDens[-1])
+      tmp <- cbind(minimumDens[seq_len(length(maximumsDens)-1)],
+                   maximumsDens[-1])
       FCs <- densCurve$y[tmp[,2]]/densCurve$y[tmp[,1]]
       if(any(FCs > 1.5))
         warning(gSetName,
-          ":\tCheck the AUC histogram. 'minimumDens' was selected as the best threshold,",
+          ":\tCheck the AUC histogram. ",
+          "'minimumDens' was selected as the best threshold, ",
           "but there might be several distributions in the AUC.")
     }
   }
@@ -261,8 +276,7 @@
                         mean=distrs[["k2"]][["mu"]][k2_L],
                         sd=distrs[["k2"]][["sigma"]][k2_L])
       scalFact <- (histMax/max(aucDistr))*.95
-      # meanHeight <- histInfo$counts[which(mixmdl[["mu"]][k2_L] < histInfo$breaks)[1]]
-      # scalFact <- (meanHeight/max(aucDistr))*.95
+
 
       thisLwd <- ifelse(aucThrs["k2"]==aucThr, 3, 1)
       lines(distrs[["k2"]][["x"]],
@@ -278,17 +292,14 @@
     # print(aucThrs)
     if((!is.null(distrs[["k3"]])) && ("R_k3" %in% names(aucThrs)))
     {
-      k3_L <- which.min(distrs[["k3"]][["mu"]]) # (sometimes the indexes are shifted)
+      k3_L <- which.min(distrs[["k3"]][["mu"]]) # (index position not constant)
 
       aucDistr2 <- dnorm(distrs[["k3"]][["x"]],
                          mean=distrs[["k3"]][["mu"]][k3_R],
                          sd=distrs[["k3"]][["sigma"]][k3_R])
       scalFact2 <- scalFact *
         (distrs[["k3"]][["lambda"]][k3_R]/distrs[["k3"]][["lambda"]][k3_L])
-      # scalFact2 <-  scalFact * (height2/height1)
 
-      # if(height1 < height2) scalFact2 <- floor(histMax/max(aucDistr2))
-      # scalFact2 <- scalFact * (mixmdl[["lambda"]][k3_R]/mixmdl[["lambda"]][k3_L])
       thisLwd <- ifelse(aucThrs["k3"]==aucThr, 3, 1)
       lines(distrs[["k3"]][["x"]],
             scalFact2*aucDistr2,
