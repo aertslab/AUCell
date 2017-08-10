@@ -82,7 +82,7 @@
   minimumDens <- which(inflPoints==2)
   smallMin <- NULL
   if(!skipSmallDens)
-    smallMin <- last(minimumDens[which(minimumDens < globalMax)]) #1prev to max
+    smallMin <- data.table::last(minimumDens[which(minimumDens < globalMax)]) #1prev to max
   minimumDens <- c(smallMin,
         minimumDens[which(minimumDens > globalMax)]) # all after maximum
 

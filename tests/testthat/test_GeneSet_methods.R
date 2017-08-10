@@ -5,6 +5,7 @@
 
 test_GeneSet_methods <- function()
 {
+  library(AUCell)
   ##################################################
   library(GSEABase)
 
@@ -26,3 +27,5 @@ test_GeneSet_methods <- function()
   geneSets_newNames <- setGeneSetNames(geneSets, c("one", "two"))
   testthat::expect_equal(names(geneSets_newNames), c("one", "two"))
 }
+
+test_that("GeneSet_methods tests", test_GeneSet_methods())

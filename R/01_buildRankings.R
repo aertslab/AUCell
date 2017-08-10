@@ -82,10 +82,10 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
 
 .AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
 {
-  if(!is.data.table(exprMat))
-    exprMat <- data.table(exprMat, keep.rownames=TRUE)
+  if(!data.table::is.data.table(exprMat))
+    exprMat <- data.table::data.table(exprMat, keep.rownames=TRUE)
     # TO DO: Replace by sparse matrix??? (e.g. dgTMatrix)
-  setkey(exprMat, "rn") # (reorders rows)
+  data.table::setkey(exprMat, "rn") # (reorders rows)
 
   nGenesDetected <- numeric(0)
   if(plotStats)
@@ -108,7 +108,7 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
   if(nCores==1)
   {
     # The rankings are saved in exprMat (i.e. By reference)
-    exprMat[, (colsNam):=lapply(-.SD, frank, ties.method="random"),
+    exprMat[, (colsNam):=lapply(-.SD, data.table::frank, ties.method="random"),
             .SDcols=colsNam]
 
   }else
@@ -132,12 +132,12 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
     {
       # Edits by reference: how to make it work in paralell...?
       subMat <- exprMat[,colsGr, with=FALSE]
-      subMat[, (colsGr):=lapply(-.SD, frank, ties.method="random"),
+      subMat[, (colsGr):=lapply(-.SD, data.table::frank, ties.method="random"),
              .SDcols=colsGr]
     }))
     # Keep initial order & recover rownames
-    exprMat <- data.table(rn=rowNams, exprMat[,colsNam, with=FALSE])
-    setkey(exprMat, "rn")
+    exprMat <- data.table::data.table(rn=rowNams, exprMat[,colsNam, with=FALSE])
+    data.table::setkey(exprMat, "rn")
   }
 
   rn <- exprMat$rn

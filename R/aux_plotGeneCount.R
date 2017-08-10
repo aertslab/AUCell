@@ -42,7 +42,7 @@
 
 plotGeneCount <- function(exprMat, verbose=TRUE)
 {
-  if((is.data.table(exprMat)) && (colnames(exprMat)[1] == "rn"))
+  if((data.table::is.data.table(exprMat)) && (colnames(exprMat)[1] == "rn"))
     stop('The data.table contains a column with rownames (to skip, i.e. dt[,-"rn", with=FALSE]')
   countByCell <- colSums(exprMat>0)
   sampleType <- "cell"

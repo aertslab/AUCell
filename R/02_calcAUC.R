@@ -194,13 +194,13 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   maxAUC <- aucThreshold * nrow(gSetRanks)  # database.gene_count  ->  CORRECT?
 
   # Apply by columns (i.e. to each ranking)
-  auc <- apply(gSetRanks, 2, .calcAUC, aucThreshold, maxAUC)
+  auc <- apply(gSetRanks, 2, .auc, aucThreshold, maxAUC)
 
   return(c(auc, missing=missing, nGenes=nGenes))
 }
 
 # oneRanking <- gSetRanks[,3, with=FALSE]
-.calcAUC <- function(oneRanking, aucThreshold, maxAUC)
+.auc <- function(oneRanking, aucThreshold, maxAUC)
 {
   x <- unlist(oneRanking)
 
