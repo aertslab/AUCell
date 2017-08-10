@@ -5,6 +5,7 @@
 
 test_AUCell_plot <- function()
 {
+  library(AUCell)
   ##################################################
   # Previous steps
   set.seed(123)
@@ -20,5 +21,6 @@ test_AUCell_plot <- function()
 
   testthat::expect_equal(length(AUCell_plot(cellsAUC)), 1)
   testthat::expect_equal(length(AUCell_plot(cellsAUC[1,])), 1)
-  testthat::expect_error(AUCell_plot(getAUC(cellsAUC)[1,]), 1)
 }
+
+test_that("AUCell_plot tests", test_AUCell_plot())

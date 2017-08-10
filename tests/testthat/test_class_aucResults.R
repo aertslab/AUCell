@@ -5,6 +5,7 @@
 
 test_aucellResults <- function()
 {
+  library(AUCell)
   ##################################################
   # Create objects
   set.seed(123)
@@ -32,3 +33,5 @@ test_aucellResults <- function()
   testthat::expect_equal(dim(getAUC(cellsAUC)), c(1,500))
   testthat::expect_error(getRanking(cellsAUC))
 }
+
+test_that("aucellResults tests", test_aucellResults())

@@ -5,6 +5,7 @@
 
 test_AUCell_plot <- function()
 {
+  library(AUCell)
   ##################################################
   # Previous steps
   set.seed(123)
@@ -19,3 +20,5 @@ test_AUCell_plot <- function()
   testthat::expect_equal(class(testOutput), "numeric")
   testthat::expect_equal(length(testOutput), 6)
 }
+
+test_that("AUCell_plot tests", test_AUCell_plot())
