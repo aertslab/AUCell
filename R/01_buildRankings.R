@@ -3,6 +3,7 @@
 
 #' @import data.table
 #' @import SummarizedExperiment
+#' @importFrom methods new
 #'
 #' @title Build gene expression rankings for each cell
 #' @description Builds the "rankings" for each cell:
@@ -15,6 +16,14 @@
 #' These "rankings" can be seen as a new representation of the original dataset.
 #' Once they are calculated, they can be saved for future analyses.
 #' @param exprMat Expression matrix (genes as rows, cells as columns)
+#' The expression matrix can also be provided as one of the Bioconductor classes:
+#' \itemize{
+#' \item \link[Biobase]{ExpressionSet}:
+#' The matrix will be obtained through exprs(exprMatrix)
+#' \item \link[SummarizedExperiment]{RangedSummarizedExperiment}:
+#' The matrix will be obtained through assay(exprMatrix),
+#' wich will extract the first assay (usually the counts)
+#' }
 #' @param plotStats Should the function plot the expression boxplots/histograms?
 #' (TRUE / FALSE). These plots can also be produced
 #' with the function \code{\link{plotGeneCount}}.
@@ -35,8 +44,43 @@
 #' See the package vignette for examples and more details:
 #' \code{vignette("AUCell")}
 #' @example inst/examples/example_AUCell_buildRankings.R
+#' @rdname AUCell_buildRankings
 #' @export
-AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+setGeneric("AUCell_buildRankings", signature="exprMat",
+           function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+           {
+             standardGeneric("AUCell_buildRankings")
+           })
+
+#' @rdname AUCell_buildRankings
+#' @aliases AUCell_buildRankings,matrix-method
+setMethod("AUCell_buildRankings", "matrix",
+          function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+          {
+            .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+          })
+
+#' @rdname AUCell_buildRankings
+#' @aliases AUCell_buildRankings,SummarizedExperiment-method
+setMethod("AUCell_buildRankings", "SummarizedExperiment",
+          function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+          {
+            if(length(SummarizedExperiment::assays(exprMat))>1)
+              warning("More than 1 assays are available. Only the first one will be used.")
+            exprMat <- SummarizedExperiment::assay(exprMat)
+            .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+          })
+
+#' @rdname AUCell_buildRankings
+#' @aliases AUCell_buildRankings,ExpressionSet-method
+setMethod("AUCell_buildRankings", "ExpressionSet",
+  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  {
+    exprMat <- Biobase::exprs(exprMat)
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+  })
+
+.AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
 {
   if(!is.data.table(exprMat))
     exprMat <- data.table(exprMat, keep.rownames=TRUE)

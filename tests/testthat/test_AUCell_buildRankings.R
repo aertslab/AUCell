@@ -18,6 +18,15 @@ test_AUCell_buildRankings <- function()
 
   .check_AUCell_buildRankings_output(cells_rankings)
 
+  ### Other input classes:
+  eset <- Biobase::ExpressionSet(assayData=exprMatrix)
+  rEset <- AUCell_buildRankings(eset, plotStats=FALSE)
+  testthat::expect_equal(class(rEset)[1], "aucellResults")
+
+  sexp <- SummarizedExperiment::SummarizedExperiment(assays=list(counts=exprMatrix))
+  rSexp <- AUCell_buildRankings(sexp, plotStats=FALSE)
+  testthat::expect_equal(class(rEset)[1], "aucellResults")
+
   ### Multicore
   set.seed(123)
   cells_rankings_multicore_1 <- AUCell_buildRankings(exprMatrix, plotStats=T, verbose=FALSE, nCores=4)
