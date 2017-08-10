@@ -1,4 +1,3 @@
-
 import(data.table, except=shift) # added manually
 
 export(AUCell_buildRankings)
@@ -14,6 +13,7 @@ export(setGeneSetNames)
 export(subsetGeneSets)
 import(GSEABase)
 import(SummarizedExperiment)
+
 importFrom(R.utils,capitalize)
 importFrom(graphics,abline)
 importFrom(graphics,boxplot)

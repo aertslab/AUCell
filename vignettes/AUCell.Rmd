@@ -16,7 +16,6 @@ output:
     toc: yes
 ---
 
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 suppressPackageStartupMessages({
 library(AUCell)
@@ -136,7 +135,7 @@ In this tutorial we use a dataset containing 3005 cells from mouse cortex and hi
 ```{r GEOdataset, cache=TRUE, results='hide', message=FALSE, eval=TRUE}
 # (This may take a few minutes)
 library(GEOquery)
-attemptsLeft <- 5
+attemptsLeft <- 10
 while(attemptsLeft>0)
 {
  geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE), error=identity) 
@@ -149,8 +148,10 @@ while(attemptsLeft>0)
    attemptsLeft <- 0
 }
 
-gzFile <- basename(rownames(geoFile))
+gzFile <- grep(".txt.gz", basename(rownames(geoFile)), fixed=TRUE, value=TRUE)
+message(gzFile)
 txtFile <- gsub(".gz", "", gzFile, fixed=TRUE)
+message(txtFile)
 gunzip(filename=gzFile, destname=txtFile, remove=TRUE)
 
 library(data.table)
@@ -162,7 +163,7 @@ dim(exprMatrix)
 rownames(exprMatrix) <- geneNames
 exprMatrix[1:5,1:4]
 
-# Remove file downloaded: 
+# Remove file
 file.remove(txtFile)
 
 # Save for future use
