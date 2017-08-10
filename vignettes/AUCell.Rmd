@@ -142,7 +142,7 @@ while(attemptsLeft>0)
  if("error" %in% class(geoFile)) 
  {
    attemptsLeft <- attemptsLeft-1
-   Sys.sleep(2)
+   Sys.sleep(5)
  }
  else
    attemptsLeft <- 0
