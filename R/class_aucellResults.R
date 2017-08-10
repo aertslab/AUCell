@@ -41,30 +41,30 @@ aucellResults <- setClass("aucellResults",
 #' @rdname aucellResults-class
 #' @aliases show,aucellResults-method
 setMethod("show",
-          signature="aucellResults",
-          definition = function(object) {
-            message <- paste(R.utils::capitalize(assayNames(object)), " for ",
-                   nrow(object)," ", names(dimnames(assay(object)))[1],
-                   " (rows) and ",
-                   ncol(object)," ", names(dimnames(assay(object)))[2],
-                   " (columns).\n", sep="")
+  signature="aucellResults",
+  definition = function(object) {
+    message <- paste(R.utils::capitalize(assayNames(object)), " for ",
+           nrow(object)," ", names(dimnames(assay(object)))[1],
+           " (rows) and ",
+           ncol(object)," ", names(dimnames(assay(object)))[2],
+           " (columns).\n", sep="")
 
-            if(assayNames(object) == "AUC")
-              message <- paste(message,
-                               "\nTop-left corner of the AUC matrix:\n", sep="")
-            if(assayNames(object) == "ranking")
-              message <- paste(message,
-                               "\nTop-left corner of the ranking:\n", sep="")
+    if(assayNames(object) == "AUC")
+      message <- paste(message,
+                       "\nTop-left corner of the AUC matrix:\n", sep="")
+    if(assayNames(object) == "ranking")
+      message <- paste(message,
+                       "\nTop-left corner of the ranking:\n", sep="")
 
-            cat(message)
-            show(head(assay(object)[,seq_len(min(5, ncol(object))),drop=FALSE]))
+    cat(message)
+    show(head(assay(object)[,seq_len(min(5, ncol(object))),drop=FALSE]))
 
-            if(is.numeric(object@nGenesDetected) &&
-               (length(object@nGenesDetected)>0)) {
-              cat("\nQuantiles for the number of genes detected by cell:\n")
-              show(object@nGenesDetected)
-            }
-          }
+    if(is.numeric(object@nGenesDetected) &&
+       (length(object@nGenesDetected)>0)) {
+      cat("\nQuantiles for the number of genes detected by cell:\n")
+      show(object@nGenesDetected)
+    }
+  }
 )
 ##### Access the matrix:
 #' @export
@@ -96,15 +96,14 @@ setMethod("getAUC",
 #' @export
 #' @rdname aucellResults-class
 #' @aliases getRanking,aucellResults-method
-setGeneric(name="getRanking",
-           def=function(object) standardGeneric("getRanking"))
+setGeneric(name="getRanking", def=function(object) standardGeneric("getRanking"))
 setMethod("getRanking",
-          signature="aucellResults",
-          definition = function(object) {
-            if("ranking" %in% assayNames(object)) {
-              assays(object)[["ranking"]]
-            }else{
-              stop("This object does not contain a ranking.")
-            }
-          }
+  signature="aucellResults",
+  definition = function(object) {
+    if("ranking" %in% assayNames(object)) {
+      assays(object)[["ranking"]]
+    }else{
+      stop("This object does not contain a ranking.")
+    }
+  }
 )

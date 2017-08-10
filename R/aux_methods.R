@@ -48,44 +48,44 @@ setMethod("nGenes", "GeneSetCollection",
 #' @rdname GeneSet-methods
 #' @export
 setGeneric("subsetGeneSets",
-           function(geneSets, geneNames)
-           {
-             standardGeneric("subsetGeneSets")
-           })
+  function(geneSets, geneNames)
+  {
+    standardGeneric("subsetGeneSets")
+  })
 
 #' @rdname GeneSet-methods
 #' @aliases subsetGeneSets,GeneSetCollection-method
 setMethod("subsetGeneSets", signature="GeneSetCollection",
-          function(geneSets, geneNames)
-          {
-            GSEABase::GeneSetCollection(lapply(geneSets, function(x) {
-              y <- x & geneNames
-              GSEABase::setName(y) <- GSEABase::setName(x)
-              y
-            }))
-          })
+  function(geneSets, geneNames)
+  {
+    GSEABase::GeneSetCollection(lapply(geneSets, function(x) {
+      y <- x & geneNames
+      GSEABase::setName(y) <- GSEABase::setName(x)
+      y
+    }))
+  })
 
 #' @rdname GeneSet-methods
 #' @export
 setGeneric("setGeneSetNames",
-           function(geneSets, newNames)
-           {
-             standardGeneric("setGeneSetNames")
-           })
+  function(geneSets, newNames)
+  {
+    standardGeneric("setGeneSetNames")
+  })
 
 
 #' @rdname GeneSet-methods
 #' @aliases setGeneSetNames,GeneSetCollection-method
 setMethod("setGeneSetNames", signature="GeneSetCollection",
-          function(geneSets, newNames)
-          {
-            if(length(geneSets) != length(newNames))
-              stop("The number of gene sets and new names do not match.")
+  function(geneSets, newNames)
+  {
+    if(length(geneSets) != length(newNames))
+      stop("The number of gene sets and new names do not match.")
 
-            geneSets <- unlist(geneSets)
-            for(i in seq_len(length(newNames)))
-            {
-              GSEABase::setName(geneSets[[i]]) <- newNames[i]
-            }
-            GSEABase::GeneSetCollection(geneSets)
-          })
+    geneSets <- unlist(geneSets)
+    for(i in seq_len(length(newNames)))
+    {
+      GSEABase::setName(geneSets[[i]]) <- newNames[i]
+    }
+    GSEABase::GeneSetCollection(geneSets)
+  })

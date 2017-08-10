@@ -34,58 +34,58 @@
 #'
 #' @export
 setGeneric("AUCell_calcAUC", signature="geneSets",
-           function(geneSets, rankings, nCores=1,
-                    aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
-           {
-             standardGeneric("AUCell_calcAUC")
-           })
+  function(geneSets, rankings, nCores=1,
+          aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
+  {
+   standardGeneric("AUCell_calcAUC")
+})
 
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,list-method
 setMethod("AUCell_calcAUC", "list",
-          function(geneSets, rankings, nCores=1,
-                   aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
-          {
-            .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
-                            aucMaxRank=aucMaxRank, verbose=verbose)
-          })
+  function(geneSets, rankings, nCores=1,
+           aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
+  {
+    .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
+                    aucMaxRank=aucMaxRank, verbose=verbose)
+  })
 
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,character-method
 setMethod("AUCell_calcAUC", "character",
-          function(geneSets, rankings, nCores=1,
-                   aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
-          {
-            geneSets <- list(geneSet=geneSets)
+  function(geneSets, rankings, nCores=1,
+           aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
+  {
+    geneSets <- list(geneSet=geneSets)
 
-            .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
-                            aucMaxRank=aucMaxRank, verbose=verbose)
-          })
+    .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
+                    aucMaxRank=aucMaxRank, verbose=verbose)
+  })
 
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,GeneSet-method
 setMethod("AUCell_calcAUC", "GeneSet",
-          function(geneSets, rankings, nCores=1,
-                   aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
-          {
-            geneSets <- setNames(list(GSEABase::geneIds(geneSets)),
-                                 GSEABase::setName(geneSets))
+  function(geneSets, rankings, nCores=1,
+           aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
+  {
+    geneSets <- setNames(list(GSEABase::geneIds(geneSets)),
+                         GSEABase::setName(geneSets))
 
-            .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
-                            aucMaxRank=aucMaxRank, verbose=verbose)
-          })
+    .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
+                    aucMaxRank=aucMaxRank, verbose=verbose)
+  })
 
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,GeneSetCollection-method
 setMethod("AUCell_calcAUC", "GeneSetCollection",
-          function(geneSets, rankings, nCores=1,
-                   aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
-          {
-            geneSets <- GSEABase::geneIds(geneSets)
+  function(geneSets, rankings, nCores=1,
+           aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
+  {
+    geneSets <- GSEABase::geneIds(geneSets)
 
-            .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
-                            aucMaxRank=aucMaxRank, verbose=verbose)
-          })
+    .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
+                    aucMaxRank=aucMaxRank, verbose=verbose)
+  })
 
 # Takes named character list as input
 .AUCell_calcAUC <- function(geneSets, rankings, nCores=1,

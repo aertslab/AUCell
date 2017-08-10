@@ -47,29 +47,29 @@
 #' @rdname AUCell_buildRankings
 #' @export
 setGeneric("AUCell_buildRankings", signature="exprMat",
-           function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
-           {
-             standardGeneric("AUCell_buildRankings")
-           })
+  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  {
+   standardGeneric("AUCell_buildRankings")
+  })
 
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,matrix-method
 setMethod("AUCell_buildRankings", "matrix",
-          function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
-          {
-            .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
-          })
+  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  {
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+  })
 
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,SummarizedExperiment-method
 setMethod("AUCell_buildRankings", "SummarizedExperiment",
-          function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
-          {
-            if(length(SummarizedExperiment::assays(exprMat))>1)
-              warning("More than 1 assays are available. Only the first one will be used.")
-            exprMat <- SummarizedExperiment::assay(exprMat)
-            .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
-          })
+function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  {
+    if(length(SummarizedExperiment::assays(exprMat))>1)
+      warning("More than 1 assays are available. Only the first one will be used.")
+    exprMat <- SummarizedExperiment::assay(exprMat)
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+  })
 
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,ExpressionSet-method
