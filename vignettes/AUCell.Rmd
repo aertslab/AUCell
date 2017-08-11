@@ -135,7 +135,7 @@ In this tutorial we use a dataset containing 3005 cells from mouse cortex and hi
 ```{r GEOdataset, cache=TRUE, results='hide', message=FALSE, eval=TRUE}
 # (This may take a few minutes)
 library(GEOquery)
-attemptsLeft <- 10
+attemptsLeft <- 20
 while(attemptsLeft>0)
 {
  geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE), error=identity) 

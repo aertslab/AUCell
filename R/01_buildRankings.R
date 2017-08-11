@@ -67,6 +67,7 @@ function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
   {
     if(length(SummarizedExperiment::assays(exprMat))>1)
       warning("More than 1 assays are available. Only the first one will be used.")
+
     exprMat <- SummarizedExperiment::assay(exprMat)
     .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
   })
