@@ -11,6 +11,7 @@ export(nGenes)
 export(plotGeneCount)
 export(setGeneSetNames)
 export(subsetGeneSets)
+export(updateAucellResults)
 import(GSEABase)
 import(SummarizedExperiment)
 
