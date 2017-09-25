@@ -58,7 +58,8 @@ Common values may range from 1 to 20\%.
 
 ############# Fake expression matrix #############
 set.seed(123)
-exprMatrix <- matrix(data=sample(c(rep(0, 5000), sample(1:3, 5000, replace=TRUE))),
+exprMatrix <- matrix(data=sample(c(rep(0, 5000),
+                                   sample(1:3, 5000, replace=TRUE))),
                      nrow=20)
 rownames(exprMatrix) <- paste("Gene", 1:20, sep="")
 colnames(exprMatrix) <- paste("Cell", 1:500, sep="")

@@ -84,6 +84,7 @@ AUCell_exploreThresholds <- function(cellsAUC, thrP=0.01, nCores=1,
      smallestPopPercent=.25, plotHist=TRUE, densAdjust=2, assignCells=FALSE,
      nBreaks=100, verbose=TRUE) # nDist=NULL,
 {
+  aucMatrix <- NULL
   if(class(cellsAUC)[1]=="aucellResults"){
     aucMatrix <- getAUC(cellsAUC)
   }

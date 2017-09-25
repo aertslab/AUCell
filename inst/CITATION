@@ -19,7 +19,9 @@ citEntry(entry="Unpublished",
   note ="Biorxiv preprint",
   year ="2017",
   doi = "10.1101/144501",
-  textVersion = "Aibar et al. (2017) SCENIC: Single-Cell Regulatory Network Inference And Clustering. bioRxiv Preprint https://doi.org/10.1101/144501")
+  textVersion = "Aibar et al. (2017)
+  SCENIC: Single-Cell Regulatory Network Inference And Clustering.
+  bioRxiv Preprint https://doi.org/10.1101/144501")
 
 
 citEntry(entry="Misc",
@@ -33,7 +35,9 @@ citEntry(entry="Misc",
   pages = "",
   year ="2016",
   doi = "",
-  textVersion = "Aibar. et al. (2016) AUCell: Analysis of 'gene set' activity in single-cell RNA-seq data. R/Bioconductor package.")
+  textVersion = "Aibar. et al. (2016)
+  AUCell: Analysis of 'gene set' activity in single-cell RNA-seq data.
+  R/Bioconductor package.")
 
 
 

@@ -3,6 +3,8 @@ title: "AUCell: Identifying cells with active gene sets"
 package: "`r pkg_ver('AUCell')`"
 abstract: >
   This tutorial shows how to use **AUCell** to identify cells with an active 'gene set' (i.e. gene signatures) in single-cell RNA-seq data. 
+  
+  AUCell uses the "Area Under the Curve" (AUC) to calculate whether a critical subset of the input gene set is enriched within the expressed genes for each cell. The distribution of AUC scores across all the cells allows exploring the relative expression of the signature. Since the scoring method is ranking-based, AUCell is independent of the gene expression units and the normalization procedure. In addition, since the cells are evaluated individually, it can easily be applied to bigger datasets, subsetting the expression matrix if needed. 
 vignette: >
   %\VignetteIndexEntry{AUCell: Identifying cells with active gene sets}
   %\VignetteEngine{knitr::rmarkdown}
@@ -50,6 +52,7 @@ cells_rankings <- AUCell_buildRankings(exprMatrix)
 
 genes <- c("gene1", "gene2", "gene3")
 geneSets <- list(geneSet1=genes)
+# geneSets <- GSEABase::GeneSet(genes, setName="geneSet1") # alternative
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05)
 
 par(mfrow=c(3,3))
@@ -57,7 +60,7 @@ set.seed(123)
 cells_assignment <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE, nCores=1, assign=TRUE)
 ```
 
-In the following sections we explain and explore the output of each of these steps. The details of the methods behind AUCell are described in the following article: *(TO DO: update citation)*
+In the following sections we explain and explore the output of each of these steps. The details of the methods behind AUCell are described in the following article:t
 ```{r citation, echo=FALSE}
 print(citation("AUCell")[1], style="textVersion")
 ```
@@ -197,15 +200,15 @@ In this example we will use gene-sets representing diferent cell types in the br
 
 1. Big gene signatures (> 1000 genes) for **astrocytes**, **oligodendrocytes** and **neurons**.
 
-> Cahoy, J.D., et al. (2008). A Transcriptome Database for Astrocytes, Neurons, and Oligodendrocytes: A New Resource for Understanding Brain Development and Function. J. Neurosci. 28, 264–278. doi: [10.1523/JNEUROSCI.4178-07.2008](http://dx.doi.org/10.1523/JNEUROSCI.4178-07.2008)
+    > Cahoy, J.D., et al. (2008). A Transcriptome Database for Astrocytes, Neurons, and Oligodendrocytes: A New Resource for Understanding Brain Development and Function. J. Neurosci. 28, 264–278. doi: [10.1523/JNEUROSCI.4178-07.2008](http://dx.doi.org/10.1523/JNEUROSCI.4178-07.2008)
 
 2. Big gene signature (> 500 genes) for **microglia**. Obtained by comparing bulk RNA-seq profiles of microglia (brain-resident macrophages) to macrophages from other tissues. 
 
-> Lein, E.S., et al. (2007). Genome-wide atlas of gene expression in the adult mouse brain*. Nature 445, 168–176.  doi: [10.1038/nature05453](http://dx.doi.org/10.1038/nature05453)
+    > Lein, E.S., et al. (2007). Genome-wide atlas of gene expression in the adult mouse brain*. Nature 445, 168–176.  doi: [10.1038/nature05453](http://dx.doi.org/10.1038/nature05453)
 
 3. Small gene signatures (<100 genes) for astrocytes and neurons.
 
-> Lavin, Y., et al. (2014) Tissue-Resident Macrophage Enhancer Landscapes Are Shaped by the Local Microenvironment. Cell 159, 1312–1326. doi: [10.1016/j.cell.2014.11.018](http://dx.doi.org/10.1016/j.cell.2014.11.018)
+    > Lavin, Y., et al. (2014) Tissue-Resident Macrophage Enhancer Landscapes Are Shaped by the Local Microenvironment. Cell 159, 1312–1326. doi: [10.1016/j.cell.2014.11.018](http://dx.doi.org/10.1016/j.cell.2014.11.018)
 
 ```{r geneSets}
 library(AUCell)
@@ -301,23 +304,25 @@ The function `AUCell_calcAUC` calculates this score, and returns a matrix with a
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
 save(cells_AUC, file="cells_AUC.RData")
 ```
-The threshold to calculate the AUC, is determined by *aucMaxRank*. By default, it is set to 5% of the number of genes in the ranking (i.e. checks whether the genes in the gene-set or signature are within the top 5%). However, for datasets where most cells (or "samples") express many genes, or these have high expression values, it might be good to increase this threshold. Check the histogram provided by `AUCell_buildRankings` to get an estimation on where this threshold lies within the dataset.
+
+In order to calculate the AUC, by default only the top 5% of the genes in the ranking are used (i.e. checks whether the genes in the gene-set or signature are within the top 5%). This allows faster execution on bigger datasets, and reduce the effect of the noise at the bottom of the ranking (e.g. where many genes might be tied at 0 counts). The percentage to take into account can be modified with the argument *aucMaxRank*. 
+For datasets where most cells express many genes (e.g. a filtered dataset), or these have high expression values, it might be good to increase this threshold. Check the histogram provided by `AUCell_buildRankings` to get an estimation on where this threshold lies within the dataset.
 
 ## 3. Determine the cells with the given gene signatures or active gene sets
 
 > *In summary:* The AUC represents the proportion of expressed genes in the signature, and their relative expression value compared to the other genes within the cell. 
 We can use this propperty to explore the population of cells that are present in the dataset according to the expression of the gene-set. 
 
-The AUC estimates the proportion of genes in the gene-set that are highly expressed in each cell. However, choosing a "threshold" to determine whether the signature is active in a given cell is not always trivial. The AUC is not an absolute value, but it depends on the the cell type (i.e. sell size, amount of transcripts), the specific dataset (i.e. sensitivity of the measures) and the gene-set. It is often not straight forward to obtain a pruned *signature* of clear *marker* genes that are completely "on" in the cell type of interest and off" in every other cell. In addition, at single-cell level, most genes are not expressed or detected at a constant level.
+The AUC estimates the proportion of genes in the gene-set that are highly expressed in each cell. Cells expressing many genes from the gene-set will have higher AUC values than cells expressing fewer (i.e. compensating for housekeeping genes, or genes that are highly expressed in all the cells in the dataset). Since the AUC represents the proportion of expressed genes in the signature, we can use the relative AUCs across the cells to explore the population of cells that are present in the dataset according to the expression of the gene-set. 
 
-However, cells expressing many genes from the gene-set will have higher AUC values than cells expressing fewer (i.e. compensating for housekeeping genes, or genes that are highly expressed in all the cells in the dataset). Since the AUC represents the proportion of expressed genes in the signature, we can use the relative AUCs across the cells to explore the population of cells that are present in the dataset according to the expression of the gene-set. 
+However, determining whether the signature is active (or not) in a given cell is not always trivial. The AUC is not an absolute value, but it depends on the the cell type (i.e. sell size, amount of transcripts), the specific dataset (i.e. sensitivity of the measures) and the gene-set. It is often not straight forward to obtain a pruned *signature* of clear *marker* genes that are completely "on" in the cell type of interest and off" in every other cell. In addition, at single-cell level, most genes are not expressed or detected at a constant level.
 
 The ideal situation will be a bi-modal distribution, in which most cells in the dataset have a low "AUC" compared to a population of cells with a clearly higher value (i.e. see "Oligodendrocites" in the next figure). This is normally the case on gene sets that are active mostly in a population of cells with a good representation in the dataset (e.g. ~ 5-30% of cells in the dataset). Similar cases of "marker" gene sets but with different proportions of cells in the datasets are the "neurons" and "microglia" (see figure). When there are very few cells within the dataset, the distribution might look normal-like, but with some outliers to the higher end (e.g. microglia). While if the gene set is marker of a high percentage of cells in the dataset (i.e. neurons), the distribution might start approaching the look of a gene-set of housekeeping genes. As example, the 'housekeeping' gene-set in the figure includes genes that are detected in most cells in the dataset.
 
 Note that the size of the gene-set will also affect the results. With smaller gene-genes (fewer genes), it is more likely to get cells with AUC = 0. 
 While this is the case of the "perfect markers" it is also easier to get it by chance with smal datasets. (i.e. Random gene set with 50 genes in the figure). Bigger gene-sets (100-2k) can be more stable and easier to evaluate, as big random gene sets will approach the normal distibution.
 
-To ease the exploration of the distributions, the function `AUCell_exploreThresholds()` automatically plots all the histograms and calculates several possible thresholds for each gene-set (returned in `$aucThr`). The distributions are plotted as dotted lines over the histogram and the corresponding thresholds as vertical bars in the matching color. The thicker vertical line indicates the threshold selected by default (`$aucThr$selected`): the highest value to reduce the false positives. 
+To ease the exploration of the distributions, the function `AUCell_exploreThresholds()` automatically plots all the histograms and calculates several thresholds that could be used to consider a gene-set 'active' (returned in `$aucThr`). The distributions are plotted as dotted lines over the histogram and the corresponding thresholds as vertical bars in the matching color. The thicker vertical line indicates the threshold selected by default (`$aucThr$selected`): the highest value to reduce the false positives. 
 
 > Note: This function makes use of package "mixtools" to explore the distributions. It is not essential, but we recommend to install it: `source("http://bioconductor.org/biocLite.R"); biocLite("mixtools")`
 
@@ -423,7 +428,7 @@ save(cellTsne, file="cellsTsne.RData")
 
 This t-SNE can be colored based on the AUC scores. To highlight the cluster of cells that are more likely of the cell type according to the signatures, we will split the cells into the cells that pass the assignment threshold (colored in shades of pink-red), and the cells that don't (colored in black-blue). 
 
-Of course, the origin of the signatures should also be kept in mind for the interpretation (for example, these signatures were obtained from bulk RNA-seq analyses). Also, keep in mind that this tutorial (i.e. cell assignment) is run only on 5000 genes, which probably introduced some extra noise.
+Of course, the origin of the signatures should also be kept in mind for the interpretation (for example, these signatures were obtained from bulk RNA-seq analyses). Also, running this tutorial only on 5000 genes probably introduced some extra noise.
 
 For this example we have used the thresholds assigned automatically:
 ```{r plotTsne, fig.width=7, fig.height=6}
@@ -483,17 +488,6 @@ plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
 
 # Why to use AUCell? 
 
-- TO DO
-
-```{r, fig.height=5, fig.width=5}
-nGenesPerCell <- apply(exprMatrix, 2, function(x) sum(x>0))
-colorPal <- grDevices::colorRampPalette(c("darkgreen", "yellow","red"))
-cellColorNgenes <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(nGenesPerCell,breaks=10, right=FALSE,include.lowest=TRUE))], names(nGenesPerCell))
-plot(cellTsne$Y, axes=FALSE, xlab="", ylab="",
-       sub="Number of detected genes",
-       col=cellColorNgenes[rownames(cellTsne$Y)], pch=16)
-```
-
 ## Comparison with mean 
 
 One of the most intuitive ways to evaluate the expression of a gene signature is to calculate the mean expression. However, calculating the average of the gene signature on the raw counts will lead to cells with more reads (either for technical or biological reasons) to have higher average values for most signatures. To reduce this effect, some kind of library-size normalization would be required. 
@@ -517,6 +511,15 @@ for(geneSetName in names(geneSets))
 }
 ```
 
+```{r, fig.height=4, fig.width=3.5}
+nGenesPerCell <- apply(exprMatrix, 2, function(x) sum(x>0))
+colorPal <- grDevices::colorRampPalette(c("darkgreen", "yellow","red"))
+cellColorNgenes <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(nGenesPerCell,breaks=10, right=FALSE,include.lowest=TRUE))], names(nGenesPerCell))
+plot(cellTsne$Y, axes=FALSE, xlab="", ylab="",
+       sub="Number of detected genes",
+       col=cellColorNgenes[rownames(cellTsne$Y)], pch=16)
+```
+
 ## How reliable is AUCell? (Confusion matrix)
 
 When using AUCell to identify cell types, the reliability of the cells identified will depend on the signatures used, and the differences within the cell types in the dataset. In any case, AUCell is quite robust to noise, both in the data and in the gene-set. 
@@ -529,16 +532,20 @@ cellLabels <- paste(file.path(system.file('examples', package='AUCell')), "mouse
 cellLabels <- read.table(cellLabels, row.names=1, header=TRUE, sep="\t")
 ```
 
-Confusion matrix (cells-signature assigned by AUCell *vs* author's cell-type label):
-
-*Note* on interpretation: Interneurons & pyramidal are "neurons". According to other publications that have used this dataset to evaluate new methods, a relevant group of cells marked as oligodendrocytes are likely doublets (i.e. two cells, for example a mix of an oligodendrocyte + another cell type).
 ```{r}
+# Confusion matrix:
 cellTypeNames <- unique(cellLabels[,"level1class"])
 confMatrix <- t(sapply(cells_assignment[c(1,4,2,5,3,6:9)], function(x) table(cellLabels[x$assignment,])[cellTypeNames]))
 colnames(confMatrix) <- cellTypeNames
 confMatrix[which(is.na(confMatrix), arr.ind=TRUE)] <- 0
 confMatrix
 ```
+
+*Notes on interpretation*: 
+
+- Interneurons & pyramidal are "neurons". 
+
+- According to other publications that have used this dataset to evaluate new methods, a relevant group of cells marked as oligodendrocytes are likely doublets (i.e. two cells, for example a mix of an oligodendrocyte + another cell type).
 
 # sessionInfo
 
