@@ -113,6 +113,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   #### 1. Calculate the AUC for each gene set
   if(nCores==1)
   {
+    gSetName <- NULL
     aucMatrix <- sapply(names(geneSets), function(gSetName)
       .AUC.geneSet(geneSet=geneSets[[gSetName]], rankings=rankings,
                    aucMaxRank=aucMaxRank, gSetName=gSetName))
@@ -176,7 +177,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   #### End: Return
   names(dimnames(aucMatrix)) <- c("gene sets", "cells")
   new("aucellResults",
-      SummarizedExperiment(assays=list(AUC=aucMatrix)))
+      SummarizedExperiment::SummarizedExperiment(assays=list(AUC=aucMatrix)))
 }
 
 # add?: AUCThreshold

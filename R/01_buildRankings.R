@@ -126,6 +126,7 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
                                              (seq_along(colsNam)) %% nCores))
     rowNams <- exprMat$rn
 
+    colsGr <- NULL
     "%dopar%"<- foreach::"%dopar%"
     suppressPackageStartupMessages(exprMat <-
                       doRNG::"%dorng%"(foreach::foreach(colsGr=colsNamsGroups,
@@ -149,7 +150,7 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
   #                      matrixType="Ranking", nGenesDetected=nGenesDetected))
   names(dimnames(exprMat)) <- c("genes", "cells")
   new("aucellResults",
-      SummarizedExperiment(assays=list(ranking=exprMat)),
+      SummarizedExperiment::SummarizedExperiment(assays=list(ranking=exprMat)),
       nGenesDetected=nGenesDetected)
 }
 

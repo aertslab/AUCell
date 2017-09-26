@@ -23,17 +23,17 @@ updateAucellResults <- function(oldAucObject, objectType="AUC")
   if(class(oldAucObject)=="matrixWrapper")
   {
     aucMatrix <- oldAucObject@matrix
-    library(SummarizedExperiment)
-    if(objectType== "auc") newAucObject <- new("aucellResults", SummarizedExperiment(assays=list(AUC=aucMatrix)))
-    if(objectType== "ranking") newAucObject <- new("aucellResults", SummarizedExperiment(assays=list(ranking=aucMatrix)))
+    #library(SummarizedExperiment)
+    if(objectType== "auc") newAucObject <- new("aucellResults", SummarizedExperiment::SummarizedExperiment(assays=list(AUC=aucMatrix)))
+    if(objectType== "ranking") newAucObject <- new("aucellResults", SummarizedExperiment::SummarizedExperiment(assays=list(ranking=aucMatrix)))
   }
 
   if(class(oldAucObject)=="matrix")
   {
     aucMatrix <- oldAucObject
-    library(SummarizedExperiment)
-    if(objectType== "auc") newAucObject <- new("aucellResults", SummarizedExperiment(assays=list(AUC=aucMatrix)))
-    if(objectType== "ranking") newAucObject <- new("aucellResults", SummarizedExperiment(assays=list(ranking=aucMatrix)))
+    # library(SummarizedExperiment)
+    if(objectType== "auc") newAucObject <- new("aucellResults", SummarizedExperiment::SummarizedExperiment(assays=list(AUC=aucMatrix)))
+    if(objectType== "ranking") newAucObject <- new("aucellResults", SummarizedExperiment::SummarizedExperiment(assays=list(ranking=aucMatrix)))
   }
 
   return(newAucObject)

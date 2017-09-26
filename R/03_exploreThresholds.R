@@ -101,6 +101,7 @@ AUCell_exploreThresholds <- function(cellsAUC, thrP=0.01, nCores=1,
 
   if(nCores==1)
   {
+    gSetName <- NULL
     assigment <- lapply(rownames(aucMatrix), function(gSetName)
     {
       aucThr <- .auc_assignmnetThreshold_v6(
