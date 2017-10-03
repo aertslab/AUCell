@@ -9,3 +9,10 @@ A **tutorial** [(vignette)](https://bioconductor.org/packages/devel/bioc/vignett
 To use with **SCENIC** we recommend the following versions:
 - SCENIC 0.1.5 requires [AUCell 0.99.5](http://scenic.aertslab.org/downloads/Rpackages/AUCell_0.99.5.tar.gz)
 
+
+To install AUCell, you might need to install these depencencies first:
+```
+source("https://bioconductor.org/biocLite.R"); biocLite("BiocInstaller")
+biocLite(c("data.table", "zoo", "doMC", "doRNG", "mixtools", "GEOquery", 
+"SummarizedExperiment", "DT", "plotly", "NMF", "d3heatmap"))
+```
