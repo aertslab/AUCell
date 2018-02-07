@@ -8,7 +8,7 @@ To **install** AUCell:
 - To use AUCell with **SCENIC** (v 0.1.5), [AUCell 0.99.5](http://scenic.aertslab.org/downloads/Rpackages/AUCell_0.99.5.tar.gz) is required. More details on how to install this specific version are provided in SCENIC tutorial. 
 *(Using newer versions might result in errors related to missing functions/classes, as some of these have been renamed).*
 
-- This Github repository is meant mostly for development. Use at your own risk :-) Developers are welcome to contribute. 
+- This Github repository is meant mostly for development. "Use at your own risk" :-). Developers are welcome to contribute. 
 
 You might also need to install these depencencies first:
 ```
