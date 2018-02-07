@@ -12,6 +12,7 @@ export(plotGeneCount)
 export(setGeneSetNames)
 export(subsetGeneSets)
 export(updateAucellResults)
+export(AUCell_createViewerApp)
 import(GSEABase)
 import(SummarizedExperiment)
 

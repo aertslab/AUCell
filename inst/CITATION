@@ -19,7 +19,7 @@ citEntry(entry="Article",
   year ="2017",
   doi = "10.1038/nmeth.4463",
   volume ="14",
-  pages = "1083–1086",
+  pages = "1083-1086",
   textVersion = "Aibar et al. (2017) SCENIC: single-cell regulatory network inference and clustering. Nature Methods. doi: 10.1038/nmeth.4463")
 
 
@@ -37,7 +37,3 @@ citEntry(entry="Misc",
   textVersion = "Aibar. et al. (2016)
   AUCell: Analysis of 'gene set' activity in single-cell RNA-seq data.
   R/Bioconductor package.")
-
-
-
-

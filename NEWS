@@ -1,4 +1,10 @@
 
+
+VERSION 1.2.0
+----------------------
+- Added shiny app to modify thresholds
+
+
 VERSION 0.99.6
 ----------------------
 - Interface changes to conform to Bioconductor requirements. (Function names and parameters, usage of "GeneSet" from GSEABase...)

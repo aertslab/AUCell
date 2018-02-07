@@ -79,7 +79,7 @@ biocLite(c("doMC", "doRNG"))
 # For the main example:
 biocLite(c("mixtools", "GEOquery", "SummarizedExperiment"))
 # For the examples in the follow-up section of the tutorial:
-biocLite(c("DT", "plotly", "NMF", "d3heatmap"))
+biocLite(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh"))
 ```
 
 ## Some tips...
@@ -212,6 +212,7 @@ In this example we will use gene-sets representing diferent cell types in the br
 
 ```{r geneSets}
 library(AUCell)
+library(GSEABase)
 gmtFile <- paste(file.path(system.file('examples', package='AUCell')), "geneSignatures.gmt", sep="/")
 geneSets <- getGmt(gmtFile)
 ```
@@ -410,7 +411,8 @@ In this example, we will use the AUC obtained for the diferent signatures to col
 ```{r loadtSNE, fig.width=4, fig.height=4}
 # Load the tSNE (included in the package)
 load(paste(file.path(system.file('examples', package='AUCell')), "cellsTsne.RData", sep="/"))
-plot(cellTsne$Y, pch=16, cex=.3)
+cellsTsne <- cellsTsne$Y
+plot(cellsTsne, pch=16, cex=.3)
 ```
 
 This t-SNE was created with this code (it takes a while to run):
@@ -422,8 +424,10 @@ logMatrix <- log2(exprMatSubset+1)
 
 library(Rtsne)
 set.seed(123)
-cellTsne <- Rtsne(t(logMatrix)); rownames(cellTsne$Y) <- colnames(logMatrix)
-save(cellTsne, file="cellsTsne.RData")
+cellsTsne <- Rtsne(t(logMatrix))
+rownames(cellsTsne$Y) <- colnames(logMatrix)
+colnames(cellsTsne$Y) <- c("tsne1", "tsne2")
+save(cellsTsne, file="cellsTsne.RData")
 ```
 
 This t-SNE can be colored based on the AUC scores. To highlight the cluster of cells that are more likely of the cell type according to the signatures, we will split the cells into the cells that pass the assignment threshold (colored in shades of pink-red), and the cells that don't (colored in black-blue). 
@@ -454,9 +458,9 @@ for(geneSetName in names(selectedThresholds))
                   setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
     
     # Plot
-    plot(cellTsne$Y, main=geneSetName,
+    plot(cellsTsne, main=geneSetName,
          sub="Pink/red cells pass the threshold",
-         col=cellColor[rownames(cellTsne$Y)], pch=16) 
+         col=cellColor[rownames(cellsTsne)], pch=16) 
   }
 }
 ```
@@ -472,18 +476,38 @@ cells_assignment[[geneSetName]]$aucThr
 AUCell_plot(cells_AUC[geneSetName,])
 abline(v=newThreshold)
 
-plot(cellTsne$Y, main=paste(geneSetName, "\n- new assignment"),
-       col=c("#90909030","blue")[as.numeric(getAUC(cells_AUC)[geneSetName,rownames(cellTsne$Y)]>newThreshold)+1],
+plot(cellsTsne, main=paste(geneSetName, "\n- new assignment"),
+       col=c("#90909030","blue")[as.numeric(getAUC(cells_AUC)[geneSetName,rownames(cellsTsne)]>newThreshold)+1],
        pch=16)
 ```
 
-```{r tSNE_interactive, echo=FALSE}
-# cellTsne <- data.frame(tsne1=cellTsne$Y[,1], tsne2=cellTsne$Y[,2])
-# library(plotly)
-# AUC_oligodendrocytes <- cells_AUC[, "Oligodendrocyte_Cahoy"]
-# plot_ly(cellTsne, x=tsne1, y=tsne2, mode="markers",
-#   text=paste("Cell: ", rownames(cellTsne), sep=""),
-#   color=AUC_oligodendrocytes)
+### Interactive threshold selection
+
+To help select the thresholds, there is also an interactive Shiny app:
+```{r eval=FALSE}
+# Setup 
+aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, tSNE=cellsTsne)
+
+# Run
+options(shiny.host="0.0.0.0") 
+savedSelections <- runApp(aucellApp) 
+
+# Other common settings:
+# host = getOption("shiny.host", "127.0.0.1") 
+# shinyApp(ui=aucellApp$ui, server=aucellApp$server)
+```
+
+
+Another example for interactive plot (e.g. to save as html, no need to keep the server running):
+```{r tSNE_interactive, eval=FALSE}
+geneSetName <- "Astrocyte_Cahoy (555g)"
+
+library(rbokeh)
+tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
+figure() %>%
+  ly_points(tsne1, tsne2, data=tSNE.df, size=1, legend = FALSE,
+            hover=cell, color=getAUC(cells_AUC)[geneSetName,rownames(tSNE.df)]) %>%
+  set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red")))
 ```
 
 # Why to use AUCell? 
@@ -505,9 +529,9 @@ par(mfrow=c(3,3))
 for(geneSetName in names(geneSets))
 {
   cellColor <- setNames(colorPal[cut(meanByGs[geneSetName,], breaks=nBreaks)], names(meanByGs[geneSetName,]))
-  plot(cellTsne$Y, main=geneSetName, axes=FALSE, xlab="", ylab="",
+  plot(cellsTsne, main=geneSetName, axes=FALSE, xlab="", ylab="",
        sub="Expression mean",
-       col=cellColor[rownames(cellTsne$Y)], pch=16)
+       col=cellColor[rownames(cellsTsne)], pch=16)
 }
 ```
 
@@ -515,9 +539,9 @@ for(geneSetName in names(geneSets))
 nGenesPerCell <- apply(exprMatrix, 2, function(x) sum(x>0))
 colorPal <- grDevices::colorRampPalette(c("darkgreen", "yellow","red"))
 cellColorNgenes <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(nGenesPerCell,breaks=10, right=FALSE,include.lowest=TRUE))], names(nGenesPerCell))
-plot(cellTsne$Y, axes=FALSE, xlab="", ylab="",
+plot(cellsTsne, axes=FALSE, xlab="", ylab="",
        sub="Number of detected genes",
-       col=cellColorNgenes[rownames(cellTsne$Y)], pch=16)
+       col=cellColorNgenes[rownames(cellsTsne)], pch=16)
 ```
 
 ## How reliable is AUCell? (Confusion matrix)
@@ -535,7 +559,8 @@ cellLabels <- read.table(cellLabels, row.names=1, header=TRUE, sep="\t")
 ```{r}
 # Confusion matrix:
 cellTypeNames <- unique(cellLabels[,"level1class"])
-confMatrix <- t(sapply(cells_assignment[c(1,4,2,5,3,6:9)], function(x) table(cellLabels[x$assignment,])[cellTypeNames]))
+confMatrix <- t(sapply(cells_assignment[c(1,4,2,5,3,6:9)], 
+                  function(x) table(cellLabels[x$assignment,])[cellTypeNames]))
 colnames(confMatrix) <- cellTypeNames
 confMatrix[which(is.na(confMatrix), arr.ind=TRUE)] <- 0
 confMatrix
