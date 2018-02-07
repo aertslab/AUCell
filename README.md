@@ -1,7 +1,7 @@
 # AUCell
 AUCell is an R-package to analyze the state of gene-sets in single-cell RNA-seq data (i.e. identify cells with active gene signatures).
 
-** Availability**: 
+*Availability*: 
 
 - The newest stable version of AUCell is available in *[Bioconductor](https://bioconductor.org/packages/AUCell)*. 
 Unless it is for using with SCENIC, we recommend to install AUCell from Bioconductor.

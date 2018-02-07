@@ -13,12 +13,15 @@
 #' @return Thresholds and cells selected within the app (as list).
 #' @examples
 #' \dontrun{
-#' # Setup 
+#' # Create the Shiny app: 
 #' aucellApp <- AUCell_createViewerApp(auc=cells_AUC, 
 #'                thresholds=selectedThresholds,
 #'                tSNE=cellsTsne)
+#'                
+#' # This object contains the $ui and $server required to lauch the app, e.g.:
+#' savedSelections <- shinyApp(ui=aucellApp$ui, server=aucellApp$server)
 #' 
-#' # Run
+#' # (How to launch the app might depend on the local settings)
 #' options(shiny.host="0.0.0.0") 
 #' savedSelections <- runApp(aucellApp) 
 #' }
