@@ -10,15 +10,19 @@
 #' @param tSNE t-SNE coordinates for the cells (optional). 
 #' The row names should correspond to the cell ID. 
 #' The column names should be "tsne1" and "tsne2".
+#' @param exprMat Expression matrix (optional)
+#' @param cellInfo Phenodata (optional)
+#' @note 
+#' With lasso: "To make a multiple selection, press the SHIFT key. To clear the selection, press the ESC key."
 #' @return Thresholds and cells selected within the app (as list).
 #' @examples
 #' \dontrun{
-#' # Create the Shiny app: 
+#' # Create the viewer app: 
 #' aucellApp <- AUCell_createViewerApp(auc=cells_AUC, 
 #'                thresholds=selectedThresholds,
 #'                tSNE=cellsTsne)
 #'                
-#' # This object contains the $ui and $server required to lauch the app, e.g.:
+#' # This object contains the $ui and $server required to run the app, e.g.:
 #' savedSelections <- shinyApp(ui=aucellApp$ui, server=aucellApp$server)
 #' 
 #' # (How to launch the app might depend on the local settings)
@@ -26,69 +30,89 @@
 #' savedSelections <- runApp(aucellApp) 
 #' }
 #' @export
-AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL)
+AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL, cellInfo=NULL)
 {
-  library(shiny)
+  #library(shiny)
   if(class(auc)!="aucellResults") stop("Please provide an aucellResults object.")
   if(is.null(thresholds)) thresholds <- setNames(rep(0, nrow(auc)), rownames(auc))
   
   tSNE.df <- data.frame(tSNE, cell=rownames(tSNE), t(getAUC(auc)[,rownames(tSNE)]))
   #colnames(tSNE.df)[which(!colnames(tSNE.df) %in% c("tsne1", "tsne2", "cell", rownames(auc)))] # to add other props?
-
+  
   app <- list()
   app$thresholds <- thresholds
   app$cells <- list()
   
   ################################################
   # UI
-
+  
   # Choose according to whether the t-SNE is provided
   if(!is.null(tSNE))
   {
     library(rbokeh)
     app$ui <- fluidPage(
-        titlePanel("AUCell"),
-        tabsetPanel(
-          tabPanel("Threshold selection", 
-                   sidebarPanel(
-                     selectInput(inputId = "geneSet",
-                                 label = "Gene set:",
-                                 choices=rownames(auc)
-                     ),
-                     uiOutput("threshold_slider"),
-                     actionButton("saveThr", "Save threshold"),
-                     plotOutput(outputId = "histPlot")),
-                   
-                   mainPanel(plotOutput(outputId = "tsnePlot2"),
-                             sliderInput(inputId = "size",
-                                         label = "Point size:",
-                                         min = 0.01,
-                                         max = 3,
-                                         value = 0.5)
-                   ) 
-                   
-          ),
-          tabPanel("Cell selection", 
-                   column(6,
-                          selectInput(inputId = "geneSetBokeh",
-                                      label = "Gene set:",
-                                      choices=rownames(auc)),
-                          rbokehOutput("tsne_rbokeh"),
-                          sliderInput(inputId = "size_bokeh",
+      titlePanel("AUCell"),
+      tabsetPanel(
+        tabPanel("Threshold selection", 
+                 sidebarPanel(
+                   selectInput(inputId = "geneSet",
+                               label = "Gene set:",
+                               choices=rownames(auc)
+                   ),
+                   uiOutput("threshold_slider"),
+                   actionButton("saveThr", "Save threshold"),
+                   br(),
+                   plotOutput(outputId = "histPlot")),
+                 
+                 mainPanel(plotOutput(outputId = "tsnePlot"),
+                           # Extra properties (e.g. expression or cell info)
+                           conditionalPanel(c("false","true")[as.numeric(!is.null(cellInfo) | !is.null(exprMat))+1],
+                                            fluidRow(
+                                              conditionalPanel(c("false","true")[as.numeric(!is.null(exprMat))+1],
+                                                               column(6,
+                                                                      uiOutput("gene_selection")
+                                                               )),
+                                              conditionalPanel(c("false","true")[as.numeric(!is.null(cellInfo))+1],
+                                                               column(6,
+                                                                      selectInput(inputId = "phenodata_selection",
+                                                                                  label = "Cell info:",
+                                                                                  choices=colnames(cellInfo),
+                                                                                  selected=colnames(cellInfo)[1])
+                                                               )),
+                                              plotOutput(outputId = "tsnePlot_expression_cellInfo")
+                                            )),
+                           
+                           
+                           
+                           sliderInput(inputId = "size",
                                        label = "Point size:",
                                        min = 0.01,
-                                       max = 10,
-                                       value = 1)
-                          ),
-                   column(6,
-                          wellPanel(
+                                       max = 3,
+                                       value = 0.5)
+                 ) 
+                 
+        ),
+        tabPanel("Cell selection", 
+                 column(6,
+                        selectInput(inputId = "geneSetBokeh",
+                                    label = "Gene set:",
+                                    choices=rownames(auc)),
+                        rbokehOutput("tsne_rbokeh"),
+                        sliderInput(inputId = "size_bokeh",
+                                    label = "Point size:",
+                                    min = 0.01,
+                                    max = 10,
+                                    value = 1)
+                 ),
+                 column(6,
+                        wellPanel(
                           fixedRow(textInput(inputId = "cellGroupName", 
                                              label="Group name", value = "group1"),
-                          actionButton("saveCells", "Save cells")),
+                                   actionButton("saveCells", "Save cells")),
                           textOutput("cellSelectedText")))
-                   #column(6, DT::dataTableOutput("cellSelectedTable"))
-          )
-        ),
+                 #column(6, DT::dataTableOutput("cellSelectedTable"))
+        )
+      ),
       title="AUCell"
     )
   }else{
@@ -103,7 +127,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL)
         # Input: Slider for the threshold ----
         uiOutput("threshold_slider"),
         actionButton("saveThr", "Save threshold")
-        ),
+      ),
       
       mainPanel(
         plotOutput(outputId = "histPlot")
@@ -125,42 +149,84 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL)
                   value = app$thresholds[input$geneSet])
     })
     
+    output$gene_selection <- renderUI ({
+      possibleGene <- gsub( "\\s\\(\\d+g)", "",input$geneSet)
+      possibleGene <- gsub( "_extended", "", possibleGene)
+      
+      gene <- ""
+      if(possibleGene %in% rownames(exprMat)) gene <- possibleGene
+      
+      # selectInput(inputId = "geneExpression",
+      #             label = "Gene expression:",
+      #             choices=rownames(exprMat),
+      #             selected=possibleGene)
+      textInput(inputId = "geneExpression",
+                label = "Gene expression:",
+                value = possibleGene)
+    })
+    
     # Reactive plots:
     output$histPlot <- renderPlot({
-      AUCell_plot(auc[input$geneSet,], aucThr=max(getAUC(auc)[input$geneSet,])+0.01) 
+      AUCell_plotHist(auc[input$geneSet,], aucThr=input$threshold)
       abline(v=input$threshold)
     })
     
-    output$tsnePlot2 <- renderPlot({
+    output$tsnePlot <- renderPlot({
+      # nRow <- 1
+      # if(TRUE) nRow <- 2
       par(mfrow=c(1,2))
-      
       # Binary
-      plot(tSNE, main=paste(input$geneSet),
-           sub="Blue cells pass the threshold",
-           col=c("#e0e0e020","blue")[as.numeric(getAUC(auc)[input$geneSet,rownames(tSNE)]>input$threshold)+1],
-           pch=16, cex=input$size)
-
+      passThreshold <- which(getAUC(auc)[input$geneSet,rownames(tSNE)]>input$threshold)
+      .auc_plotBinaryTsne(tSNE, cex=input$size,
+                          selectedCells=passThreshold,  
+                          title=paste(input$geneSet), 
+                          txt="Blue cells pass the threshold")  
+      
       # Continuous
-      nBreaks <- 5 # Number of levels in the color palettes
-      colorPal <- grDevices::colorRampPalette(c("lightgray", "pink", "red"))(nBreaks)
-      
-      # Assign cell color
-      cellColor <- setNames(rep("black", nrow(tSNE)), rownames(tSNE))
-      cellColor[colnames(auc)] <- setNames(colorPal[cut(getAUC(auc)[input$geneSet,], breaks=nBreaks)], colnames(auc))
-      
-      # Plot
-      plot(tSNE, main=input$geneSet,
-           sub="AUC value",
-           col=cellColor[rownames(tSNE)], pch=16, cex=input$size) 
-      
+      .auc_plotGradientTsne(tSNE, cellProp=getAUC(auc)[input$geneSet,],
+                            title=input$geneSet, txt="AUC value",
+                            cex=input$size)
     })
     
-    output$tsne_rbokeh <- renderRbokeh({
-      figure() %>%
-        ly_points(tsne1, tsne2, data=tSNE.df, hover=cell, size=input$size_bokeh,
-            color = getAUC(auc)[input$geneSetBokeh,rownames(tSNE.df)], legend=FALSE, lname = "cells") %>%
-      set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red"))) %>%
-        tool_lasso_select(callback = shiny_callback(id="cellsSelected"), "cells")
+    
+    output$tsnePlot_expression_cellInfo <- renderPlot({
+      if(is.null(exprMat) & is.null(cellInfo)){
+        return(NULL)
+      }else{
+        
+        par(mfrow=c(1,2))
+        
+        if(is.null(input$geneExpression))
+        {
+          plot.new()
+        }else{
+          .auc_plotGradientTsne(tSNE, cellProp=setNames(exprMat[input$geneExpression, rownames(tSNE)], rownames(tSNE)),
+                                title=paste0(input$geneExpression, " expression"), txt="",
+                                colorsForPal = c("goldenrod1", "darkorange", "brown"),
+                                cex=input$size)
+        } 
+        
+        # TO DO: improve
+        cellColor <- setNames(rep("#30303010", nrow(tSNE)), rownames(tSNE))
+        thisProp <- setNames(cellInfo[, input$phenodata_selection], rownames(cellInfo))
+        thisProp <- thisProp[which(!is.na(thisProp))]
+        propLevels <- levels(factor(thisProp))
+        cellColors <- setNames(rainbow(length(propLevels)),propLevels)
+        cellColor[names(thisProp)] <- cellColors[thisProp]
+        plot(tSNE, pch=16, cex=input$size,
+             col=cellColor,
+             main=input$phenodata_selection, xlab="",
+             axes=FALSE, ylab="")
+        box(which = "plot", col="grey")
+      }
+    })
+    
+    output$tsne_rbokeh <- rbokeh::renderRbokeh({
+      rbokeh::figure(logo=NULL) %>%
+        rbokeh::ly_points(tsne1, tsne2, data=tSNE.df, hover=cell, size=input$size_bokeh,
+                          color = getAUC(auc)[input$geneSetBokeh,rownames(tSNE.df)], legend=FALSE, lname = "cells") %>%
+        rbokeh::set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red"))) %>%
+        rbokeh::tool_lasso_select(callback = shiny_callback(id="cellsSelected"), "cells")
     })
     
     output$cellSelectedTable <- DT::renderDataTable({
@@ -181,8 +247,8 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL)
       message("Selected cells (", input$cellGroupName,"): ", app$cells[[input$cellGroupName]])
       if(grepl("group([[:digit:]]+)", input$cellGroupName)) {
         updateTextInput(session,
-          inputId="cellGroupName", 
-          value = paste0("group", as.numeric(gsub("group", "", input$cellGroupName))+1))
+                        inputId="cellGroupName", 
+                        value = paste0("group", as.numeric(gsub("group", "", input$cellGroupName))+1))
       }
     })
     
@@ -195,6 +261,3 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL)
   
   return(app)
 } 
-
-
-

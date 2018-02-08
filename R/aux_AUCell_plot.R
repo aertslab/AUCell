@@ -16,7 +16,7 @@
 #' \code{vignette("AUCell")}
 #' @example inst/examples/example_AUCell_plot.R
 #' @export
-AUCell_plot <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100, ...)
+AUCell_plotHist <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100, ...)
 {
   if(class(cellsAUC)[1]=="aucellResults") {
     cellsAUC <- getAUC(cellsAUC)
@@ -25,18 +25,35 @@ AUCell_plot <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100, ...)
     stop("The first argument should be the output from 'AUCell_calcAUC()'")
 
   ret <- lapply(seq_len(nrow(cellsAUC)), function(gsn) {
-    .auc_plot(auc=cellsAUC[gsn,], gSetName=rownames(cellsAUC)[gsn],
+    .auc_plotHist(auc=cellsAUC[gsn,], gSetName=rownames(cellsAUC)[gsn],
               aucThr=aucThr, nBreaks=nBreaks, ...)
     })
   names(ret) <- rownames(cellsAUC)
 
   invisible(ret)
 }
+# @export
+#AUCell_plot <- AUCell_plotHist # Alias (backwards compatibility) TO DO: Replace by conditional?
 
 # only for one gene-set
-.auc_plot <- function(auc, gSetName, aucThr, nBreaks, ...)
+.auc_plotHist <- function(auc, gSetName, aucThr, 
+                        nBreaks=100, 
+                        onColor="dodgerblue4", offColor="slategray2", 
+                        ...)
 {
-  ret <- hist(auc, breaks=nBreaks, col="#6666aa80", border="#5588bb",
-    main=gSetName, xlab="AUC histogram", xlim=c(0,max(c(auc, aucThr))), ...)
+  maxLim <- max(c(auc, aucThr))
+  # col <- rep("lightskyblue2", nBreaks)
+  # col[passThr] <- "dodgerblue2"
+  col <- rep(offColor, nBreaks)
+  borderCol <- rep("lightsteelblue1", nBreaks)
+  passThr <- hist(auc, breaks=nBreaks, plot=FALSE)$breaks >= aucThr
+  col[passThr] <- onColor
+  borderCol[passThr] <- "cornflowerblue"
+  
+  ret <- hist(auc, breaks=nBreaks, xlim=c(0,maxLim),
+    col=col, border=borderCol,
+    main=gSetName, xlab="AUC histogram", ...)
   return(ret)
 }
+
+# Default plots for binary and AUC are available in priv_plots.R

@@ -239,10 +239,10 @@
 
   if(plotHist)
   {
-    histInfo <- AUCell_plot(aucRow,
+    histInfo <- AUCell_plotHist(aucRow,
                          aucThr=aucThr,
                          nBreaks=nBreaks)
-    histMax <- max(histInfo$counts)
+    histMax <- max(histInfo[[gSetName]]$counts)
 
     # Plot density
     densCurve$y <- densCurve$y*(histMax/max(densCurve$y))

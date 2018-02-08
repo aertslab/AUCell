@@ -4,7 +4,8 @@
 \alias{AUCell_createViewerApp}
 \title{Create AUCell viewer app}
 \usage{
-AUCell_createViewerApp(auc, thresholds = NULL, tSNE = NULL)
+AUCell_createViewerApp(auc, thresholds = NULL, tSNE = NULL,
+  exprMat = NULL, cellInfo = NULL)
 }
 \arguments{
 \item{auc}{AUC object returned by \code{\link{AUCell_calcAUC}}}
@@ -14,6 +15,10 @@ AUCell_createViewerApp(auc, thresholds = NULL, tSNE = NULL)
 \item{tSNE}{t-SNE coordinates for the cells (optional). 
 The row names should correspond to the cell ID. 
 The column names should be "tsne1" and "tsne2".}
+
+\item{exprMat}{Expression matrix (optional)}
+
+\item{cellInfo}{Phenodata (optional)}
 }
 \value{
 Thresholds and cells selected within the app (as list).
@@ -21,14 +26,17 @@ Thresholds and cells selected within the app (as list).
 \description{
 Creates a Shiny app to explore AUCell results
 }
+\note{
+With lasso: "To make a multiple selection, press the SHIFT key. To clear the selection, press the ESC key."
+}
 \examples{
 \dontrun{
-# Create the Shiny app: 
+# Create the viewer app: 
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, 
                thresholds=selectedThresholds,
                tSNE=cellsTsne)
                
-# This object contains the $ui and $server required to lauch the app, e.g.:
+# This object contains the $ui and $server required to run the app, e.g.:
 savedSelections <- shinyApp(ui=aucellApp$ui, server=aucellApp$server)
 
 # (How to launch the app might depend on the local settings)
