@@ -31,6 +31,8 @@ With lasso: "To make a multiple selection, press the SHIFT key. To clear the sel
 }
 \examples{
 \dontrun{
+# See the vignette for a runnable example
+
 # Create the viewer app: 
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, 
                thresholds=selectedThresholds,

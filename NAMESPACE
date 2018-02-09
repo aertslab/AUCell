@@ -29,6 +29,8 @@ importFrom(graphics,plot.new)
 importFrom(graphics,points)
 importFrom(graphics,rect)
 importFrom(graphics,text)
+importFrom(graphics, "box", "legend", "plot")
+importFrom(grDevices, "adjustcolor", "dev.off", "png", "rainbow")
 importFrom(methods,new)
 importFrom(stats,density)
 importFrom(stats,dnorm)
@@ -41,3 +43,6 @@ importFrom(stats,setNames)
 importFrom(utils,capture.output)
 importFrom(utils,head)
 importFrom(utils,installed.packages)
+
+
+
