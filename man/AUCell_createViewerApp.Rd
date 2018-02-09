@@ -34,6 +34,7 @@ With lasso: "To make a multiple selection, press the SHIFT key. To clear the sel
 # See the vignette for a runnable example
 
 # Create the viewer app: 
+library(shiny); library(rbokeh)
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, 
                thresholds=selectedThresholds,
                tSNE=cellsTsne)

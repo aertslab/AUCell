@@ -6,7 +6,7 @@
 \usage{
 AUCell_plotTSNE(tSNE, exprMat, cellsAUC = NULL, thresholds = NULL,
   cex = 1, alphaOn = 1, alphaOff = 0.2,
-  borderColor = adjustcolor("lightgray", alpha = 0.1),
+  borderColor = adjustcolor("lightgray", alpha.f = 0.1),
   offColor = "lightgray", plots = c("histogram", "binaryAUC", "AUC",
   "expression"), asPNG = FALSE, ...)
 }
