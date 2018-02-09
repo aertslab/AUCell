@@ -5,6 +5,7 @@
 
 test_AUCell_plot <- function()
 {
+  # TO DO: add tests for _plotTsne()s
   library(AUCell)
   ##################################################
   # Previous steps
@@ -19,8 +20,8 @@ test_AUCell_plot <- function()
   cellsAUC <- suppressWarnings(AUCell_calcAUC(fewGenes, cells_rankings, aucMaxRank=5))
   ##################################################
 
-  testthat::expect_equal(length(AUCell_plot(cellsAUC)), 1)
-  testthat::expect_equal(length(AUCell_plot(cellsAUC[1,])), 1)
+  testthat::expect_equal(length(AUCell_plotHist(cellsAUC)), 1)
+  testthat::expect_equal(length(AUCell_plotHist(cellsAUC[1,])), 1)
 }
 
 test_that("AUCell_plot tests", test_AUCell_plot())

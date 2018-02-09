@@ -22,12 +22,16 @@
 # borderColor=adjustcolor("darkgrey", alpha=.3); plots=c("histogram", "binaryAUC", "AUC", "expression")
 AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1,
                          alphaOn=1, alphaOff=0.2,
-                         borderColor=adjustcolor("lightgray", alpha=0.1),
+                         borderColor=adjustcolor("lightgray", alpha.f=0.1),
                          offColor="lightgray",
                          plots=c("histogram", "binaryAUC", "AUC", "expression"), asPNG=FALSE, ...)
 {
   #library(BiocGenerics)
   #library(AUCell)
+  ####################################
+  # Check inputs (TO DO)
+  if(is.null(rownames(tSNE))) stop("Please, provide the cell rownames in the t-SNE")
+  if(!is.matrix(tSNE) | ncol(tSNE)!=2) stop("The t-SNE should be a matrix with 2 columns (cell coordinates)")
 
   ####################################
   # Calculate thresholds if needed
@@ -187,7 +191,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
   }
   if(asPNG) {
     cells_trhAssignment <- c(cells_trhAssignment, figsMatrix=list(figsMatrix))
-    if(require("R2HTML" %in% rownames(installed.packages()))) asHTML(figsMatrix)
+    if("R2HTML" %in% rownames(installed.packages())) asHTML(figsMatrix)
   }
   invisible(cells_trhAssignment)
 }

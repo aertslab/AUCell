@@ -357,7 +357,7 @@ head(oligodencrocytesAssigned)
 Plotting the AUC histogram of a specific gene set, and setting a new threshold:
 ```{r AUCell_plot}
 geneSetName <- rownames(cells_AUC)[grep("Oligodendrocyte_Cahoy", rownames(cells_AUC))]
-AUCell_plot(cells_AUC[geneSetName,])
+AUCell_plotHist(cells_AUC[geneSetName,], aucThr=0.08)
 abline(v=0.08)
 ```
 Assigning cells to this new threshold:
@@ -396,7 +396,7 @@ aheatmap(miniAssigMat, scale="none", color="black", legend=FALSE)
 Some interactive options (output not shown):
 ```{r assignHeatmap_interactive, eval=FALSE}
 library(d3heatmap)
-d3heatmap(miniAssigMat, scale="none", colors=c("white", "black"))
+d3heatmap(matrix(miniAssigMat), scale="none", colors=c("white", "black"))
 
 library(DT)
 datatable(assignmentTable, options = list(pageLength = 10), filter="top")
@@ -435,9 +435,8 @@ This t-SNE can be colored based on the AUC scores. To highlight the cluster of c
 Of course, the origin of the signatures should also be kept in mind for the interpretation (for example, these signatures were obtained from bulk RNA-seq analyses). Also, running this tutorial only on 5000 genes probably introduced some extra noise.
 
 For this example we have used the thresholds assigned automatically:
-```{r plotTsne, fig.width=7, fig.height=6}
+```{r plotTsneCode, fig.width=7, fig.height=6}
 selectedThresholds <- sapply(cells_assignment, function(x) unname(x$aucThr$selected))
-
 par(mfrow=c(2,3)) # Splits the plot into two rows and three columns
 for(geneSetName in names(selectedThresholds))
 {
@@ -467,34 +466,37 @@ for(geneSetName in names(selectedThresholds))
 
 This kind of plots can also be used to explore the assignment thresholds. i.e.:
 ```{r tsneThreshold}
-newThreshold <- 0.07
-
-par(mfrow=c(1,2))
-geneSetName <- rownames(cells_AUC)[grep("Astrocyte_Cahoy", rownames(cells_AUC))]
-
-cells_assignment[[geneSetName]]$aucThr
-AUCell_plot(cells_AUC[geneSetName,])
-abline(v=newThreshold)
-
-plot(cellsTsne, main=paste(geneSetName, "\n- new assignment"),
-       col=c("#90909030","blue")[as.numeric(getAUC(cells_AUC)[geneSetName,rownames(cellsTsne)]>newThreshold)+1],
-       pch=16)
+selectedThresholds[2] <-  0.08
+par(mfrow=c(2,3))
+AUCell_plotTSNE(tSNE=cellsTsne, exprMat=exprMatrix, 
+                cellsAUC=cells_AUC[1:2,], thresholds=selectedThresholds)
 ```
+
 
 ### Interactive threshold selection
 
 To help select the thresholds, there is also an interactive Shiny app:
 ```{r eval=FALSE}
-# Setup 
-aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, tSNE=cellsTsne)
+library(shiny); library(rbokeh)
+exprMat <- log2(mouseBrainExprMatrix+1) # (back to the full matrix)
 
-# Run
+# Create app 
+aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 
+                            tSNE=cellsTsne, exprMat=exprMat)
+
+# Run (the exact commands depend on the R settings, see Shiny's doc for help)
 options(shiny.host="0.0.0.0") 
 savedSelections <- runApp(aucellApp) 
 
 # Other common settings:
 # host = getOption("shiny.host", "127.0.0.1") 
 # shinyApp(ui=aucellApp$ui, server=aucellApp$server)
+
+# Optional: Visualize extra information about the cells (categorical variable)
+cellInfoFile <- paste(file.path(system.file('examples', package='AUCell')), 
+                      "mouseBrain_cellLabels.tsv", sep="/")
+cellInfo <- read.table(cellInfoFile, row.names=1, header=TRUE, sep="\t")
+head(cellInfo)
 ```
 
 
@@ -533,6 +535,9 @@ for(geneSetName in names(geneSets))
        sub="Expression mean",
        col=cellColor[rownames(cellsTsne)], pch=16)
 }
+
+AUCell_plotTSNE(tSNE=cellsTsne, exprMat=exprMatrix, plots = "AUC",
+          cellsAUC=cells_AUC[1:9,], thresholds=selectedThresholds)
 ```
 
 ```{r, fig.height=4, fig.width=3.5}

@@ -17,7 +17,10 @@
 #' @return Thresholds and cells selected within the app (as list).
 #' @examples
 #' \dontrun{
+#' # See the vignette for a runnable example
+#' 
 #' # Create the viewer app: 
+#' library(shiny); library(rbokeh)
 #' aucellApp <- AUCell_createViewerApp(auc=cells_AUC, 
 #'                thresholds=selectedThresholds,
 #'                tSNE=cellsTsne)
@@ -49,7 +52,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
   # Choose according to whether the t-SNE is provided
   if(!is.null(tSNE))
   {
-    library(rbokeh)
+    #library(rbokeh)
     app$ui <- fluidPage(
       titlePanel("AUCell"),
       tabsetPanel(
@@ -162,7 +165,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
       #             selected=possibleGene)
       textInput(inputId = "geneExpression",
                 label = "Gene expression:",
-                value = possibleGene)
+                value = gene)
     })
     
     # Reactive plots:
@@ -196,28 +199,47 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
         
         par(mfrow=c(1,2))
         
-        if(is.null(input$geneExpression))
+        if(is.null(input$geneExpression) || input$geneExpression=="")
         {
           plot.new()
         }else{
-          .auc_plotGradientTsne(tSNE, cellProp=setNames(exprMat[input$geneExpression, rownames(tSNE)], rownames(tSNE)),
-                                title=paste0(input$geneExpression, " expression"), txt="",
-                                colorsForPal = c("goldenrod1", "darkorange", "brown"),
-                                cex=input$size)
+          print(input$geneExpression)
+          if(input$geneExpression %in% rownames(exprMat))
+          {
+              .auc_plotGradientTsne(tSNE, cellProp=setNames(exprMat[input$geneExpression, rownames(tSNE)], rownames(tSNE)),
+                    title=paste0(input$geneExpression, " expression"), txt="",
+                    colorsForPal = c("goldenrod1", "darkorange", "brown"),
+                    cex=input$size)
+            
+            legend(min(tSNE[,1]), max(tSNE[,2]), 
+                   c("0", "", "", signif(max(exprMat[input$geneExpression, rownames(tSNE)]),2)), 
+                   border="lightgrey",
+                   fill=c("white", "goldenrod1", "darkorange", "brown"), 
+                  box.lwd="none", bty = "n", cex=input$size*.8)
+          }else{
+            plot.new()
+          }
         } 
         
-        # TO DO: improve
-        cellColor <- setNames(rep("#30303010", nrow(tSNE)), rownames(tSNE))
-        thisProp <- setNames(cellInfo[, input$phenodata_selection], rownames(cellInfo))
-        thisProp <- thisProp[which(!is.na(thisProp))]
-        propLevels <- levels(factor(thisProp))
-        cellColors <- setNames(rainbow(length(propLevels)),propLevels)
-        cellColor[names(thisProp)] <- cellColors[thisProp]
-        plot(tSNE, pch=16, cex=input$size,
-             col=cellColor,
-             main=input$phenodata_selection, xlab="",
-             axes=FALSE, ylab="")
-        box(which = "plot", col="grey")
+        if(is.null(cellInfo))
+        {
+          plot.new()
+        }else{
+          # TO DO: improve
+          cellColor <- setNames(rep("#30303010", nrow(tSNE)), rownames(tSNE))
+          thisProp <- setNames(cellInfo[, input$phenodata_selection], rownames(cellInfo))
+          thisProp <- thisProp[which(!is.na(thisProp))]
+          propLevels <- levels(factor(thisProp))
+          cellColors <- setNames(rainbow(length(propLevels)),propLevels)
+          cellColor[names(thisProp)] <- cellColors[thisProp]
+          plot(tSNE, pch=16, cex=input$size,
+               col=cellColor,
+               main=input$phenodata_selection, xlab="",
+               axes=FALSE, ylab="")
+          legend(min(tSNE[,1]), max(tSNE[,2]), names(cellColors), col=cellColors, 
+              bg=NULL,border=NULL, box.lwd="none", bty = "n", cex=input$size*.8, pch=16)
+          box(which = "plot", col="grey")
+        }
       }
     })
     

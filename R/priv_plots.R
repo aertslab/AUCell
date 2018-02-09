@@ -4,11 +4,11 @@
                                 cex=1,
                                 alphaOn=1, alphaOff=0.2,
                                 onColor="dodgerblue4", offColor="lightgray", 
-                                borderColor=adjustcolor("lightgray", alpha=.1),
+                                borderColor=adjustcolor("lightgray", alpha.f=.1),
                                 ...)  
 {
-  pointBg <-  setNames(rep(adjustcolor(offColor, alpha=alphaOff), nrow(tSNE)), rownames(tSNE))
-  pointBg[selectedCells] <- adjustcolor(onColor , alpha=alphaOn) # "royalblue4"
+  pointBg <-  setNames(rep(adjustcolor(offColor, alpha.f=alphaOff), nrow(tSNE)), rownames(tSNE))
+  pointBg[selectedCells] <- adjustcolor(onColor , alpha.f=alphaOn) # "royalblue4"
   pointBorder <- setNames(rep(borderColor, nrow(tSNE)), rownames(tSNE))
   
   ### Plot
@@ -24,14 +24,14 @@
                                   title="", txt="Regulon activity (AUC)", 
                                   alphaOn=1, alphaOff=0.2,
                                   offColor="lightgray", 
-                                  borderColor=adjustcolor("darkgrey", alpha=.3),
+                                  borderColor=adjustcolor("darkgrey", alpha.f=.3),
                                   cex=1,
                                   ...)
 {
   # Setup palette
   nBreaks <- 5
   colorPal <- grDevices::colorRampPalette(colorsForPal)(nBreaks)
-  colorPal <- adjustcolor(colorPal, alpha=alphaOn)
+  colorPal <- adjustcolor(colorPal, alpha.f=alphaOn)
   
   # Assign cell color
   cellColor <- setNames(rep("black", nrow(tSNE)), rownames(tSNE))
@@ -42,10 +42,10 @@
     cellColor[names(cellProp)] <- colorPal[as.numeric(cut(cellProp, breaks=nBreaks, right=F,include.lowest=T))]
     # Off
     lowLim <- as.numeric(gsub("]", "", strsplit(levels(cut(cellProp, breaks=100))[1], ",")[[1]][2]))
-    cellColor[which(cellProp <= max(0, lowLim))] <- adjustcolor(offColor, alpha=alphaOff)
+    cellColor[which(cellProp <= max(0, lowLim))] <- adjustcolor(offColor, alpha.f=alphaOff)
   } else
   {
-    cellColor[names(cellProp)] <- c(sadjustcolor(offColor, alpha=alphaOff), length(cellProp))
+    cellColor[names(cellProp)] <- c(adjustcolor(offColor, alpha.f=alphaOff), length(cellProp))
   }
   
   # Plot

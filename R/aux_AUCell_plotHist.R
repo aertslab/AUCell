@@ -10,13 +10,16 @@
 #' (to make sure the X axis includes it), if any.
 #' Otherwise, the X axis extends to cover only the AUC values plotted.
 #' @param nBreaks Number of 'bars' to plot (breaks argument for hist function).
+#' @param onColor Color for the bars that pass the AUC threshold
+#' @param offColor Color for the bars that do not pass the AUC threshold
 #' @param ... Other arguments to pass to \code{\link{hist}} function.
 #' @return List of histogram objects (invisible).
 #' @seealso See the package vignette for examples and more details:
 #' \code{vignette("AUCell")}
-#' @example inst/examples/example_AUCell_plot.R
+#' @example inst/examples/example_AUCell_plotHist.R
 #' @export
-AUCell_plotHist <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100, ...)
+AUCell_plotHist <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100, 
+                            onColor="dodgerblue4", offColor="slategray2", ...)
 {
   if(class(cellsAUC)[1]=="aucellResults") {
     cellsAUC <- getAUC(cellsAUC)
@@ -26,7 +29,8 @@ AUCell_plotHist <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100, ...)
 
   ret <- lapply(seq_len(nrow(cellsAUC)), function(gsn) {
     .auc_plotHist(auc=cellsAUC[gsn,], gSetName=rownames(cellsAUC)[gsn],
-              aucThr=aucThr, nBreaks=nBreaks, ...)
+              aucThr=aucThr, nBreaks=nBreaks, 
+              onColor=onColor, offColor=offColor, ...)
     })
   names(ret) <- rownames(cellsAUC)
 

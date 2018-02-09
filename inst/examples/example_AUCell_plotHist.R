@@ -23,5 +23,5 @@ cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=5)
 ##################################################
 
 # Plot histogram:
-AUCell_plot(cells_AUC["geneSet1",], nBreaks=10)
+AUCell_plotHist(cells_AUC["geneSet1",], nBreaks=10)
 
