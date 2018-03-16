@@ -3,7 +3,7 @@
 # Input:
 # Output:
 
-test_AUCell_plot <- function()
+test_plotGeneCount <- function()
 {
   library(AUCell)
   ##################################################
@@ -21,4 +21,4 @@ test_AUCell_plot <- function()
   testthat::expect_equal(length(testOutput), 6)
 }
 
-test_that("AUCell_plot tests", test_AUCell_plot())
+test_that("plotGeneCount tests", test_plotGeneCount())

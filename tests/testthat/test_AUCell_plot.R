@@ -3,7 +3,7 @@
 # Input:
 # Output:
 
-test_AUCell_plot <- function()
+test_AUCell_plotHist <- function()
 {
   # TO DO: add tests for _plotTsne()s
   library(AUCell)
@@ -24,4 +24,4 @@ test_AUCell_plot <- function()
   testthat::expect_equal(length(AUCell_plotHist(cellsAUC[1,])), 1)
 }
 
-test_that("AUCell_plot tests", test_AUCell_plot())
+test_that("AUCell_plotHist tests", test_AUCell_plotHist())

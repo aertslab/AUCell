@@ -11,11 +11,12 @@
 #' @param borderColor Border color for the dots (scatterplot)
 #' @param offColor Color for the dots representing "inactive" cells
 #' @param plots Which plots to generate? Select one or multiple: \code{plots=c("histogram", "binaryAUC", "AUC", "expression")}
+#' @param exprCols Color scale for the expression
 #' @param asPNG Output each individual plot in a .png file?
 #' @param ... Other arguments to pass to \code{\link{hist}} function.
 #' @return Returns invisible: \code{cells_trhAssignment}
 #' @details To avoid calculating thresholds, set thresholds to FALSE
-#' @seealso List of vignettes included in the package: \code{vignette(package="SCENIC")}
+#' @seealso List of vignettes included in the package: \code{vignette(package="AUCell")}
 # @example
 #' @export
 # thresholds=NULL; cex=1; alphaOn=1; alphaOff=0.2;  offColor="lightgray"
@@ -24,7 +25,9 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
                          alphaOn=1, alphaOff=0.2,
                          borderColor=adjustcolor("lightgray", alpha.f=0.1),
                          offColor="lightgray",
-                         plots=c("histogram", "binaryAUC", "AUC", "expression"), asPNG=FALSE, ...)
+                         plots=c("histogram", "binaryAUC", "AUC", "expression"), 
+                         exprCols= c("goldenrod1", "darkorange", "brown"),
+                         asPNG=FALSE, ...)
 {
   #library(BiocGenerics)
   #library(AUCell)
@@ -70,7 +73,8 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
   ####################################
   # Start plots
   if(asPNG){
-    figsMatrix <- matrix(nrow=length(selectedGeneSets), ncol=length(plots))
+    nCols <- length(plots)
+    figsMatrix <- matrix(nrow=length(selectedGeneSets), ncol=nCols)
     rownames(figsMatrix) <- selectedGeneSets
     colnames(figsMatrix) <- plots
   }
@@ -181,7 +185,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
         }
         ### Plot
         .auc_plotGradientTsne(tSNE, cellProp=exprMat[gene,],
-                              colorsForPal = c("goldenrod1", "darkorange", "brown"),
+                              colorsForPal = exprCols,
                               title=paste(gene, "expression"), txt="",
                               cex=cex, alphaOn=alphaOn, alphaOff=alphaOff,
                               borderColor=borderColor, offColor=offColor, ...)
@@ -201,7 +205,7 @@ asHTML <- function(figsMatrix, imgDir=".")
   figsMatrix <- t(apply(figsMatrix, 1, function(x) paste("<img src=\"", imgDir,"/", x, "\") height=\"100\"></img>", sep = "")))
 
   #file.copy("test.css", ".")
-  R2HTML::HTML(figsMatrix, file=HTMLInitFile("."))#, CSSFile="test.css")
+  R2HTML::HTML(figsMatrix, file=R2HTML::HTMLInitFile("."))#, CSSFile="test.css")
   R2HTML::HTMLEndFile()
 }
 

@@ -103,6 +103,11 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
 
   if((class(rankings)!="aucellResults") ||
      SummarizedExperiment::assayNames(rankings)!="ranking"){
+    if(class(rankings)=="matrixWrapper")
+    {
+      stop('These rankings were built with a previous AUCell version. \n",
+           "Please update them with updateAucellResults(..., objectType="ranking")')
+    }
     stop("Rankings should be a the object returned by AUCell_buildRankings()")
   } else{
     rankings <- getRanking(rankings)
