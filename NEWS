@@ -3,6 +3,7 @@
 VERSION 1.2.0
 ----------------------
 - Added shiny app to modify thresholds
+- New function: AUCell_plotTSNE()
 
 
 VERSION 0.99.6

@@ -8,7 +8,8 @@ AUCell_plotTSNE(tSNE, exprMat, cellsAUC = NULL, thresholds = NULL,
   cex = 1, alphaOn = 1, alphaOff = 0.2,
   borderColor = adjustcolor("lightgray", alpha.f = 0.1),
   offColor = "lightgray", plots = c("histogram", "binaryAUC", "AUC",
-  "expression"), asPNG = FALSE, ...)
+  "expression"), exprCols = c("goldenrod1", "darkorange", "brown"),
+  asPNG = FALSE, ...)
 }
 \arguments{
 \item{tSNE}{t-SNE coordinates (e.g. \code{tSNE$Y})}
@@ -31,6 +32,8 @@ AUCell_plotTSNE(tSNE, exprMat, cellsAUC = NULL, thresholds = NULL,
 
 \item{plots}{Which plots to generate? Select one or multiple: \code{plots=c("histogram", "binaryAUC", "AUC", "expression")}}
 
+\item{exprCols}{Color scale for the expression}
+
 \item{asPNG}{Output each individual plot in a .png file?}
 
 \item{...}{Other arguments to pass to \code{\link{hist}} function.}
@@ -45,5 +48,5 @@ Plots the AUC histogram and t-SNE coloured by AUC, binary activity and TF expres
 To avoid calculating thresholds, set thresholds to FALSE
 }
 \seealso{
-List of vignettes included in the package: \code{vignette(package="SCENIC")}
+List of vignettes included in the package: \code{vignette(package="AUCell")}
 }

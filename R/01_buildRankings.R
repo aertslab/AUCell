@@ -20,15 +20,17 @@
 #' \itemize{
 #' \item \link[Biobase]{ExpressionSet}:
 #' The matrix will be obtained through exprs(exprMatrix)
-#' \item \link[SummarizedExperiment]{RangedSummarizedExperiment}:
+#' \item \link[SummarizedExperiment]{RangedSummarizedExperiment} and derived classes (e.g. \link[SingleCellExperiment]{SingleCellExperiment} ):
 #' The matrix will be obtained through assay(exprMatrix),
-#' wich will extract the first assay (usually the counts)
+#' -which will extract the first assay (usually the counts)-
+#' or the assay name given in 'assayName'
 #' }
 #' @param plotStats Should the function plot the expression boxplots/histograms?
 #' (TRUE / FALSE). These plots can also be produced
 #' with the function \code{\link{plotGeneCount}}.
 #' @param nCores Number of cores to use for computation.
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
+#' @param assayName Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)
 #' @return data.table of genes (row) by cells (columns)
 #' with the ranking of the gene within the cell.
 #' @details
@@ -63,12 +65,21 @@ setMethod("AUCell_buildRankings", "matrix",
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,SummarizedExperiment-method
 setMethod("AUCell_buildRankings", "SummarizedExperiment",
-function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE, assayName=NULL)
   {
-    if(length(SummarizedExperiment::assays(exprMat))>1)
-      warning("More than 1 assays are available. Only the first one will be used.")
-
-    exprMat <- SummarizedExperiment::assay(exprMat)
+    if(is.null(assayName))
+    {
+      if(length(SummarizedExperiment::assays(exprMat))>1)
+        warning("More than 1 assays are available. Using the first one (", names(assays(exprMat))[1], ").")
+      
+      exprMat <- SummarizedExperiment::assay(exprMat)
+    }else{
+      if(!assayName %in% names(assays(exprMat)))
+        stop("There isn't an assay named ", assayName, ".")
+      
+      exprMat <- SummarizedExperiment::assays(exprMat)[[assayName]]
+    }
+      
     .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
   })
 

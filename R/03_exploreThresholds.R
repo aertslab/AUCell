@@ -88,6 +88,12 @@ AUCell_exploreThresholds <- function(cellsAUC, thrP=0.01, nCores=1,
   if(class(cellsAUC)[1]=="aucellResults"){
     aucMatrix <- getAUC(cellsAUC)
   }
+  
+  if(class(cellsAUC)=="matrixWrapper")
+  {
+    stop('The AUC was calculated with a previous AUCell version. \n",
+         "Please update them with updateAucellResults(..., objectType="AUC")')
+  }
 
   if(is.matrix(cellsAUC)) {
     aucMatrix <- cellsAUC
