@@ -31,6 +31,7 @@
 #' @param nCores Number of cores to use for computation.
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
 #' @param assayName Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)
+#' @param ... Other arguments
 #' @return data.table of genes (row) by cells (columns)
 #' with the ranking of the gene within the cell.
 #' @details
@@ -49,7 +50,7 @@
 #' @rdname AUCell_buildRankings
 #' @export
 setGeneric("AUCell_buildRankings", signature="exprMat",
-  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE, ...)
   {
    standardGeneric("AUCell_buildRankings")
   })

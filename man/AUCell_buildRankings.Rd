@@ -9,13 +9,13 @@
 \title{Build gene expression rankings for each cell}
 \usage{
 AUCell_buildRankings(exprMat, plotStats = TRUE, nCores = 1,
-  verbose = TRUE)
+  verbose = TRUE, ...)
 
 \S4method{AUCell_buildRankings}{matrix}(exprMat, plotStats = TRUE,
   nCores = 1, verbose = TRUE)
 
 \S4method{AUCell_buildRankings}{SummarizedExperiment}(exprMat,
-  plotStats = TRUE, nCores = 1, verbose = TRUE)
+  plotStats = TRUE, nCores = 1, verbose = TRUE, assayName = NULL)
 
 \S4method{AUCell_buildRankings}{ExpressionSet}(exprMat, plotStats = TRUE,
   nCores = 1, verbose = TRUE)
@@ -26,9 +26,10 @@ The expression matrix can also be provided as one of the Bioconductor classes:
 \itemize{
 \item \link[Biobase]{ExpressionSet}:
 The matrix will be obtained through exprs(exprMatrix)
-\item \link[SummarizedExperiment]{RangedSummarizedExperiment}:
+\item \link[SummarizedExperiment]{RangedSummarizedExperiment} and derived classes (e.g. \link[SingleCellExperiment]{SingleCellExperiment} ):
 The matrix will be obtained through assay(exprMatrix),
-wich will extract the first assay (usually the counts)
+-which will extract the first assay (usually the counts)-
+or the assay name given in 'assayName'
 }}
 
 \item{plotStats}{Should the function plot the expression boxplots/histograms?
@@ -38,6 +39,10 @@ with the function \code{\link{plotGeneCount}}.}
 \item{nCores}{Number of cores to use for computation.}
 
 \item{verbose}{Should the function show progress messages? (TRUE / FALSE)}
+
+\item{...}{Other arguments}
+
+\item{assayName}{Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)}
 }
 \value{
 data.table of genes (row) by cells (columns)
