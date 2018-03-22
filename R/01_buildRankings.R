@@ -18,13 +18,15 @@
 #' @param exprMat Expression matrix (genes as rows, cells as columns)
 #' The expression matrix can also be provided as one of the Bioconductor classes:
 #' \itemize{
-#' \item \link[Biobase]{ExpressionSet}:
-#' The matrix will be obtained through exprs(exprMatrix)
 #' \item \link[SummarizedExperiment]{RangedSummarizedExperiment} and derived classes (e.g. \link[SingleCellExperiment]{SingleCellExperiment} ):
 #' The matrix will be obtained through assay(exprMatrix),
 #' -which will extract the first assay (usually the counts)-
 #' or the assay name given in 'assayName'
+#' \item \link[Matrix]{dgCMatrix}:
+#' Sparse matrix 
 #' }
+#' \item \link[Biobase]{ExpressionSet}:
+#' The matrix will be obtained through exprs(exprMatrix)
 #' @param plotStats Should the function plot the expression boxplots/histograms?
 #' (TRUE / FALSE). These plots can also be produced
 #' with the function \code{\link{plotGeneCount}}.
@@ -63,6 +65,16 @@ setMethod("AUCell_buildRankings", "matrix",
     .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
   })
 
+# Sparse matrix
+#' @rdname AUCell_buildRankings
+#' @aliases AUCell_buildRankings,dgCMatrix-method
+setMethod("AUCell_buildRankings", "dgCMatrix",
+  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  {
+    exprMat <- as.matrix(exprMat)
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+  })
+
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,SummarizedExperiment-method
 setMethod("AUCell_buildRankings", "SummarizedExperiment",
@@ -81,7 +93,7 @@ function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE, assayName=NULL)
       exprMat <- SummarizedExperiment::assays(exprMat)[[assayName]]
     }
       
-    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+    .AUCell_buildRankings(exprMat=as.matrix(exprMat), plotStats=plotStats, nCores=nCores, verbose=verbose)
   })
 
 #' @rdname AUCell_buildRankings

@@ -4,6 +4,7 @@
 \name{AUCell_buildRankings}
 \alias{AUCell_buildRankings}
 \alias{AUCell_buildRankings,matrix-method}
+\alias{AUCell_buildRankings,dgCMatrix-method}
 \alias{AUCell_buildRankings,SummarizedExperiment-method}
 \alias{AUCell_buildRankings,ExpressionSet-method}
 \title{Build gene expression rankings for each cell}
@@ -12,6 +13,9 @@ AUCell_buildRankings(exprMat, plotStats = TRUE, nCores = 1,
   verbose = TRUE, ...)
 
 \S4method{AUCell_buildRankings}{matrix}(exprMat, plotStats = TRUE,
+  nCores = 1, verbose = TRUE)
+
+\S4method{AUCell_buildRankings}{dgCMatrix}(exprMat, plotStats = TRUE,
   nCores = 1, verbose = TRUE)
 
 \S4method{AUCell_buildRankings}{SummarizedExperiment}(exprMat,
@@ -24,13 +28,15 @@ AUCell_buildRankings(exprMat, plotStats = TRUE, nCores = 1,
 \item{exprMat}{Expression matrix (genes as rows, cells as columns)
 The expression matrix can also be provided as one of the Bioconductor classes:
 \itemize{
-\item \link[Biobase]{ExpressionSet}:
-The matrix will be obtained through exprs(exprMatrix)
 \item \link[SummarizedExperiment]{RangedSummarizedExperiment} and derived classes (e.g. \link[SingleCellExperiment]{SingleCellExperiment} ):
 The matrix will be obtained through assay(exprMatrix),
 -which will extract the first assay (usually the counts)-
 or the assay name given in 'assayName'
-}}
+\item \link[Matrix]{dgCMatrix}:
+Sparse matrix 
+}
+\item \link[Biobase]{ExpressionSet}:
+The matrix will be obtained through exprs(exprMatrix)}
 
 \item{plotStats}{Should the function plot the expression boxplots/histograms?
 (TRUE / FALSE). These plots can also be produced
