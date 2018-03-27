@@ -22,11 +22,11 @@
 #' The matrix will be obtained through assay(exprMatrix),
 #' -which will extract the first assay (usually the counts)-
 #' or the assay name given in 'assayName'
-#' \item \link[Matrix]{dgCMatrix}:
+#' \item \link[Matrix]{dgCMatrix-class}:
 #' Sparse matrix 
-#' }
 #' \item \link[Biobase]{ExpressionSet}:
 #' The matrix will be obtained through exprs(exprMatrix)
+#' }
 #' @param plotStats Should the function plot the expression boxplots/histograms?
 #' (TRUE / FALSE). These plots can also be produced
 #' with the function \code{\link{plotGeneCount}}.
