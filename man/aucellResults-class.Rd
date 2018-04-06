@@ -18,7 +18,11 @@
 
 getAUC(object)
 
+\S4method{getAUC}{aucellResults}(object)
+
 getRanking(object)
+
+\S4method{getRanking}{aucellResults}(object)
 }
 \arguments{
 \item{object}{Results from \code{AUCell_buildRanking}
@@ -53,9 +57,9 @@ Types:
 ############# Fake run of AUCell #############
 set.seed(123)
 exprMatrix <- matrix(data=sample(c(rep(0, 5000), sample(1:3, 5000, replace=TRUE))),
-                     nrow=20)
-rownames(exprMatrix) <- paste("Gene", 1:20, sep="")
-colnames(exprMatrix) <- paste("Cell", 1:500, sep="")
+                     nrow=20, 
+                     dimnames=list(paste("Gene", 1:20, sep=""), 
+                                   paste("Cell", 1:500, sep="")))
 dim(exprMatrix)
 
 # Running AUCell

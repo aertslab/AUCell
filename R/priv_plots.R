@@ -39,7 +39,7 @@
   if (sum(cellProp) > 0)
   {
     # On
-    cellColor[names(cellProp)] <- colorPal[as.numeric(cut(cellProp, breaks=nBreaks, right=F,include.lowest=T))]
+    cellColor[names(cellProp)] <- colorPal[as.numeric(cut(cellProp, breaks=nBreaks, right=FALSE,include.lowest=TRUE))]
     # Off
     lowLim <- as.numeric(gsub("]", "", strsplit(levels(cut(cellProp, breaks=100))[1], ",")[[1]][2]))
     cellColor[which(cellProp <= max(0, lowLim))] <- adjustcolor(offColor, alpha.f=alphaOff)

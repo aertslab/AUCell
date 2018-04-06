@@ -7,7 +7,7 @@
 #' @importFrom graphics mtext
 #' @importFrom stats quantile
 #'
-#' @import data.table
+#' @rawNamespace import(data.table, except = shift)
 #' @title plotGeneCount
 #' @description Plots a histogram and boxplot for the number of genes
 #' detected in each cell.

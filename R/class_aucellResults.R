@@ -26,8 +26,9 @@
 #' @method getAUC aucellResults
 #' @method getRanking aucellResults
 #' @example inst/examples/example_aucellResults_class.R
-#' @import data.table
-#' @import SummarizedExperiment
+#' @rawNamespace import(data.table, except = shift)
+#' @importClassesFrom SummarizedExperiment SummarizedExperiment
+#' @importMethodsFrom SummarizedExperiment assay assays assayNames
 #' @importFrom utils head
 #' @rdname aucellResults-class
 #' @export aucellResults
@@ -67,43 +68,47 @@ setMethod("show",
   }
 )
 ##### Access the matrix:
-#' @export
+#' @name getAUC
 #' @rdname aucellResults-class
-#' @aliases getAUC,aucellResults-method
+# Export generic, for RcisTarget
+#' @export getAUC 
 setGeneric(name="getAUC",
            def=function(object) standardGeneric("getAUC"))
+
+#' @rdname aucellResults-class
+#' @aliases getAUC,aucellResults-method
+#' @exportMethod getAUC
 setMethod("getAUC",
           signature="aucellResults",
           definition = function(object) {
             if("AUC" %in% assayNames(object)) {
-              assays(object)[["AUC"]]
+              SummarizedExperiment::assays(object)[["AUC"]]
             }else{
               stop("This object does not contain an AUC matrix.")
             }
           }
 )
 
-# alias:
-#  @export
-# setGeneric(name="getAuc", def=function(object) standardGeneric("getAuc"))
-# setMethod("getAuc",
-#           signature="aucellResults",
-#           definition = function(object) {
-#             getAUC(object)
-#           }
-# )
+##### Access the rankings:
+# setGeneric
+# @method test data.frame
+#' @name getRanking
+#' @rdname aucellResults-class
+# Export generic, for RcisTarget
+#' @export getRanking 
+setGeneric(name="getRanking",
+           def=function(object) standardGeneric("getRanking"))
 
-#' @export
 #' @rdname aucellResults-class
 #' @aliases getRanking,aucellResults-method
-setGeneric(name="getRanking", def=function(object) standardGeneric("getRanking"))
+#' @exportMethod getRanking
 setMethod("getRanking",
-  signature="aucellResults",
-  definition = function(object) {
-    if("ranking" %in% assayNames(object)) {
-      assays(object)[["ranking"]]
-    }else{
-      stop("This object does not contain a ranking.")
-    }
-  }
+          signature="aucellResults",
+          definition = function(object) {
+            if("ranking" %in% assayNames(object)) {
+              SummarizedExperiment::assays(object)[["ranking"]]
+            }else{
+              stop("This object does not contain a ranking.")
+            }
+          }
 )

@@ -1,6 +1,6 @@
 # Help files will be automatically generated from the coments starting with #'
 # (https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
-#' @import data.table
+#' @rawNamespace import(data.table, except = shift)
 #' @import GSEABase
 #' @importFrom stats setNames
 #' @importFrom methods new

@@ -1,8 +1,8 @@
 # Help files will be automatically generated from the coments starting with #'
 # (https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
 
-#' @import data.table
-#' @import SummarizedExperiment
+#' @rawNamespace import(data.table, except = shift)
+# @import SummarizedExperiment
 #' @importFrom methods new
 #'
 #' @title Build gene expression rankings for each cell
