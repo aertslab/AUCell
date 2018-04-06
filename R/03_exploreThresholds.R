@@ -1,6 +1,5 @@
 # Help files will be automatically generated from the coments starting with #'
 # (https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
-# @import data.table
 #
 #' @title AUCell_exploreThresholds
 #' @description Plots all the AUC histograms (per gene-set)

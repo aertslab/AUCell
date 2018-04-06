@@ -1,6 +1,8 @@
 # @import
 #' @title Plot 
 #' @description  Plots the AUC histogram and t-SNE coloured by AUC, binary activity and TF expression
+#' @importFrom graphics box legend plot
+#' @importFrom grDevices adjustcolor dev.off png rainbow
 #' @param tSNE t-SNE coordinates (e.g. \code{tSNE$Y})
 #' @param exprMat Expression matrix
 #' @param cellsAUC AUC (as returned by calcAUC)
@@ -17,7 +19,7 @@
 #' @return Returns invisible: \code{cells_trhAssignment}
 #' @details To avoid calculating thresholds, set thresholds to FALSE
 #' @seealso List of vignettes included in the package: \code{vignette(package="AUCell")}
-# @example
+#' @example inst/examples/example_AUCell_plotTSNE.R
 #' @export
 # thresholds=NULL; cex=1; alphaOn=1; alphaOff=0.2;  offColor="lightgray"
 # borderColor=adjustcolor("darkgrey", alpha=.3); plots=c("histogram", "binaryAUC", "AUC", "expression")

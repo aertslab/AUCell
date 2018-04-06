@@ -15,27 +15,10 @@
 #' @note 
 #' With lasso: "To make a multiple selection, press the SHIFT key. To clear the selection, press the ESC key."
 #' @return Thresholds and cells selected within the app (as list).
-#' @examples
-#' \dontrun{
-#' # See the vignette for a runnable example
-#' 
-#' # Create the viewer app: 
-#' library(shiny); library(rbokeh)
-#' aucellApp <- AUCell_createViewerApp(auc=cells_AUC, 
-#'                thresholds=selectedThresholds,
-#'                tSNE=cellsTsne)
-#'                
-#' # This object contains the $ui and $server required to run the app, e.g.:
-#' savedSelections <- shinyApp(ui=aucellApp$ui, server=aucellApp$server)
-#' 
-#' # (How to launch the app might depend on the local settings)
-#' options(shiny.host="0.0.0.0") 
-#' savedSelections <- runApp(aucellApp) 
-#' }
+#' @example inst/examples/example_AUCell_createViewerApp.R
 #' @export
 AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL, cellInfo=NULL)
 {
-  #library(shiny)
   if(class(auc)!="aucellResults") stop("Please provide an aucellResults object.")
   if(is.null(thresholds)) thresholds <- setNames(rep(0, nrow(auc)), rownames(auc))
   
@@ -52,7 +35,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
   # Choose according to whether the t-SNE is provided
   if(!is.null(tSNE))
   {
-    #library(rbokeh)
+    require(rbokeh)
     app$ui <- fluidPage(
       titlePanel("AUCell"),
       tabsetPanel(
@@ -100,7 +83,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
                         selectInput(inputId = "geneSetBokeh",
                                     label = "Gene set:",
                                     choices=rownames(auc)),
-                        rbokehOutput("tsne_rbokeh"),
+                        rbokeh::rbokehOutput("tsne_rbokeh"),
                         sliderInput(inputId = "size_bokeh",
                                     label = "Point size:",
                                     min = 0.01,
@@ -247,8 +230,8 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
       rbokeh::figure(logo=NULL) %>%
         rbokeh::ly_points(tsne1, tsne2, data=tSNE.df, hover=cell, size=input$size_bokeh,
                           color = getAUC(auc)[input$geneSetBokeh,rownames(tSNE.df)], legend=FALSE, lname = "cells") %>%
-        rbokeh::set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red"))) %>%
-        rbokeh::tool_lasso_select(callback = shiny_callback(id="cellsSelected"), "cells")
+        rbokeh::set_palette(continuous_color = rbokeh::pal_gradient(c("lightgrey", "pink", "red"))) %>%
+        rbokeh::tool_lasso_select(callback = rbokeh::shiny_callback(id="cellsSelected"), "cells")
     })
     
     output$cellSelectedTable <- DT::renderDataTable({

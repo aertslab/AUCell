@@ -47,6 +47,35 @@ Plots the AUC histogram and t-SNE coloured by AUC, binary activity and TF expres
 \details{
 To avoid calculating thresholds, set thresholds to FALSE
 }
+\examples{
+
+
+######
+# Fake run of AUCell
+set.seed(123)
+exprMatrix <- matrix(
+  data=sample(c(rep(0, 5000), sample(1:3, 5000, replace=TRUE))),
+  nrow=20, 
+  dimnames=list(paste("Gene", 1:20, sep=""), 
+                paste("Cell", 1:500, sep="")))
+geneSets <- list(geneSet1=sample(rownames(exprMatrix), 10),
+                 geneSet2=sample(rownames(exprMatrix), 5))
+
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats = FALSE)
+cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=5, nCores=1)
+selectedThresholds <- rowMeans(getAUC(cells_AUC))
+cellsTsne<- Rtsne::Rtsne(t(exprMatrix),max_iter = 10)$Y
+rownames(cellsTsne) <- colnames(exprMatrix)
+######
+
+
+par(mfrow=c(2,3))
+thrs <- AUCell_plotTSNE(tSNE=cellsTsne, exprMat=NULL,
+                        cellsAUC=cells_AUC, thresholds=selectedThresholds, 
+                        plots = c("histogram", "binaryAUC", "AUC"))
+ 
+
+}
 \seealso{
 List of vignettes included in the package: \code{vignette(package="AUCell")}
 }

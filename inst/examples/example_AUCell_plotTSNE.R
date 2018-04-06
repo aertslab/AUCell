@@ -11,21 +11,17 @@ exprMatrix <- matrix(
 geneSets <- list(geneSet1=sample(rownames(exprMatrix), 10),
                  geneSet2=sample(rownames(exprMatrix), 5))
 
-cells_rankings <- AUCell_buildRankings(exprMatrix)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats = FALSE)
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=5, nCores=1)
-selectedThresholds <- NULL
+selectedThresholds <- rowMeans(getAUC(cells_AUC))
 cellsTsne<- Rtsne::Rtsne(t(exprMatrix),max_iter = 10)$Y
 rownames(cellsTsne) <- colnames(exprMatrix)
 ######
 
 
-library(shiny); library(rbokeh)
-
-# Create app 
-aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 
-                                    tSNE=cellsTsne, exprMat=exprMatrix)
-
-# Run (the exact commands depend on the R settings, see Shiny's doc for help)
-options(shiny.host="0.0.0.0") 
-savedSelections <- runApp(aucellApp) 
+par(mfrow=c(2,3))
+thrs <- AUCell_plotTSNE(tSNE=cellsTsne, exprMat=NULL,
+                        cellsAUC=cells_AUC, thresholds=selectedThresholds, 
+                        plots = c("histogram", "binaryAUC", "AUC"))
+ 
 
