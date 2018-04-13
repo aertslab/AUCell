@@ -8,8 +8,8 @@
 #' @title Calculate AUC
 #' @description Calculates the 'AUC' for each gene-set in each cell.
 #' @param geneSets List of gene-sets (or signatures) to test in the cells.
-#' The gene-sets should be provided as \code{\link[GSEABase]{GeneSet}},
-#' \code{\link[GSEABase]{GeneSetCollection}} or character list (see examples).
+#' The gene-sets should be provided as \code{\link{GeneSet}},
+#' \code{\link{GeneSetCollection}} or character list (see examples).
 #' @param rankings 'Rankings' created for this dataset with
 #' \code{\link{AUCell_buildRankings}}.
 #' @param nCores Number of cores to use for computation.

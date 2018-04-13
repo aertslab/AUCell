@@ -28,13 +28,13 @@ AUCell_buildRankings(exprMat, plotStats = TRUE, nCores = 1,
 \item{exprMat}{Expression matrix (genes as rows, cells as columns)
 The expression matrix can also be provided as one of the Bioconductor classes:
 \itemize{
-\item \link[SummarizedExperiment]{RangedSummarizedExperiment} and derived classes (e.g. \link[SingleCellExperiment]{SingleCellExperiment} ):
+\item \link{RangedSummarizedExperiment} and derived classes (e.g. \link[SingleCellExperiment]{SingleCellExperiment} ):
 The matrix will be obtained through assay(exprMatrix),
 -which will extract the first assay (usually the counts)-
 or the assay name given in 'assayName'
 \item \link[Matrix]{dgCMatrix-class}:
 Sparse matrix 
-\item \link[Biobase]{ExpressionSet}:
+\item \link{ExpressionSet}:
 The matrix will be obtained through exprs(exprMatrix)
 }}
 

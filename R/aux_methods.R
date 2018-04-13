@@ -3,9 +3,9 @@
 #' @description Functions to manipulate GeneSet and GeneSetCollection objects
 #' (from package GSEABase)
 #' @import GSEABase
-#' @param geneSet One gene-set (\code{\link[GSEABase]{GeneSet}})
+#' @param geneSet One gene-set (\code{\link{GeneSet}})
 #' @param geneSets Gene-set collection
-#' (\code{\link[GSEABase]{GeneSetCollection}})
+#' (\code{\link{GeneSetCollection}})
 #' @param geneNames Gene names (for subset)
 #' @param newNames New names (to assign to the gene sets)
 #' @return

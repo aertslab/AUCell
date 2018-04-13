@@ -26,10 +26,10 @@ setGeneSetNames(geneSets, newNames)
 \S4method{setGeneSetNames}{GeneSetCollection}(geneSets, newNames)
 }
 \arguments{
-\item{geneSet}{One gene-set (\code{\link[GSEABase]{GeneSet}})}
+\item{geneSet}{One gene-set (\code{\link{GeneSet}})}
 
 \item{geneSets}{Gene-set collection
-(\code{\link[GSEABase]{GeneSetCollection}})}
+(\code{\link{GeneSetCollection}})}
 
 \item{geneNames}{Gene names (for subset)}
 
