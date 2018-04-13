@@ -57,8 +57,10 @@ library(shiny); library(rbokeh)
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 
                                     tSNE=cellsTsne, exprMat=exprMatrix)
 
-# Run (the exact commands depend on the R settings, see Shiny's doc for help)
+# The exact commands to lauch the app depend on the R settings 
+# For example:
 # options(shiny.host="0.0.0.0") 
 # savedSelections <- runApp(aucellApp) 
+# (see Shiny's doc for help)
 
 }
