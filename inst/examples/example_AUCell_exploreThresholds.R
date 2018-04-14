@@ -38,8 +38,8 @@ names(which(getAUC(cells_AUC)["geneSet1",] > 0.19))
 cells_assignment <- AUCell_exploreThresholds(cells_AUC,
                                              plotHist=FALSE, assignCells=TRUE)
 # Cells assigned:
-lapply(cells_assignment, function(x) x$assignment)
+getAssignments(cells_assignment)
 # Threshold applied:
-sapply(cells_assignment, function(x) x$aucThr$selected)
+getThresholdSelected(cells_assignment)
 
 

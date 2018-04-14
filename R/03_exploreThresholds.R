@@ -21,6 +21,7 @@
 #' automatically selected threshold? (TRUE/FALSE)
 #' @param nBreaks Number of bars to plot in the histograms.
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
+#' @param aucellThresholds For aux functions: Output from AUCell_exploreThresholds
 #' @return List with the following elements for each gene-set:
 #' \itemize{
 #' \item 'aucThr' Thresholds calculated with each method (see 'details' section),

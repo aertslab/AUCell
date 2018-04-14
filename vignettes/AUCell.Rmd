@@ -349,6 +349,7 @@ To ease for the inclusion of AUCell in workflows (e.g. SCENIC), this function ca
 To obtain the threshold selected automatically for a given gene set(e.g. Oligodendrocytes):
 ```{r explThr2}
 cells_assignment$Oligodendrocyte_Cahoy$aucThr$selected
+# getThresholdSelected(cells_assignment)
 ```
 Cells assigned at this threshold:
 ```{r cellsAssigned}
@@ -439,7 +440,7 @@ Of course, the origin of the signatures should also be kept in mind for the inte
 
 For this example we have used the thresholds assigned automatically:
 ```{r plotTsneCode, fig.width=7, fig.height=6}
-selectedThresholds <- sapply(cells_assignment, function(x) unname(x$aucThr$selected))
+selectedThresholds <- getAssignments(cells_assignment)
 par(mfrow=c(2,3)) # Splits the plot into two rows and three columns
 for(geneSetName in names(selectedThresholds))
 {
