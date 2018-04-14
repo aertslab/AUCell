@@ -11,7 +11,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 output: 
   BiocStyle::html_document:
+    toc: yes
     number_sections: false
+    css: corrected.css
   pdf_document:
     toc: yes
   html_notebook:
@@ -36,7 +38,7 @@ dir.create("AUCell_tutorial")
 knitr::opts_knit$set(root.dir = 'AUCell_tutorial')
 ```
 
-# Overview of the workflow to run AUCell
+# Overview of the workflow
 AUCell allows to identify cells with active gene sets (e.g. signatures, gene modules) in single-cell RNA-seq data. 
 In brief, the workflow to run AUCell is based on three steps:
 
@@ -131,9 +133,10 @@ exprMatrix <- as.matrix(exprMatrix)
 exprMatrix <- exprs(myExpressionSet)
 ```
 
-In this tutorial we use a dataset containing 3005 cells from mouse cortex and hippocampus. The dataset can be downloaded from GEO accession number GSE60361.  
+In this tutorial we use a dataset containing 3005 cells from mouse cortex and hippocampus. The dataset can be downloaded from GEO accession number GSE60361.
 
-> Zeisel, A., et al. (2015). Cell types in the mouse cortex and hippocampus revealed by single-cell RNA-seq. Science 347, 1138–1142. doi: [10.1126/science.aaa1934](http://dx.doi.org/10.1126/science.aaa1934)
+*Zeisel, A., et al. (2015). Cell types in the mouse cortex and hippocampus revealed by single-cell RNA-seq. Science 347, 1138–1142. doi: [10.1126/science.aaa1934](http://dx.doi.org/10.1126/science.aaa1934)*
+
 
 ```{r GEOdataset, cache=TRUE, results='hide', message=FALSE, eval=TRUE}
 # (This may take a few minutes)
@@ -141,14 +144,14 @@ library(GEOquery)
 attemptsLeft <- 20
 while(attemptsLeft>0)
 {
- geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE), error=identity) 
- if("error" %in% class(geoFile)) 
- {
-   attemptsLeft <- attemptsLeft-1
-   Sys.sleep(5)
- }
- else
-   attemptsLeft <- 0
+  geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE), error=identity) 
+  if("error" %in% class(geoFile)) 
+  {
+    attemptsLeft <- attemptsLeft-1
+    Sys.sleep(5)
+  }
+  else
+    attemptsLeft <- 0
 }
 
 gzFile <- grep(".txt.gz", basename(rownames(geoFile)), fixed=TRUE, value=TRUE)
@@ -197,19 +200,19 @@ geneSets
 ```
 
 In this example we will use gene-sets representing diferent cell types in the brain: 
+  
+  1. Big gene signatures (> 1000 genes) for **astrocytes**, **oligodendrocytes** and **neurons**.
 
-1. Big gene signatures (> 1000 genes) for **astrocytes**, **oligodendrocytes** and **neurons**.
+  *Cahoy, J.D., et al. (2008). A Transcriptome Database for Astrocytes, Neurons, and Oligodendrocytes: A New Resource for Understanding Brain Development and Function. J. Neurosci. 28, 264–278. doi: [10.1523/JNEUROSCI.4178-07.2008](http://dx.doi.org/10.1523/JNEUROSCI.4178-07.2008)*
+  
+  2. Big gene signature (> 500 genes) for **microglia**. Obtained by comparing bulk RNA-seq profiles of microglia (brain-resident macrophages) to macrophages from other tissues. 
 
-    > Cahoy, J.D., et al. (2008). A Transcriptome Database for Astrocytes, Neurons, and Oligodendrocytes: A New Resource for Understanding Brain Development and Function. J. Neurosci. 28, 264–278. doi: [10.1523/JNEUROSCI.4178-07.2008](http://dx.doi.org/10.1523/JNEUROSCI.4178-07.2008)
+  *Lein, E.S., et al. (2007). Genome-wide atlas of gene expression in the adult mouse brain. Nature 445, 168–176.  doi: [10.1038/nature05453](http://dx.doi.org/10.1038/nature05453)* 
+  
+  3. Small gene signatures (<100 genes) for astrocytes and neurons.
 
-2. Big gene signature (> 500 genes) for **microglia**. Obtained by comparing bulk RNA-seq profiles of microglia (brain-resident macrophages) to macrophages from other tissues. 
-
-    > Lein, E.S., et al. (2007). Genome-wide atlas of gene expression in the adult mouse brain*. Nature 445, 168–176.  doi: [10.1038/nature05453](http://dx.doi.org/10.1038/nature05453)
-
-3. Small gene signatures (<100 genes) for astrocytes and neurons.
-
-    > Lavin, Y., et al. (2014) Tissue-Resident Macrophage Enhancer Landscapes Are Shaped by the Local Microenvironment. Cell 159, 1312–1326. doi: [10.1016/j.cell.2014.11.018](http://dx.doi.org/10.1016/j.cell.2014.11.018)
-
+  *Lavin, Y., et al. (2014) Tissue-Resident Macrophage Enhancer Landscapes Are Shaped by the Local Microenvironment. Cell 159, 1312–1326. doi: [10.1016/j.cell.2014.11.018](http://dx.doi.org/10.1016/j.cell.2014.11.018)*
+  
 ```{r geneSets}
 library(AUCell)
 library(GSEABase)
@@ -239,7 +242,7 @@ extraGeneSets <- c(
 countsPerGene <- apply(exprMatrix, 1, function(x) sum(x>0))
 # Housekeeping-like
 extraGeneSets <- c(extraGeneSets,
-                  GeneSet(sample(names(countsPerGene)[which(countsPerGene>quantile(countsPerGene, probs=.95))], 100), setName="HK-like (100g)"))
+                   GeneSet(sample(names(countsPerGene)[which(countsPerGene>quantile(countsPerGene, probs=.95))], 100), setName="HK-like (100g)"))
 
 geneSets <- GeneSetCollection(c(geneSets,extraGeneSets))
 names(geneSets)
@@ -367,7 +370,7 @@ length(newSelectedCells)
 head(newSelectedCells)
 ```
 
-# Follow up: Examples of further analyses
+# Follow up examples
 ## Exploring the cell-assignment (table & heatmap)
 
 The cell assignment is stored in the `$assignment` slot. Here we show a few ideas on how they can be extracted and visualized.
@@ -450,16 +453,16 @@ for(geneSetName in names(selectedThresholds))
   passThreshold <- getAUC(cells_AUC)[geneSetName,] >  selectedThresholds[geneSetName]
   if(sum(passThreshold) >0 )
   {
-    aucSplit <- split(getAUC(cells_AUC)[geneSetName,], passThreshold)
-
-    # Assign cell color
-    cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
-                  setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
-    
-    # Plot
-    plot(cellsTsne, main=geneSetName,
-         sub="Pink/red cells pass the threshold",
-         col=cellColor[rownames(cellsTsne)], pch=16) 
+  aucSplit <- split(getAUC(cells_AUC)[geneSetName,], passThreshold)
+  
+  # Assign cell color
+  cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
+  setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
+  
+  # Plot
+  plot(cellsTsne, main=geneSetName,
+  sub="Pink/red cells pass the threshold",
+  col=cellColor[rownames(cellsTsne)], pch=16) 
   }
 }
 ```
@@ -469,7 +472,7 @@ This kind of plots can also be used to explore the assignment thresholds. i.e.:
 selectedThresholds[2] <-  0.08
 par(mfrow=c(2,3))
 AUCell_plotTSNE(tSNE=cellsTsne, exprMat=exprMatrix, 
-                cellsAUC=cells_AUC[1:2,], thresholds=selectedThresholds)
+cellsAUC=cells_AUC[1:2,], thresholds=selectedThresholds)
 ```
 
 
@@ -482,7 +485,7 @@ exprMat <- log2(mouseBrainExprMatrix+1) # (back to the full matrix)
 
 # Create app 
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 
-                            tSNE=cellsTsne, exprMat=exprMat)
+tSNE=cellsTsne, exprMat=exprMat)
 
 # Run (the exact commands depend on the R settings, see Shiny's doc for help)
 options(shiny.host="0.0.0.0") 
@@ -494,7 +497,7 @@ savedSelections <- runApp(aucellApp)
 
 # Optional: Visualize extra information about the cells (categorical variable)
 cellInfoFile <- paste(file.path(system.file('examples', package='AUCell')), 
-                      "mouseBrain_cellLabels.tsv", sep="/")
+"mouseBrain_cellLabels.tsv", sep="/")
 cellInfo <- read.table(cellInfoFile, row.names=1, header=TRUE, sep="\t")
 head(cellInfo)
 ```
@@ -507,9 +510,9 @@ geneSetName <- "Astrocyte_Cahoy (555g)"
 library(rbokeh)
 tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
 figure() %>%
-  ly_points(tsne1, tsne2, data=tSNE.df, size=1, legend = FALSE,
-            hover=cell, color=getAUC(cells_AUC)[geneSetName,rownames(tSNE.df)]) %>%
-  set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red")))
+ly_points(tsne1, tsne2, data=tSNE.df, size=1, legend = FALSE,
+hover=cell, color=getAUC(cells_AUC)[geneSetName,rownames(tSNE.df)]) %>%
+set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red")))
 ```
 
 # Why to use AUCell? 
@@ -532,12 +535,12 @@ for(geneSetName in names(geneSets))
 {
   cellColor <- setNames(colorPal[cut(meanByGs[geneSetName,], breaks=nBreaks)], names(meanByGs[geneSetName,]))
   plot(cellsTsne, main=geneSetName, axes=FALSE, xlab="", ylab="",
-       sub="Expression mean",
-       col=cellColor[rownames(cellsTsne)], pch=16)
+  sub="Expression mean",
+  col=cellColor[rownames(cellsTsne)], pch=16)
 }
 
 AUCell_plotTSNE(tSNE=cellsTsne, exprMat=exprMatrix, plots = "AUC",
-          cellsAUC=cells_AUC[1:9,], thresholds=selectedThresholds)
+cellsAUC=cells_AUC[1:9,], thresholds=selectedThresholds)
 ```
 
 ```{r, fig.height=4, fig.width=3.5}
@@ -545,8 +548,8 @@ nGenesPerCell <- apply(exprMatrix, 2, function(x) sum(x>0))
 colorPal <- grDevices::colorRampPalette(c("darkgreen", "yellow","red"))
 cellColorNgenes <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(nGenesPerCell,breaks=10, right=FALSE,include.lowest=TRUE))], names(nGenesPerCell))
 plot(cellsTsne, axes=FALSE, xlab="", ylab="",
-       sub="Number of detected genes",
-       col=cellColorNgenes[rownames(cellsTsne)], pch=16)
+sub="Number of detected genes",
+col=cellColorNgenes[rownames(cellsTsne)], pch=16)
 ```
 
 ## How reliable is AUCell? (Confusion matrix)
@@ -554,7 +557,7 @@ plot(cellsTsne, axes=FALSE, xlab="", ylab="",
 When using AUCell to identify cell types, the reliability of the cells identified will depend on the signatures used, and the differences within the cell types in the dataset. In any case, AUCell is quite robust to noise, both in the data and in the gene-set. 
 
 This is the comparison of the cells identified with AUCell (this example) and the cell-types assigned in the initial publication:
-  
+
 ```{r}
 # "Real" cell type (e.g. provided in the publication)
 cellLabels <- paste(file.path(system.file('examples', package='AUCell')), "mouseBrain_cellLabels.tsv", sep="/")
@@ -565,7 +568,7 @@ cellLabels <- read.table(cellLabels, row.names=1, header=TRUE, sep="\t")
 # Confusion matrix:
 cellTypeNames <- unique(cellLabels[,"level1class"])
 confMatrix <- t(sapply(cells_assignment[c(1,4,2,5,3,6:9)], 
-                  function(x) table(cellLabels[x$assignment,])[cellTypeNames]))
+function(x) table(cellLabels[x$assignment,])[cellTypeNames]))
 colnames(confMatrix) <- cellTypeNames
 confMatrix[which(is.na(confMatrix), arr.ind=TRUE)] <- 0
 confMatrix
