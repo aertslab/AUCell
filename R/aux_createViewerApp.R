@@ -189,7 +189,8 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
           print(input$geneExpression)
           if(input$geneExpression %in% rownames(exprMat))
           {
-              .auc_plotGradientTsne(tSNE, cellProp=setNames(exprMat[input$geneExpression, rownames(tSNE)], rownames(tSNE)),
+              .auc_plotGradientTsne(tSNE, 
+                    cellProp=setNames(exprMat[input$geneExpression, rownames(tSNE)], rownames(tSNE)),
                     title=paste0(input$geneExpression, " expression"), txt="",
                     colorsForPal = c("goldenrod1", "darkorange", "brown"),
                     cex=input$size)

@@ -440,7 +440,7 @@ Of course, the origin of the signatures should also be kept in mind for the inte
 
 For this example we have used the thresholds assigned automatically:
 ```{r plotTsneCode, fig.width=7, fig.height=6}
-selectedThresholds <- getAssignments(cells_assignment)
+selectedThresholds <- getThresholdSelected(cells_assignment)
 par(mfrow=c(2,3)) # Splits the plot into two rows and three columns
 for(geneSetName in names(selectedThresholds))
 {
@@ -454,16 +454,16 @@ for(geneSetName in names(selectedThresholds))
   passThreshold <- getAUC(cells_AUC)[geneSetName,] >  selectedThresholds[geneSetName]
   if(sum(passThreshold) >0 )
   {
-  aucSplit <- split(getAUC(cells_AUC)[geneSetName,], passThreshold)
-  
-  # Assign cell color
-  cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
-  setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
-  
-  # Plot
-  plot(cellsTsne, main=geneSetName,
-  sub="Pink/red cells pass the threshold",
-  col=cellColor[rownames(cellsTsne)], pch=16) 
+    aucSplit <- split(getAUC(cells_AUC)[geneSetName,], passThreshold)
+    
+    # Assign cell color
+    cellColor <- c(setNames(colorPal_Neg[cut(aucSplit[[1]], breaks=nBreaks)], names(aucSplit[[1]])), 
+    setNames(colorPal_Pos[cut(aucSplit[[2]], breaks=nBreaks)], names(aucSplit[[2]])))
+    
+    # Plot
+    plot(cellsTsne, main=geneSetName,
+    sub="Pink/red cells pass the threshold",
+    col=cellColor[rownames(cellsTsne)], pch=16) 
   }
 }
 ```

@@ -1,5 +1,5 @@
 # @import
-#' @title Plot 
+#' @title Plot
 #' @description  Plots the AUC histogram and t-SNE coloured by AUC, binary activity and TF expression
 #' @importFrom graphics box legend plot
 #' @importFrom grDevices adjustcolor dev.off png rainbow
@@ -14,7 +14,7 @@
 #' @param offColor Color for the dots representing "inactive" cells
 #' @param plots Which plots to generate? Select one or multiple: \code{plots=c("histogram", "binaryAUC", "AUC", "expression")}
 #' @param exprCols Color scale for the expression
-#' @param asPNG Output each individual plot in a .png file?
+#' @param asPNG Output each individual plot in a .png file? (can also be a directory)
 #' @param ... Other arguments to pass to \code{\link{hist}} function.
 #' @return Returns invisible: \code{cells_trhAssignment}
 #' @details To avoid calculating thresholds, set thresholds to FALSE
@@ -27,7 +27,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
                          alphaOn=1, alphaOff=0.2,
                          borderColor=adjustcolor("lightgray", alpha.f=0.1),
                          offColor="lightgray",
-                         plots=c("histogram", "binaryAUC", "AUC", "expression"), 
+                         plots=c("histogram", "binaryAUC", "AUC", "expression"),
                          exprCols= c("goldenrod1", "darkorange", "brown"),
                          asPNG=FALSE, ...)
 {
@@ -74,6 +74,13 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
 
   ####################################
   # Start plots
+  dirName <- "./"
+  if(is.character(asPNG))
+  {
+    if(!file.exists(asPNG)) dir.create(asPNG)
+    dirName <- paste0(asPNG,"/")
+    asPNG <- TRUE
+  }
   if(asPNG){
     nCols <- length(plots)
     figsMatrix <- matrix(nrow=length(selectedGeneSets), ncol=nCols)
@@ -89,35 +96,34 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
       if(asPNG) {
         imgFile <- paste0(geneSetName,"_histogram.png")
         figsMatrix[geneSetName, "histogram"] <- imgFile # paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
-        png(imgFile)
+        png(paste0(dirName, imgFile))
       }
-      
+
       set.seed(123)
       cells_trhAssignment[[geneSetName]] <- AUCell_exploreThresholds(cellsAUC[geneSetName,], assignCells=TRUE,
                                             plotHist=("histogram" %in% tolower(plots)))[[geneSetName]]
       thisTrheshold <- cells_trhAssignment[[geneSetName]]$aucThr$selected
       thisAssignment <- cells_trhAssignment[[geneSetName]]$assignment
-      
+
       if(asPNG) dev.off()
     }
 
-    if(!is.null(thresholds) && !is.na(thresholds)) 
+    if(!is.null(thresholds) && !is.na(thresholds))
     {
       if("histogram" %in% tolower(plots))
       {
         if(asPNG) {
           imgFile <- paste0(geneSetName,"_histogram.png")
           figsMatrix[geneSetName, "histogram"] <- imgFile # paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
-          png(imgFile)
+          png(paste0(dirName, imgFile))
         }
 
         ### Plot
         #hist(, col="#00609060", border="#0060f0")
         thisTrh <- thresholds[geneSetName]
-        print(thisTrh)
-        tmp <- .auc_plotHist(auc=getAUC(cellsAUC)[geneSetName,], gSetName=geneSetName, 
+        tmp <- .auc_plotHist(auc=getAUC(cellsAUC)[geneSetName,], gSetName=geneSetName,
                              aucThr=min(thisTrh, 1), nBreaks=100, sub="AUC")
-        
+
         if(!is.null(thisTrh))
         {
             abline(v=thisTrh, lwd=3, lty=2, col="darkorange")
@@ -143,12 +149,12 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
       if(asPNG) {
         imgFile <- paste0(geneSetName,"_binaryAUC.png")
         figsMatrix[geneSetName, "binaryAUC"] <- imgFile # paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
-        png(imgFile)
+        png(paste0(dirName, imgFile))
       }
       ### Plot
       thrAsTxt <- ""
       if(is.numeric(thisTrheshold)) thrAsTxt <- paste("Cells with AUC > ", signif(thisTrheshold, 2), sep="")
-      .auc_plotBinaryTsne(tSNE, selectedCells=thisAssignment,  
+      .auc_plotBinaryTsne(tSNE, selectedCells=thisAssignment,
                           title=geneSetName, txt=thrAsTxt,
                           cex=cex, alphaOn=alphaOn, alphaOff=alphaOff,
                           borderColor=borderColor, offColor=offColor, ...)
@@ -162,7 +168,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
       if(asPNG) {
         imgFile <- paste0(geneSetName,"_AUC.png")
         figsMatrix[geneSetName, "AUC"] <- imgFile# paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
-        png(imgFile)
+        png(paste0(dirName, imgFile))
       }
       ### Plot
       .auc_plotGradientTsne(tSNE, cellProp=getAUC(cellsAUC)[geneSetName,],
@@ -183,7 +189,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
         if(asPNG) {
           imgFile <- paste0(geneSetName,"_expression.png")
           figsMatrix[geneSetName, "expression"] <- imgFile# paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
-          png(imgFile)
+          png(paste0(dirName, imgFile))
         }
         ### Plot
         .auc_plotGradientTsne(tSNE, cellProp=exprMat[gene,],
@@ -197,17 +203,16 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
   }
   if(asPNG) {
     cells_trhAssignment <- c(cells_trhAssignment, figsMatrix=list(figsMatrix))
-    if("R2HTML" %in% rownames(installed.packages())) asHTML(figsMatrix)
+    if("R2HTML" %in% rownames(installed.packages())) asHTML(figsMatrix, dirName)
   }
   invisible(cells_trhAssignment)
 }
 
-asHTML <- function(figsMatrix, imgDir=".")
+asHTML <- function(figsMatrix, imgDir="./")
 {
-  figsMatrix <- t(apply(figsMatrix, 1, function(x) paste("<img src=\"", imgDir,"/", x, "\") height=\"100\"></img>", sep = "")))
+  figsMatrix <- t(apply(figsMatrix, 1, function(x) paste("<img src=\"", imgDir, x, "\") height=\"100\"></img>", sep = "")))
 
   #file.copy("test.css", ".")
   R2HTML::HTML(figsMatrix, file=R2HTML::HTMLInitFile("."))#, CSSFile="test.css")
   R2HTML::HTMLEndFile()
 }
-

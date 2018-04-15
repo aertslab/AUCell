@@ -34,7 +34,7 @@ AUCell_plotTSNE(tSNE, exprMat, cellsAUC = NULL, thresholds = NULL,
 
 \item{exprCols}{Color scale for the expression}
 
-\item{asPNG}{Output each individual plot in a .png file?}
+\item{asPNG}{Output each individual plot in a .png file? (can also be a directory)}
 
 \item{...}{Other arguments to pass to \code{\link{hist}} function.}
 }

@@ -24,7 +24,7 @@
 #' or the assay name given in 'assayName'
 #' \item \link[Matrix]{dgCMatrix-class}:
 #' Sparse matrix 
-#' \item \link{ExpressionSet}:
+#' \item \code{ExpressionSet}:
 #' The matrix will be obtained through exprs(exprMatrix)
 #' }
 #' @param plotStats Should the function plot the expression boxplots/histograms?
