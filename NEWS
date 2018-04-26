@@ -5,6 +5,7 @@ VERSION 1.2.0
 - Added shiny app to modify thresholds
 - Added support for sparse matrices (dgCMatrix)
 - New function: AUCell_plotTSNE()
+- AUC values are normalized to max 1 by default.
 
 
 VERSION 0.99.6

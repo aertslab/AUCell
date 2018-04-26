@@ -33,6 +33,7 @@
 #' @param nCores Number of cores to use for computation.
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
 #' @param assayName Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)
+# @param keepZeroesAsNA Experimental, convert zeroes to NA instead of locating randomly at the end of the ranking.
 #' @param ... Other arguments
 #' @return data.table of genes (row) by cells (columns)
 #' with the ranking of the gene within the cell.
@@ -105,35 +106,37 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
     .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
   })
 
-.AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+.AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, keepZeroesAsNA=FALSE, verbose=TRUE)
 {
+  #### Optional. TODO: test thoroughly!
+  if(keepZeroesAsNA){
+    exprMat[which(exprMat==0, arr.ind=TRUE)] <- NA 
+  }
+  #### 
+  
   if(!data.table::is.data.table(exprMat))
     exprMat <- data.table::data.table(exprMat, keep.rownames=TRUE)
     # TO DO: Replace by sparse matrix??? (e.g. dgTMatrix)
   data.table::setkey(exprMat, "rn") # (reorders rows)
 
   nGenesDetected <- numeric(0)
-  if(plotStats)
-  {
-    msg <- tryCatch(plotGeneCount(exprMat[,-"rn", with=FALSE], verbose=verbose),
-            error = function(e) {
-              return(e)
-            })
-    if("error" %in% class(msg)) {
-      warning("There has been an error in plotGeneCount() [Message: ",
-              msg$message, "]. Proceeding to calculate the rankings...", sep="")
-    }else{
-      if(is.numeric(nGenesDetected))
-        nGenesDetected <- msg
-    }
-
+  msg <- tryCatch(plotGeneCount(exprMat[,-"rn", with=FALSE], plotStats=plotStats, verbose=verbose),
+          error = function(e) {
+            return(e)
+          })
+  if("error" %in% class(msg)) {
+    warning("There has been an error in plotGeneCount() [Message: ",
+            msg$message, "]. Proceeding to calculate the rankings...", sep="")
+  }else{
+    if(is.numeric(nGenesDetected))
+      nGenesDetected <- msg
   }
 
   colsNam <- colnames(exprMat)[-1] # 1=row names
   if(nCores==1)
   {
     # The rankings are saved in exprMat (i.e. By reference)
-    exprMat[, (colsNam):=lapply(-.SD, data.table::frank, ties.method="random"),
+    exprMat[, (colsNam):=lapply(-.SD, data.table::frank, ties.method="random", na.last="keep"),
             .SDcols=colsNam]
 
   }else
@@ -158,7 +161,7 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
     {
       # Edits by reference: how to make it work in paralell...?
       subMat <- exprMat[,colsGr, with=FALSE]
-      subMat[, (colsGr):=lapply(-.SD, data.table::frank, ties.method="random"),
+      subMat[, (colsGr):=lapply(-.SD, data.table::frank, ties.method="random", na.last="keep"),
              .SDcols=colsGr]
     }))
     # Keep initial order & recover rownames

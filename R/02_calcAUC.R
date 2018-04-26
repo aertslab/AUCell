@@ -13,6 +13,7 @@
 #' @param rankings 'Rankings' created for this dataset with
 #' \code{\link{AUCell_buildRankings}}.
 #' @param nCores Number of cores to use for computation.
+#' @param normAUC Wether to normalize the maximum possible AUC to 1 (Default: TRUE).
 #' @param aucMaxRank Threshold to calculate the AUC (see 'details' section)
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
 #' @return Matrix with the AUC values (gene-sets as rows, cells as columns).
@@ -34,7 +35,7 @@
 #'
 #' @export
 setGeneric("AUCell_calcAUC", signature="geneSets",
-  function(geneSets, rankings, nCores=1,
+  function(geneSets, rankings, nCores=1, normAUC=TRUE,
           aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
   {
    standardGeneric("AUCell_calcAUC")
@@ -43,7 +44,7 @@ setGeneric("AUCell_calcAUC", signature="geneSets",
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,list-method
 setMethod("AUCell_calcAUC", "list",
-  function(geneSets, rankings, nCores=1,
+  function(geneSets, rankings, nCores=1, normAUC=TRUE,
            aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
   {
     .AUCell_calcAUC(geneSets=geneSets, rankings=rankings, nCores=nCores,
@@ -53,7 +54,7 @@ setMethod("AUCell_calcAUC", "list",
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,character-method
 setMethod("AUCell_calcAUC", "character",
-  function(geneSets, rankings, nCores=1,
+  function(geneSets, rankings, nCores=1, normAUC=TRUE,
            aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
   {
     geneSets <- list(geneSet=geneSets)
@@ -65,7 +66,7 @@ setMethod("AUCell_calcAUC", "character",
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,GeneSet-method
 setMethod("AUCell_calcAUC", "GeneSet",
-  function(geneSets, rankings, nCores=1,
+  function(geneSets, rankings, nCores=1, normAUC=TRUE,
            aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
   {
     geneSets <- setNames(list(GSEABase::geneIds(geneSets)),
@@ -78,7 +79,7 @@ setMethod("AUCell_calcAUC", "GeneSet",
 #' @rdname AUCell_calcAUC
 #' @aliases AUCell_calcAUC,GeneSetCollection-method
 setMethod("AUCell_calcAUC", "GeneSetCollection",
-  function(geneSets, rankings, nCores=1,
+  function(geneSets, rankings, nCores=1, normAUC=TRUE,
            aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
   {
     geneSets <- GSEABase::geneIds(geneSets)
@@ -88,7 +89,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   })
 
 # Takes named character list as input
-.AUCell_calcAUC <- function(geneSets, rankings, nCores=1,
+.AUCell_calcAUC <- function(geneSets, rankings, nCores=1, normAUC=TRUE,
                             aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
 {
   if(!is.list(geneSets))
@@ -114,6 +115,9 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   }
   # if(!key(rankings) == "rn") stop("The rankings key should be 'rn'.")
 
+  if(!normAUC) .AUC.geneSet <- .AUC.geneSet_old()
+  if(normAUC) .AUC.geneSet <- .AUC.geneSet_norm
+  
   ######################################################################
   #### 1. Calculate the AUC for each gene set
   if(nCores==1)
@@ -186,7 +190,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
 }
 
 # add?: AUCThreshold
-.AUC.geneSet <- function(geneSet, rankings, aucMaxRank, gSetName="")
+.AUC.geneSet_old <- function(geneSet, rankings, aucMaxRank, gSetName="")
 {
   geneSet <- unique(geneSet)
   nGenes <- length(geneSet)
@@ -197,13 +201,38 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   rm(rankings)
 
   aucThreshold <- round(aucMaxRank)
-  maxAUC <- aucThreshold * nrow(gSetRanks)  # database.gene_count  ->  CORRECT?
+  maxAUC <- aucThreshold * nrow(gSetRanks)  # database.gene_count 
 
   # Apply by columns (i.e. to each ranking)
   auc <- apply(gSetRanks, 2, .auc, aucThreshold, maxAUC)
 
   return(c(auc, missing=missing, nGenes=nGenes))
 }
+
+.AUC.geneSet_norm <- function(geneSet, rankings, aucMaxRank, gSetName="")
+{
+  geneSet <- unique(geneSet)
+  nGenes <- length(geneSet)
+  geneSet <- geneSet[which(geneSet %in% rownames(rankings))]
+  missing <- nGenes-length(geneSet)
+  
+  gSetRanks <- rankings[which(rownames(rankings) %in% geneSet),,drop=FALSE]
+  rm(rankings)
+  
+  aucThreshold <- round(aucMaxRank)
+  ########### NEW version:  #######################
+  x_th <- 1:nrow(gSetRanks)
+  x_th <- sort(x_th[x_th<aucThreshold])
+  y_th <- seq_along(x_th)
+  maxAUC <- sum(diff(c(x_th, aucThreshold)) * y_th) 
+  ############################################
+  
+  # Apply by columns (i.e. to each ranking)
+  auc <- apply(gSetRanks, 2, .auc, aucThreshold, maxAUC)
+  
+  return(c(auc, missing=missing, nGenes=nGenes))
+}
+
 
 # oneRanking <- gSetRanks[,3, with=FALSE]
 .auc <- function(oneRanking, aucThreshold, maxAUC)

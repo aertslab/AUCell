@@ -361,8 +361,8 @@ head(oligodencrocytesAssigned)
 Plotting the AUC histogram of a specific gene set, and setting a new threshold:
 ```{r AUCell_plot}
 geneSetName <- rownames(cells_AUC)[grep("Oligodendrocyte_Cahoy", rownames(cells_AUC))]
-AUCell_plotHist(cells_AUC[geneSetName,], aucThr=0.08)
-abline(v=0.08)
+AUCell_plotHist(cells_AUC[geneSetName,], aucThr=0.25)
+abline(v=0.25)
 ```
 Assigning cells to this new threshold:
 ```{r explThr3}
@@ -379,7 +379,7 @@ The cell assignment is stored in the `$assignment` slot. Here we show a few idea
 Extract these cells for all the gene-sets and transform it into a table:
 ```{r explAssignment}
 cellsAssigned <- lapply(cells_assignment, function(x) x$assignment)
-assignmentTable <- melt(cellsAssigned, value.name="cell")
+assignmentTable <- reshape2::melt(cellsAssigned, value.name="cell")
 colnames(assignmentTable)[2] <- "geneSet"
 head(assignmentTable)
 ```
@@ -470,7 +470,7 @@ for(geneSetName in names(selectedThresholds))
 
 This kind of plots can also be used to explore the assignment thresholds. i.e.:
 ```{r tsneThreshold}
-selectedThresholds[2] <-  0.08
+selectedThresholds[2] <-  0.25
 par(mfrow=c(2,3))
 AUCell_plotTSNE(tSNE=cellsTsne, exprMat=exprMatrix, 
 cellsAUC=cells_AUC[1:2,], thresholds=selectedThresholds)

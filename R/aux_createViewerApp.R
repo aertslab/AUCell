@@ -36,6 +36,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
   if(!is.null(tSNE))
   {
     require(rbokeh)
+    
     app$ui <- fluidPage(
       titlePanel("AUCell"),
       tabsetPanel(

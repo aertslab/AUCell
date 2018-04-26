@@ -9,20 +9,24 @@
 \alias{AUCell_calcAUC,GeneSetCollection-method}
 \title{Calculate AUC}
 \usage{
-AUCell_calcAUC(geneSets, rankings, nCores = 1, aucMaxRank = ceiling(0.05 *
-  nrow(rankings)), verbose = TRUE)
+AUCell_calcAUC(geneSets, rankings, nCores = 1, normAUC = TRUE,
+  aucMaxRank = ceiling(0.05 * nrow(rankings)), verbose = TRUE)
 
 \S4method{AUCell_calcAUC}{list}(geneSets, rankings, nCores = 1,
-  aucMaxRank = ceiling(0.05 * nrow(rankings)), verbose = TRUE)
+  normAUC = TRUE, aucMaxRank = ceiling(0.05 * nrow(rankings)),
+  verbose = TRUE)
 
 \S4method{AUCell_calcAUC}{character}(geneSets, rankings, nCores = 1,
-  aucMaxRank = ceiling(0.05 * nrow(rankings)), verbose = TRUE)
+  normAUC = TRUE, aucMaxRank = ceiling(0.05 * nrow(rankings)),
+  verbose = TRUE)
 
 \S4method{AUCell_calcAUC}{GeneSet}(geneSets, rankings, nCores = 1,
-  aucMaxRank = ceiling(0.05 * nrow(rankings)), verbose = TRUE)
+  normAUC = TRUE, aucMaxRank = ceiling(0.05 * nrow(rankings)),
+  verbose = TRUE)
 
 \S4method{AUCell_calcAUC}{GeneSetCollection}(geneSets, rankings, nCores = 1,
-  aucMaxRank = ceiling(0.05 * nrow(rankings)), verbose = TRUE)
+  normAUC = TRUE, aucMaxRank = ceiling(0.05 * nrow(rankings)),
+  verbose = TRUE)
 }
 \arguments{
 \item{geneSets}{List of gene-sets (or signatures) to test in the cells.
@@ -33,6 +37,8 @@ The gene-sets should be provided as \code{\link{GeneSet}},
 \code{\link{AUCell_buildRankings}}.}
 
 \item{nCores}{Number of cores to use for computation.}
+
+\item{normAUC}{Wether to normalize the maximum possible AUC to 1 (Default: TRUE).}
 
 \item{aucMaxRank}{Threshold to calculate the AUC (see 'details' section)}
 

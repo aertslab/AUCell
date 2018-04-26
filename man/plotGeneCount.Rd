@@ -4,10 +4,12 @@
 \alias{plotGeneCount}
 \title{plotGeneCount}
 \usage{
-plotGeneCount(exprMat, verbose = TRUE)
+plotGeneCount(exprMat, plotStats = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{exprMat}{Expression matrix (genes as rows, cells as columns)}
+
+\item{plotStats}{Logical. If true, it plots the histogram, otherwise only calculates the percentages of genes detected.}
 
 \item{verbose}{Should the function show progress messages? (TRUE / FALSE)}
 }
