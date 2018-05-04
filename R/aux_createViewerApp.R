@@ -26,7 +26,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
   #colnames(tSNE.df)[which(!colnames(tSNE.df) %in% c("tsne1", "tsne2", "cell", rownames(auc)))] # to add other props?
   
   app <- list()
-  app$thresholds <- thresholds
+  app$thresholds <- getThresholdSelected(thresholds)
   app$cells <- list()
   
   ################################################
