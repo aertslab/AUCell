@@ -12,12 +12,14 @@
 #' The column names should be "tsne1" and "tsne2".
 #' @param exprMat Expression matrix (optional)
 #' @param cellInfo Phenodata (optional)
+#' @param colVars Color for the phenodata variables (as list, optional)
 #' @note 
 #' With lasso: "To make a multiple selection, press the SHIFT key. To clear the selection, press the ESC key."
 #' @return Thresholds and cells selected within the app (as list).
 #' @example inst/examples/example_AUCell_createViewerApp.R
 #' @export
-AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL, cellInfo=NULL)
+AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, 
+                                   exprMat=NULL, cellInfo=NULL, colVars=NULL)
 {
   if(class(auc)!="aucellResults") stop("Please provide an aucellResults object.")
   if(is.null(thresholds)) thresholds <- setNames(rep(0, nrow(auc)), rownames(auc))
@@ -190,17 +192,18 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
           print(input$geneExpression)
           if(input$geneExpression %in% rownames(exprMat))
           {
-              .auc_plotGradientTsne(tSNE, 
-                    cellProp=setNames(exprMat[input$geneExpression, rownames(tSNE)], rownames(tSNE)),
-                    title=paste0(input$geneExpression, " expression"), txt="",
-                    colorsForPal = c("goldenrod1", "darkorange", "brown"),
-                    cex=input$size)
+            .auc_plotGradientTsne(tSNE, 
+                                  cellProp=setNames(exprMat[input$geneExpression, rownames(tSNE)], rownames(tSNE)),
+                                  title=paste0(input$geneExpression, " expression"), txt="",
+                                  colorsForPal = c("goldenrod1", "darkorange", "brown"),
+                                  cex=input$size)
             
+            # Add legend (not included)
             legend(min(tSNE[,1]), max(tSNE[,2]), 
                    c("0", "", "", signif(max(exprMat[input$geneExpression, rownames(tSNE)]),2)), 
                    border="lightgrey",
                    fill=c("white", "goldenrod1", "darkorange", "brown"), 
-                  box.lwd="none", bty = "n", cex=input$size*.8)
+                   box.lwd="none", bty = "n", cex=input$size*.8)
           }else{
             plot.new()
           }
@@ -210,20 +213,9 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, exprMat=NULL
         {
           plot.new()
         }else{
-          # TO DO: improve
-          cellColor <- setNames(rep("#30303010", nrow(tSNE)), rownames(tSNE))
-          thisProp <- setNames(cellInfo[, input$phenodata_selection], rownames(cellInfo))
-          thisProp <- thisProp[which(!is.na(thisProp))]
-          propLevels <- levels(factor(thisProp))
-          cellColors <- setNames(rainbow(length(propLevels)),propLevels)
-          cellColor[names(thisProp)] <- cellColors[thisProp]
-          plot(tSNE, pch=16, cex=input$size,
-               col=cellColor,
-               main=input$phenodata_selection, xlab="",
-               axes=FALSE, ylab="")
-          legend(min(tSNE[,1]), max(tSNE[,2]), names(cellColors), col=cellColors, 
-              bg=NULL,border=NULL, box.lwd="none", bty = "n", cex=input$size*.8, pch=16)
-          box(which = "plot", col="grey")
+          .cellProps_plotTsne(tSNE, cellInfo, 
+                varName=input$phenodata_selection, cex=input$size,
+                colVars=colVars, sub="")
         }
       }
     })

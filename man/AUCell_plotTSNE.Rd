@@ -75,6 +75,17 @@ thrs <- AUCell_plotTSNE(tSNE=cellsTsne, exprMat=NULL,
                         plots = c("histogram", "binaryAUC", "AUC"))
  
 
+
+#####
+# Color based on the known phenodata:
+cellInfo <- data.frame(cellType1=sample(LETTERS[1:3],ncol(exprMatrix), replace=TRUE), 
+                       cellType2=sample(letters[5:7],ncol(exprMatrix), replace=TRUE), 
+                       nGenes=abs(rnorm(ncol(exprMatrix))), 
+                       row.names=colnames(exprMatrix))
+colVars <- list(cellType2=setNames(c("skyblue","magenta", "darkorange"),letters[5:7]))
+# dev.off()
+plotTsne_cellProps(cellsTsne, cellInfo, colVars=colVars)
+
 }
 \seealso{
 List of vignettes included in the package: \code{vignette(package="AUCell")}
