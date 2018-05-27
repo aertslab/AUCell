@@ -74,12 +74,14 @@
 #' @param cex Scaling factor for the dots in the scatterplot
 #' @param sub Subtitle (e.g. tSNE type)
 #' @param gradientCols Gradient colors for numerical variables
+#' @param showLegend Whether to show the legend
 #' @return Plots the t-SNE
 #' @example inst/examples/example_AUCell_plotTSNE.R
 #' @export
 plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
                                cex=1, sub="", 
-                       gradientCols=c("yellow", "orange","red"))
+                       gradientCols=c("yellow", "orange","red"),
+                       showLegend=TRUE)
 {
   if(!is.matrix(tSNE)) stop("tSNE should be a matrix.")
   if(!is.null(cellInfo))
@@ -88,7 +90,7 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
     for(varName in colnames(cellInfo))
     {
       .cellProps_plotTsne(tSNE, cellInfo, varName, colVars=colVars, cex=cex,
-                          sub=sub, gradientCols=gradientCols)
+                    sub=sub, gradientCols=gradientCols, showLegend=showLegend)
     }
   }else
   {
@@ -98,7 +100,8 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
 
 
 .cellProps_plotTsne <- function(tSNE, cellInfo, varName, colVars=NULL, cex=1,
-                                sub="", gradientCols=c("yellow", "orange","red"))
+                                sub="", gradientCols=c("yellow", "orange","red"),
+                                showLegend=TRUE)
 {
   if(class(cellInfo[,varName]) != "numeric")
   {
@@ -131,7 +134,7 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
        main=varName, 
        sub=sub,
        axes=FALSE, xlab="", ylab="")
-  legend(min(tSNE[,1]), max(tSNE[,2]), names(colsLegend), col=colsLegend,
+  if(showLegend) legend(min(tSNE[,1]), max(tSNE[,2]), names(colsLegend), col=colsLegend,
          bg=NULL,border=NULL, box.lwd="none", bty = "n", cex=.8, pch=16)
   box(which = "plot", col="grey")
 }

@@ -5,7 +5,7 @@
 \title{plotTsne_cellProps}
 \usage{
 plotTsne_cellProps(tSNE, cellInfo, colVars = NULL, cex = 1, sub = "",
-  gradientCols = c("yellow", "orange", "red"))
+  gradientCols = c("yellow", "orange", "red"), showLegend = TRUE)
 }
 \arguments{
 \item{tSNE}{t-SNE coordinates (e.g. \code{tSNE$Y})}
@@ -19,6 +19,8 @@ plotTsne_cellProps(tSNE, cellInfo, colVars = NULL, cex = 1, sub = "",
 \item{sub}{Subtitle (e.g. tSNE type)}
 
 \item{gradientCols}{Gradient colors for numerical variables}
+
+\item{showLegend}{Whether to show the legend}
 }
 \value{
 Plots the t-SNE
