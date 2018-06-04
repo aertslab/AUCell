@@ -80,21 +80,22 @@
 #' @export
 plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
                                cex=1, sub="", 
-                       gradientCols=c("yellow", "orange","red"),
-                       showLegend=TRUE)
+                               gradientCols=c("yellow", "orange","red"),
+                               showLegend=TRUE)
 {
   if(!is.matrix(tSNE)) stop("tSNE should be a matrix.")
-  if(!is.null(cellInfo))
+  
+  # If it is null, plot all cells black
+  if(is.null(cellInfo)) {
+    cellInfo <- data.frame(row.names=rownames(tSNE), tSNE=rep("xx",nrow(tSNE)))
+    showLegend <- FALSE
+  }
+  
+  cellInfo <- data.frame(cellInfo)[rownames(tSNE),,drop=F]
+  for(varName in colnames(cellInfo))
   {
-    cellInfo <- data.frame(cellInfo)[rownames(tSNE),,drop=F]
-    for(varName in colnames(cellInfo))
-    {
-      .cellProps_plotTsne(tSNE, cellInfo, varName, colVars=colVars, cex=cex,
-                    sub=sub, gradientCols=gradientCols, showLegend=showLegend)
-    }
-  }else
-  {
-    plot.new()
+    .cellProps_plotTsne(tSNE, cellInfo, varName, colVars=colVars, cex=cex,
+                        sub=sub, gradientCols=gradientCols, showLegend=showLegend)
   }
 }
 
@@ -106,7 +107,8 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
   if(class(cellInfo[,varName]) != "numeric")
   {
     if(is.null(colVars[[varName]])) {
-      colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
+      colVars[varName] <- list(setNames("black", unique(cellInfo[,varName])))
+      if(length(colVars[[varName]])>1) colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
     } 
     
     cellColor <- setNames(rep("#30303010", nrow(tSNE)), rownames(tSNE))
@@ -135,7 +137,6 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
        sub=sub,
        axes=FALSE, xlab="", ylab="")
   if(showLegend) legend(min(tSNE[,1]), max(tSNE[,2]), names(colsLegend), col=colsLegend,
-         bg=NULL,border=NULL, box.lwd="none", bty = "n", cex=.8, pch=16)
+                        bg=NULL,border=NULL, box.lwd="none", bty = "n", cex=.8, pch=16)
   box(which = "plot", col="grey")
 }
-
