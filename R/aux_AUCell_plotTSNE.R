@@ -37,7 +37,10 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
   # Check inputs (TO DO)
   if(is.null(rownames(tSNE))) stop("Please, provide the cell rownames in the t-SNE")
   if(!is.matrix(tSNE) | ncol(tSNE)!=2) stop("The t-SNE should be a matrix with 2 columns (cell coordinates)")
-
+  if (any(grepl("binary", tolower(plots)))) {
+    plots[grep("binary", tolower(plots))] <- "binaryAUC"
+  }
+    
   ####################################
   # Calculate thresholds if needed
   if(is.logical(thresholds) && thresholds == FALSE) thresholds <- NA

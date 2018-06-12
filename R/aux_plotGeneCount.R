@@ -63,8 +63,8 @@ plotGeneCount <- function(exprMat, plotStats=TRUE, verbose=TRUE)
   ret <- c(min=min(countByCell), quantile(countByCell, c(.01,.05, .10, .50, 1)))
   if(verbose){
     message("Quantiles for the number of genes detected by cell: \n",
-          "(Non-detected genes are shuffled at the end of the ranking.",
-          "Keep in mind when choosing the threshold for calculating the AUC).")
+          "(Non-detected genes are shuffled at the end of the ranking. ",
+          "Keep it in mind when choosing the threshold for calculating the AUC).")
     print(ret)
   }
   invisible(ret)
