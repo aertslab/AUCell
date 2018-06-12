@@ -24,7 +24,8 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
   if(class(auc)!="aucellResults") stop("Please provide an aucellResults object.")
   if(is.null(thresholds)) thresholds <- setNames(rep(0, nrow(auc)), rownames(auc))
   
-  tSNE.df <- data.frame(tSNE, cell=rownames(tSNE), t(getAUC(auc)[,rownames(tSNE)]))
+  commonCells <- as.character(intersect(colnames(auc), rownames(tSNE)))
+  tSNE.df <- data.frame(tSNE[commonCells,,drop=FALSE], cell=commonCells, t(getAUC(auc)[,commonCells, drop=FALSE]))
   #colnames(tSNE.df)[which(!colnames(tSNE.df) %in% c("tsne1", "tsne2", "cell", rownames(auc)))] # to add other props?
   
   app <- list()
@@ -189,7 +190,6 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
         {
           plot.new()
         }else{
-          print(input$geneExpression)
           if(input$geneExpression %in% rownames(exprMat))
           {
             .auc_plotGradientTsne(tSNE, 

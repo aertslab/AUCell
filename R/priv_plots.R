@@ -100,43 +100,44 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
 }
 
 
-.cellProps_plotTsne <- function(tSNE, cellInfo, varName, colVars=NULL, cex=1,
+.cellProps_plotTsne <- function(tSNE, cellInfo, varName=NULL, colVars=NULL, cex=1,
                                 sub="", gradientCols=c("yellow", "orange","red"),
                                 showLegend=TRUE)
 {
-  if(class(cellInfo[,varName]) != "numeric")
+  if(!is.null(varName))
   {
-    if(is.null(colVars[[varName]])) {
-      colVars[varName] <- list(setNames("black", unique(cellInfo[,varName])))
-      if(length(colVars[[varName]])>1) colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
-    } 
+    if(class(cellInfo[,varName]) != "numeric")
+    {
+      if(is.null(colVars[[varName]])) {
+        varLevels <- as.character(unique(cellInfo[,varName]))
+        colVars[varName] <- list(setNames(rep("black", length(varLevels)), varLevels))
+        if(length(colVars[[varName]])>1) colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
+      } 
+      cellColor <- setNames(rep("#30303010", nrow(tSNE)), rownames(tSNE))
+      thisProp <- setNames(as.character(cellInfo[, varName]), rownames(cellInfo))
+      thisProp <- thisProp[which(!is.na(thisProp))]
+      propLevels <- levels(factor(thisProp))
+      cellColor[names(thisProp)] <- colVars[[varName]][thisProp]
+    }else
+    {
+      # if(is.null(colVars[[varName]])) {
+      #   colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
+      # } 
+      colorPal <- grDevices::colorRampPalette(gradientCols)
+      cellColor <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(cellInfo[,varName],breaks=10, right=F,include.lowest=TRUE))], rownames(cellInfo))
+    }
     
-    cellColor <- setNames(rep("#30303010", nrow(tSNE)), rownames(tSNE))
-    thisProp <- setNames(as.character(cellInfo[, varName]), rownames(cellInfo))
-    thisProp <- thisProp[which(!is.na(thisProp))]
-    propLevels <- levels(factor(thisProp))
+    colsLegend <- colVars[[varName]]
+    if(class(cellInfo[,varName]) == "numeric") 
+      colsLegend <- setNames(gradientCols[c(length(gradientCols),1)], signif(c(max(cellInfo[,varName]), min(cellInfo[,varName])),2))
     
-    cellColor[names(thisProp)] <- colVars[[varName]][thisProp]
-  }else
-  {
-    # if(is.null(colVars[[varName]])) {
-    #   colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
-    # } 
-    
-    colorPal <- grDevices::colorRampPalette(gradientCols)
-    cellColor <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(cellInfo[,varName],breaks=10, right=F,include.lowest=TRUE))], rownames(cellInfo))
+    plot(tSNE, pch=16, cex=cex,
+         col=cellColor[rownames(tSNE)],
+         main=varName, 
+         sub=sub,
+         axes=FALSE, xlab="", ylab="")
+    if(showLegend) legend(min(tSNE[,1]), max(tSNE[,2]), names(colsLegend), col=colsLegend,
+                          bg=NULL,border=NULL, box.lwd="none", bty = "n", cex=.8, pch=16)
+    box(which = "plot", col="grey")
   }
-  
-  colsLegend <- colVars[[varName]]
-  if(class(cellInfo[,varName]) == "numeric") 
-    colsLegend <- setNames(gradientCols[c(length(gradientCols),1)], signif(c(max(cellInfo[,varName]), min(cellInfo[,varName])),2))
-  
-  plot(tSNE, pch=16, cex=cex,
-       col=cellColor[rownames(tSNE)],
-       main=varName, 
-       sub=sub,
-       axes=FALSE, xlab="", ylab="")
-  if(showLegend) legend(min(tSNE[,1]), max(tSNE[,2]), names(colsLegend), col=colsLegend,
-                        bg=NULL,border=NULL, box.lwd="none", bty = "n", cex=.8, pch=16)
-  box(which = "plot", col="grey")
 }
