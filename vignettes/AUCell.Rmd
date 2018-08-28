@@ -75,13 +75,14 @@ By default, AUCell is installed only with the minimum dependencies.
 To run AUCell in parallel or run the examples in this tutorial, we recommend to install these packages:
   
 ```{r setup, eval=FALSE}
-source("http://bioconductor.org/biocLite.R")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
 # To support paralell execution:
-biocLite(c("doMC", "doRNG"))
+BiocManager::install(c("doMC", "doRNG"))
 # For the main example:
-biocLite(c("mixtools", "GEOquery", "SummarizedExperiment"))
+BiocManager::install(c("mixtools", "GEOquery", "SummarizedExperiment"))
 # For the examples in the follow-up section of the tutorial:
-biocLite(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh"))
+BiocManager::install(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh"))
 ```
 
 ## Some tips...
