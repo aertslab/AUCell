@@ -23,7 +23,7 @@
 #' @export
 # thresholds=NULL; cex=1; alphaOn=1; alphaOff=0.2;  offColor="lightgray"
 # borderColor=adjustcolor("darkgrey", alpha=.3); plots=c("histogram", "binaryAUC", "AUC", "expression")
-AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1,
+AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, cex=1,
                          alphaOn=1, alphaOff=0.2,
                          borderColor=adjustcolor("lightgray", alpha.f=0.1),
                          offColor="lightgray",
@@ -40,7 +40,14 @@ AUCell_plotTSNE <- function(tSNE, exprMat, cellsAUC=NULL, thresholds=NULL, cex=1
   if (any(grepl("binary", tolower(plots)))) {
     plots[grep("binary", tolower(plots))] <- "binaryAUC"
   }
-    
+  
+  if(is.null(exprMat) && ("expression" %in% tolower(plots)))
+  {
+    plots <- plots[which(plots!="expression")]
+    warning("Expression plot was requested, but no expression matrix provided.")
+  }
+  if(lenght(plots)==0) stop("Please, provide which plots to plot.")
+  
   ####################################
   # Calculate thresholds if needed
   if(is.logical(thresholds) && thresholds == FALSE) thresholds <- NA
