@@ -75,13 +75,14 @@ By default, AUCell is installed only with the minimum dependencies.
 To run AUCell in parallel or run the examples in this tutorial, we recommend to install these packages:
   
 ```{r setup, eval=FALSE}
-source("http://bioconductor.org/biocLite.R")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
 # To support paralell execution:
-biocLite(c("doMC", "doRNG"))
+BiocManager::install(c("doMC", "doRNG"))
 # For the main example:
-biocLite(c("mixtools", "GEOquery", "SummarizedExperiment"))
+BiocManager::install(c("mixtools", "GEOquery", "SummarizedExperiment"))
 # For the examples in the follow-up section of the tutorial:
-biocLite(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh"))
+BiocManager::install(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh"))
 ```
 
 ## Some tips...
@@ -328,7 +329,8 @@ While this is the case of the "perfect markers" it is also easier to get it by c
 
 To ease the exploration of the distributions, the function `AUCell_exploreThresholds()` automatically plots all the histograms and calculates several thresholds that could be used to consider a gene-set 'active' (returned in `$aucThr`). The distributions are plotted as dotted lines over the histogram and the corresponding thresholds as vertical bars in the matching color. The thicker vertical line indicates the threshold selected by default (`$aucThr$selected`): the highest value to reduce the false positives. 
 
-> Note: This function makes use of package "mixtools" to explore the distributions. It is not essential, but we recommend to install it: `source("http://bioconductor.org/biocLite.R"); biocLite("mixtools")`
+> Note: This function makes use of package "mixtools" to explore the distributions. It is not essential, but we recommend to install it: `if (!requireNamespace("BiocManager", quietly=TRUE)); BiocManager::install("mixtools")`
+     `install.packages("BiocManager"); BiocManager::install("mixtools")`
 
 ```{r exploreThresholds, warning=FALSE, fig.width=7, fig.height=7}
 set.seed(123)
