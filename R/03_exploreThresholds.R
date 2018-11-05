@@ -99,6 +99,9 @@ AUCell_exploreThresholds <- function(cellsAUC, thrP=0.01, nCores=1,
     aucMatrix <- cellsAUC
   }
   if(!is.matrix(aucMatrix)) stop("cellsAUC should contain the AUC values.")
+  
+  if(any(rowSums(aucMatrix)==0)) warning("Skipping genesets with no AUC>0")
+  aucMatrix <- aucMatrix[rowSums(aucMatrix)>0,]
 
   if(nCores > 1 && plotHist) {
     nCores <- 1
