@@ -46,7 +46,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, 
     plots <- plots[which(plots!="expression")]
     warning("Expression plot was requested, but no expression matrix provided.")
   }
-  if(lenght(plots)==0) stop("Please, provide which plots to plot.")
+  if(length(plots)==0) stop("Please, provide which plots to plot.")
   
   ####################################
   # Calculate thresholds if needed
