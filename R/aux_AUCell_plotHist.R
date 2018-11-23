@@ -45,7 +45,7 @@ AUCell_plotHist <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100,
                         onColor="dodgerblue4", offColor="slategray2", 
                         ...)
 {
-  maxLim <- max(c(auc, aucThr))
+  maxLim <- max(c(auc, aucThr), na.rm=T)
   # col <- rep("lightskyblue2", nBreaks)
   # col[passThr] <- "dodgerblue2"
   col <- rep(offColor, nBreaks)

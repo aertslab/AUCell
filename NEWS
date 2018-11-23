@@ -1,5 +1,10 @@
 
 
+VERSION 1.5.+
+----------------------
+- Added function orderAUC()
+- Error fixes in AUCell_plotTSNE()
+
 VERSION 1.2.0
 ----------------------
 - Added shiny app to modify thresholds

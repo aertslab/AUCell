@@ -7,6 +7,7 @@
 #' @param exprMat Expression matrix
 #' @param cellsAUC AUC (as returned by calcAUC)
 #' @param thresholds Thresholds returned by AUCell
+#' @param reorderGeneSets Whether to reorder the gene sets based on AUC similarity
 #' @param cex Scaling factor for the dots in the scatterplot
 #' @param alphaOn Transparency for the dots representing "active" cells
 #' @param alphaOff Transparency for the dots representing "inactive" cells
@@ -23,13 +24,15 @@
 #' @export
 # thresholds=NULL; cex=1; alphaOn=1; alphaOff=0.2;  offColor="lightgray"
 # borderColor=adjustcolor("darkgrey", alpha=.3); plots=c("histogram", "binaryAUC", "AUC", "expression")
-AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, cex=1,
-                         alphaOn=1, alphaOff=0.2,
-                         borderColor=adjustcolor("lightgray", alpha.f=0.1),
-                         offColor="lightgray",
-                         plots=c("histogram", "binaryAUC", "AUC", "expression"),
-                         exprCols= c("goldenrod1", "darkorange", "brown"),
-                         asPNG=FALSE, ...)
+AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, 
+                            reorderGeneSets=FALSE,
+                            cex=1,
+                           alphaOn=1, alphaOff=0.2,
+                           borderColor=adjustcolor("lightgray", alpha.f=0.1),
+                           offColor="lightgray",
+                           plots=c("histogram", "binaryAUC", "AUC", "expression"),
+                           exprCols= c("goldenrod1", "darkorange", "brown"),
+                           asPNG=FALSE, ...)
 {
   #library(BiocGenerics)
   #library(AUCell)
@@ -48,30 +51,38 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, 
   }
   if(length(plots)==0) stop("Please, provide which plots to plot.")
   
+  if(reorderGeneSets){
+    cellsAUC <- cellsAUC[orderAUC(cellsAUC),]
+  }
+  
   ####################################
   # Calculate thresholds if needed
-  if(is.logical(thresholds) && thresholds == FALSE) thresholds <- NA
-  if(!is.null(thresholds))
-  {
-    # if it is a list... probably return from AUCell. Let's try...
-    if(is.list(thresholds[1])) {
-      # Aucell
-      if("aucThr" %in% names(thresholds[[1]])) thresholds <- sapply(thresholds, function(x) unname(x$aucThr$selected))
-      # previous run of this function
-      if("threshold" %in% names(thresholds[[1]]))  thresholds <- sapply(thresholds, function(x) unname(x$threshold))
-    }
-
-    if(!is.null(names(thresholds)))
+  if(is.logical(thresholds) && thresholds == FALSE) {
+    thresholds <- FALSE #keep..
+    if(any(grepl("binary", tolower(plots)))) stop("Cannot plot binary AUC without calculating the thresholds.")
+  }else{
+    if(!is.null(thresholds))
     {
-      geneSetNames <- rownames(cellsAUC)[which(rownames(cellsAUC) %in% names(thresholds))]
-      cellsAUC <- cellsAUC[geneSetNames,]
-    }
-    if(is.null(names(thresholds)) || length(thresholds)==1)
-    {
-      thresholds <- setNames(rep(thresholds, nrow(cellsAUC)), rownames(cellsAUC))
+      # if it is a list... probably return from AUCell. Let's try...
+      if(is.list(thresholds[1])) {
+        # Aucell
+        if("aucThr" %in% names(thresholds[[1]])) thresholds <- sapply(thresholds, function(x) unname(x$aucThr$selected))
+        # previous run of this function
+        if("threshold" %in% names(thresholds[[1]]))  thresholds <- sapply(thresholds, function(x) unname(x$threshold))
+      }
+      
+      if(!is.null(names(thresholds)))
+      {
+        geneSetNames <- rownames(cellsAUC)[which(rownames(cellsAUC) %in% names(thresholds))]
+        cellsAUC <- cellsAUC[geneSetNames,]
+      }
+      if(is.null(names(thresholds)) || length(thresholds)==1)
+      {
+        thresholds <- setNames(rep(thresholds, nrow(cellsAUC)), rownames(cellsAUC))
+      }
     }
   }
-
+  
   if(!is.null(cellsAUC)){
     selectedGeneSets <- rownames(cellsAUC)
   }else{
@@ -97,29 +108,33 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, 
     rownames(figsMatrix) <- selectedGeneSets
     colnames(figsMatrix) <- plots
   }
+  
   for (geneSetName in selectedGeneSets)
   {
     ##################
     # Histogram
+    # Calculate threshold?
     if(is.null(thresholds) && any(c("histogram", "binaryAUC") %in% plots))
     {
-      if(asPNG) {
+      if(asPNG & ("histogram" %in% tolower(plots))) {
         imgFile <- paste0(geneSetName,"_histogram.png")
         figsMatrix[geneSetName, "histogram"] <- imgFile # paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
         png(paste0(dirName, imgFile))
       }
 
       set.seed(123)
-      cells_trhAssignment[[geneSetName]] <- AUCell_exploreThresholds(cellsAUC[geneSetName,], assignCells=TRUE,
-                                            plotHist=("histogram" %in% tolower(plots)))[[geneSetName]]
+      cells_trhAssignment[[geneSetName]] <- AUCell_exploreThresholds(cellsAUC[geneSetName,], 
+                                                                     assignCells=TRUE,
+                                                                     plotHist=("histogram" %in% tolower(plots)))[[geneSetName]]
       thisTrheshold <- cells_trhAssignment[[geneSetName]]$aucThr$selected
       thisAssignment <- cells_trhAssignment[[geneSetName]]$assignment
 
-      if(asPNG) dev.off()
-    }
+      if(asPNG & ("histogram" %in% tolower(plots))) dev.off()
+    }else{
 
-    if(!is.null(thresholds) && !is.na(thresholds))
-    {
+    # Do NOT calculate threshold
+    # if(!is.null(thresholds))# && !is.na(thresholds))
+    # {
       if("histogram" %in% tolower(plots))
       {
         if(asPNG) {
@@ -129,22 +144,23 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, 
         }
 
         ### Plot
-        #hist(, col="#00609060", border="#0060f0")
         thisTrh <- thresholds[geneSetName]
         tmp <- .auc_plotHist(auc=getAUC(cellsAUC)[geneSetName,], gSetName=geneSetName,
                              aucThr=min(thisTrh, 1), nBreaks=100, sub="AUC")
-
+        
         if(!is.null(thisTrh))
         {
             abline(v=thisTrh, lwd=3, lty=2, col="darkorange")
-        }else{
-            warning("No threshold for gene set: ",geneSetName)
         }
+        # else{
+        #     warning("No threshold for gene set: ",geneSetName)
+        # }
         if(asPNG) dev.off()
       }
+
       thisTrheshold <- thresholds[geneSetName]
       if(is.matrix(cellsAUC)){
-        AUCmatrix <- cellsAUC
+        matrixAUC <- cellsAUC
       }else{
         matrixAUC <- getAUC(cellsAUC)
       }

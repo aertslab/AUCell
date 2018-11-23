@@ -4,8 +4,8 @@
 \alias{AUCell_plotTSNE}
 \title{Plot}
 \usage{
-AUCell_plotTSNE(tSNE, exprMat, cellsAUC = NULL, thresholds = NULL,
-  cex = 1, alphaOn = 1, alphaOff = 0.2,
+AUCell_plotTSNE(tSNE, exprMat = NULL, cellsAUC = NULL, thresholds = NULL,
+  reorderGeneSets = FALSE, cex = 1, alphaOn = 1, alphaOff = 0.2,
   borderColor = adjustcolor("lightgray", alpha.f = 0.1),
   offColor = "lightgray", plots = c("histogram", "binaryAUC", "AUC",
   "expression"), exprCols = c("goldenrod1", "darkorange", "brown"),
@@ -19,6 +19,8 @@ AUCell_plotTSNE(tSNE, exprMat, cellsAUC = NULL, thresholds = NULL,
 \item{cellsAUC}{AUC (as returned by calcAUC)}
 
 \item{thresholds}{Thresholds returned by AUCell}
+
+\item{reorderGeneSets}{Whether to reorder the gene sets based on AUC similarity}
 
 \item{cex}{Scaling factor for the dots in the scatterplot}
 
