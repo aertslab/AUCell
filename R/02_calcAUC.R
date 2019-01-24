@@ -101,6 +101,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   if((aucMaxRank < 300) && verbose)
     warning("Using only the first ", aucMaxRank,
             " genes (aucMaxRank) to calculate the AUC.", immediate.=TRUE)
+  if(aucMaxRank <=0) stop("aucMaxRank should be a positive value.")
 
   if((class(rankings)!="aucellResults") ||
      SummarizedExperiment::assayNames(rankings)!="ranking"){
