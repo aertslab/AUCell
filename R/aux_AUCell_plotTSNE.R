@@ -130,11 +130,9 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
       thisAssignment <- cells_trhAssignment[[geneSetName]]$assignment
 
       if(asPNG & ("histogram" %in% tolower(plots))) dev.off()
-    }else{
-
-    # Do NOT calculate threshold
-    # if(!is.null(thresholds))# && !is.na(thresholds))
-    # {
+    }else
+    {
+      # Do NOT calculate threshold
       if("histogram" %in% tolower(plots))
       {
         if(asPNG) {
@@ -144,7 +142,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
         }
 
         ### Plot
-        thisTrh <- thresholds[geneSetName]
+        thisTrh <- as.vector(thresholds[geneSetName]) # TODO: Why needed sometimes? https://github.com/aertslab/AUCell/issues/3
         tmp <- .auc_plotHist(auc=getAUC(cellsAUC)[geneSetName,], gSetName=geneSetName,
                              aucThr=min(thisTrh, 1), nBreaks=100, sub="AUC")
         
@@ -152,9 +150,6 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
         {
             abline(v=thisTrh, lwd=3, lty=2, col="darkorange")
         }
-        # else{
-        #     warning("No threshold for gene set: ",geneSetName)
-        # }
         if(asPNG) dev.off()
       }
 
