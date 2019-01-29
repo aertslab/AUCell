@@ -4,7 +4,6 @@
 \alias{AUCell_exploreThresholds}
 \alias{getThresholdSelected}
 \alias{getAssignments}
-\alias{getThresholdSelected}
 \title{AUCell_exploreThresholds}
 \usage{
 AUCell_exploreThresholds(cellsAUC, thrP = 0.01, nCores = 1,

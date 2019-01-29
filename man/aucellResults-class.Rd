@@ -8,9 +8,7 @@
 \alias{getRanking}
 \alias{show}
 \alias{show,aucellResults-method}
-\alias{getAUC}
 \alias{getAUC,aucellResults-method}
-\alias{getRanking}
 \alias{getRanking,aucellResults-method}
 \title{Wrapper to the matrix that stores the AUC or the cell rankings.}
 \usage{

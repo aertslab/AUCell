@@ -24,9 +24,9 @@ AUCell_calcAUC(geneSets, rankings, nCores = 1, normAUC = TRUE,
   normAUC = TRUE, aucMaxRank = ceiling(0.05 * nrow(rankings)),
   verbose = TRUE)
 
-\S4method{AUCell_calcAUC}{GeneSetCollection}(geneSets, rankings, nCores = 1,
-  normAUC = TRUE, aucMaxRank = ceiling(0.05 * nrow(rankings)),
-  verbose = TRUE)
+\S4method{AUCell_calcAUC}{GeneSetCollection}(geneSets, rankings,
+  nCores = 1, normAUC = TRUE, aucMaxRank = ceiling(0.05 *
+  nrow(rankings)), verbose = TRUE)
 }
 \arguments{
 \item{geneSets}{List of gene-sets (or signatures) to test in the cells.
