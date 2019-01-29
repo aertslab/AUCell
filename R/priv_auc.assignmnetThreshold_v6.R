@@ -235,7 +235,12 @@
   if("minimumDens" %in% names(aucThrs))
     aucThr <- aucThrs["minimumDens"]
   if(length(aucThr)==0)
-    aucThr <-  aucThrs[which.max(aucThrs)]
+    aucThr <- aucThrs[which.max(aucThrs)]
+  if(length(aucThr)==0) #should not happen
+    aucThr <- 1
+  if(length(aucThr)>1) #should not happen
+    aucThr <- unlist(aucThr[which.max(aucThr)])
+    
 
   if(plotHist)
   {
