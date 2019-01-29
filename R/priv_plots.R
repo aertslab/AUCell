@@ -47,8 +47,15 @@
     # On
     cellColor[names(cellProp)] <- colorPal[as.numeric(cut(cellProp, breaks=nBreaks, right=FALSE,include.lowest=TRUE))]
     # Off
-    lowLim <- as.numeric(gsub("]", "", strsplit(levels(cut(cellProp, breaks=100))[1], ",")[[1]][2]))
-    cellColor[which(cellProp <= max(0, lowLim))] <- adjustcolor(offColor, alpha.f=alphaOff)
+    lowLim <- 0
+    tryCatch({
+      lowLim <- as.numeric(gsub("]", "", strsplit(levels(cut(cellProp, breaks=100))[1], ",")[[1]][2]))
+      stop("TEST")
+    },error = function(e) {
+      save(cellProp, file="error_cellProp.RData")
+      message("There was an error trying to plot the t-SNE. Please report it in https://github.com/aertslab/AUCell (file for debugging: error_cellProp.RData). ",
+              "\nError message: ", e$message)
+    })
   } else
   {
     cellColor[names(cellProp)] <- c(adjustcolor(offColor, alpha.f=alphaOff), length(cellProp))
