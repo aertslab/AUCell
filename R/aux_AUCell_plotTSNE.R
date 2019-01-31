@@ -23,7 +23,7 @@
 #' @example inst/examples/example_AUCell_plotTSNE.R
 #' @export
 # thresholds=NULL; cex=1; alphaOn=1; alphaOff=0.2;  offColor="lightgray"
-# borderColor=adjustcolor("darkgrey", alpha=.3); plots=c("histogram", "binaryAUC", "AUC", "expression")
+# borderColor=adjustcolor("darkgrey", alpha.f=.3); plots=c("histogram", "binaryAUC", "AUC", "expression")
 AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, 
                             reorderGeneSets=FALSE,
                             cex=1,

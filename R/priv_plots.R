@@ -50,7 +50,6 @@
     lowLim <- 0
     tryCatch({
       lowLim <- as.numeric(gsub("]", "", strsplit(levels(cut(cellProp, breaks=100))[1], ",")[[1]][2]))
-      stop("TEST")
     },error = function(e) {
       save(cellProp, file="error_cellProp.RData")
       message("There was an error trying to plot the t-SNE. Please report it in https://github.com/aertslab/AUCell (file for debugging: error_cellProp.RData). ",
@@ -131,7 +130,7 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
       #   colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
       # } 
       colorPal <- grDevices::colorRampPalette(gradientCols)
-      cellColor <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(cellInfo[,varName],breaks=10, right=F,include.lowest=TRUE))], rownames(cellInfo))
+      cellColor <- setNames(adjustcolor(colorPal(10), alpha.f=.8)[as.numeric(cut(cellInfo[,varName],breaks=10, right=F,include.lowest=TRUE))], rownames(cellInfo))
     }
     
     colsLegend <- colVars[[varName]]

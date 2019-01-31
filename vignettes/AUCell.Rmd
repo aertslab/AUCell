@@ -549,7 +549,7 @@ cellsAUC=cells_AUC[1:9,], thresholds=selectedThresholds)
 ```{r, fig.height=4, fig.width=3.5}
 nGenesPerCell <- apply(exprMatrix, 2, function(x) sum(x>0))
 colorPal <- grDevices::colorRampPalette(c("darkgreen", "yellow","red"))
-cellColorNgenes <- setNames(adjustcolor(colorPal(10), alpha=.8)[as.numeric(cut(nGenesPerCell,breaks=10, right=FALSE,include.lowest=TRUE))], names(nGenesPerCell))
+cellColorNgenes <- setNames(adjustcolor(colorPal(10), alpha.f=.8)[as.numeric(cut(nGenesPerCell,breaks=10, right=FALSE,include.lowest=TRUE))], names(nGenesPerCell))
 plot(cellsTsne, axes=FALSE, xlab="", ylab="",
 sub="Number of detected genes",
 col=cellColorNgenes[rownames(cellsTsne)], pch=16)
