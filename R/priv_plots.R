@@ -50,7 +50,6 @@
     lowLim <- 0
     tryCatch({
       lowLim <- as.numeric(gsub("]", "", strsplit(levels(cut(cellProp, breaks=100))[1], ",")[[1]][2]))
-      stop("TEST")
     },error = function(e) {
       save(cellProp, file="error_cellProp.RData")
       message("There was an error trying to plot the t-SNE. Please report it in https://github.com/aertslab/AUCell (file for debugging: error_cellProp.RData). ",
