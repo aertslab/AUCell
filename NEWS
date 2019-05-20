@@ -1,4 +1,6 @@
-
+VERSION 1.7.+
+----------------------
+- Added function cbind()
 
 VERSION 1.5.+
 ----------------------

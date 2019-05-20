@@ -13,7 +13,7 @@ test_aucellResults <- function()
                        nrow=20)
   rownames(exprMatrix) <- paste("Gene", 1:20, sep="")
   colnames(exprMatrix) <- paste("Cell", 1:500, sep="")
-
+  
   cells_rankings <- suppressWarnings(AUCell_buildRankings(exprMatrix, plotStats=FALSE, verbose=FALSE))
   fewGenes <- sample(rownames(exprMatrix), 10)
   cellsAUC <- suppressWarnings(AUCell_calcAUC(fewGenes, cells_rankings, aucMaxRank=5))
@@ -32,6 +32,16 @@ test_aucellResults <- function()
 
   testthat::expect_equal(dim(getAUC(cellsAUC)), c(1,500))
   testthat::expect_error(getRanking(cellsAUC))
+  
+  # cbind
+  exprMatrix2 <- matrix(data=sample(c(rep(0, 100), sample(1:3, 20, replace=TRUE))),
+                        nrow=20,
+                        dimnames=list(paste("Gene", 1:20, sep=""),
+                                      paste("Cell", 500:505, sep="")))
+  cells_rankings2 <- suppressWarnings(AUCell_buildRankings(exprMatrix2, plotStats=FALSE, verbose=FALSE))
+  
+  testthat::expect_error(cbind(cells_rankings, cells_rankings2[1:5,]))
+  testthat::expect_error(cbind(cells_rankings, cells_rankings2))
 }
 
 test_that("aucellResults tests", test_aucellResults())

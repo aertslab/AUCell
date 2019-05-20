@@ -10,6 +10,7 @@
 \alias{show,aucellResults-method}
 \alias{getAUC,aucellResults-method}
 \alias{getRanking,aucellResults-method}
+\alias{cbind}
 \title{Wrapper to the matrix that stores the AUC or the cell rankings.}
 \usage{
 \S4method{show}{aucellResults}(object)
@@ -21,6 +22,8 @@ getAUC(object)
 getRanking(object)
 
 \S4method{getRanking}{aucellResults}(object)
+
+\S4method{cbind}{aucellResults}(..., deparse.level = 1)
 }
 \arguments{
 \item{object}{Results from \code{AUCell_buildRanking}
@@ -31,6 +34,8 @@ or \code{AUCell_calcAUC}.}
 \item show: Prints a summary of the object
 \item getAUC: Returns the matrix containing the AUC
 \item getRanking: Returns the matrix containing the rankings
+\item cbind: Combines objects by columns (cbind on \code{assays}); other other slots are conserved from the first object provided as argument.
+Both, ranking and AUC are calculated by column (cell or sample). Therefore, it is fine to merge objects as long as they come from equivalent datasets (and keep same genes/genesets, etc...)
 }
 }
 \description{

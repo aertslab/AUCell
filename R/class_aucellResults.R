@@ -21,6 +21,8 @@
 #' \item show: Prints a summary of the object
 #' \item getAUC: Returns the matrix containing the AUC
 #' \item getRanking: Returns the matrix containing the rankings
+#' \item cbind: Combines objects by columns (cbind on \code{assays}); other other slots are conserved from the first object provided as argument.
+#' Both, ranking and AUC are calculated by column (cell or sample). Therefore, it is fine to merge objects as long as they come from equivalent datasets (and keep same genes/genesets, etc...)
 #' }
 #' @method show aucellResults
 #' @method getAUC aucellResults
@@ -112,3 +114,42 @@ setMethod("getRanking",
             }
           }
 )
+
+setGeneric("cbind", signature="...")
+##### Combine objects (by colums):
+#' @name cbind
+#' @rdname aucellResults-class
+#' @export
+setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
+  args <- list(...)
+  
+  objectType <- unique(sapply(args, function(x) names(assays(x))))
+  if(length(objectType)>1) stop("All objects should be of the same type (e.g. ranking OR AUC).")
+  dimNames <- apply(sapply(args, function(x) names(dimnames(assay(x)))), 1, function(x) unique(x))
+  if(length(dimNames)!=2)  stop("Dimnames do not match.")
+  
+  allAssays <- lapply(args, assay, withDimnames=TRUE)
+  if(length(unique(sapply(allAssays, nrow)))>1)  stop("Number of rows (",dimNames[1],") do not match.")
+  if(!all(apply(rbind(sapply(allAssays, rownames)), 1, function(x) length(unique(x)))==1))  stop("Rownames (",dimNames[1],") do not match.")
+  if(any(table(unlist(sapply(allAssays, colnames)))>1))  stop("Some column IDs (",dimNames[2],") are duplicated.")
+  
+  allAssays <- do.call(cbind, allAssays)
+  names(dimnames(allAssays)) <- dimNames
+  
+  old.validity <- S4Vectors:::disableValidity()
+  S4Vectors:::disableValidity(TRUE)
+  on.exit(S4Vectors:::disableValidity(old.validity))
+  
+  #### Slots used:
+  # new("aucellResults",
+  #     SummarizedExperiment::SummarizedExperiment(assays=list(ranking=exprMat)),
+  #     nGenesDetected=nGenesDetected)
+  # new("aucellResults",
+  #     SummarizedExperiment::SummarizedExperiment(assays=list(AUC=aucMatrix)))
+  ####
+  
+  out <- callNextMethod()
+  BiocGenerics:::replaceSlots(out, 
+                              assays=setNames(list(allAssays),  objectType),
+                              check=FALSE)
+})
