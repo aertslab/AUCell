@@ -15,7 +15,7 @@ test_AUCell_buildRankings <- function()
   colnames(exprMatrix) <- paste("Cell", 1:500, sep="")
   ##################################################
 
-  cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=T, verbose=FALSE)
+  cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, verbose=FALSE)
 
   .check_AUCell_buildRankings_output(cells_rankings)
 
@@ -30,9 +30,9 @@ test_AUCell_buildRankings <- function()
 
   ### Multicore
   # set.seed(123)
-  # cells_rankings_multicore_1 <- AUCell_buildRankings(exprMatrix, plotStats=T, verbose=FALSE, nCores=2)
+  # cells_rankings_multicore_1 <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, verbose=FALSE, nCores=2)
   # set.seed(123)
-  # cells_rankings_multicore_2 <- AUCell_buildRankings(exprMatrix, plotStats=T, verbose=FALSE, nCores=2)
+  # cells_rankings_multicore_2 <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, verbose=FALSE, nCores=2)
   #
   # testthat::expect_equal(getRanking(cells_rankings_multicore_1), getRanking(cells_rankings_multicore_2))
   # .check_AUCell_buildRankings_output(cells_rankings_multicore_1)

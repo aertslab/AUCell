@@ -20,7 +20,7 @@ updateAucellResults <- function(oldAucObject, objectType="AUC")
   if(!objectType %in% c("auc", "ranking")) stop("'objectType' should be either 'AUC' or 'ranking'.")
 
   newAucObject <- NULL
-  if(class(oldAucObject)=="matrixWrapper")
+  if(methods::is(oldAucObject,"matrixWrapper")) 
   {
     aucMatrix <- oldAucObject@matrix
     #library(SummarizedExperiment)
@@ -28,7 +28,7 @@ updateAucellResults <- function(oldAucObject, objectType="AUC")
     if(objectType== "ranking") newAucObject <- new("aucellResults", SummarizedExperiment::SummarizedExperiment(assays=list(ranking=aucMatrix)))
   }
 
-  if(class(oldAucObject)=="matrix")
+  if(methods::is(oldAucObject,"matrix"))
   {
     aucMatrix <- oldAucObject
     # library(SummarizedExperiment)

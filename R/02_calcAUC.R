@@ -103,9 +103,9 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
             " genes (aucMaxRank) to calculate the AUC.", immediate.=TRUE)
   if(aucMaxRank <=0) stop("aucMaxRank should be a positive value.")
 
-  if((class(rankings)!="aucellResults") ||
+  if(!methods::is(rankings,"aucellResults") ||
      SummarizedExperiment::assayNames(rankings)!="ranking"){
-    if(class(rankings)=="matrixWrapper")
+    if(methods::is(rankings,"matrixWrapper"))
     {
       stop('These rankings were built with a previous AUCell version. \n",
            "Please update them with updateAucellResults(..., objectType="ranking")')

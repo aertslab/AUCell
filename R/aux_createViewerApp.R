@@ -21,7 +21,7 @@
 AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, 
                                    exprMat=NULL, cellInfo=NULL, colVars=NULL)
 {
-  if(class(auc)!="aucellResults") stop("Please provide an aucellResults object.")
+  if(!methods::is(auc,"aucellResults")) stop("Please provide an aucellResults object.")
   if(is.null(thresholds)) thresholds <- setNames(rep(0, nrow(auc)), rownames(auc))
   
   commonCells <- as.character(intersect(colnames(auc), rownames(tSNE)))

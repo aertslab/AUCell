@@ -21,7 +21,7 @@
 AUCell_plotHist <- function(cellsAUC, aucThr=max(cellsAUC), nBreaks=100, 
                             onColor="dodgerblue4", offColor="slategray2", ...)
 {
-  if(class(cellsAUC)[1]=="aucellResults") {
+  if(methods::is(cellsAUC,"aucellResults")) {
     cellsAUC <- getAUC(cellsAUC)
   }
   if(!is.matrix(cellsAUC))

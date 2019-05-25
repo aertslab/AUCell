@@ -2,6 +2,9 @@
 #' @description Reorder the gene-sets based on AUC similarity 
 #' @param auc AUC (as returned by calcAUC)
 #' @return gene-set names in the suggested order
+#' @importFrom stats as.dist hclust
+# @importFrom S4Vectors as.dist
+#' @importFrom stats cor
 #' @examples 
 #' # cellsAUC <- cellsAUC[orderAUC(cellsAUC),]
 #' @export

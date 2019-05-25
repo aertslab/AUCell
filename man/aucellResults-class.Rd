@@ -7,10 +7,10 @@
 \alias{getAUC}
 \alias{getRanking}
 \alias{show}
+\alias{cbind}
 \alias{show,aucellResults-method}
 \alias{getAUC,aucellResults-method}
 \alias{getRanking,aucellResults-method}
-\alias{cbind}
 \title{Wrapper to the matrix that stores the AUC or the cell rankings.}
 \usage{
 \S4method{show}{aucellResults}(object)
@@ -26,8 +26,13 @@ getRanking(object)
 \S4method{cbind}{aucellResults}(..., deparse.level = 1)
 }
 \arguments{
-\item{object}{Results from \code{AUCell_buildRanking}
+\item{object}{Results from \code{AUCell_buildRanking}}
+
+\item{...}{(Only for cbind) 
+
 or \code{AUCell_calcAUC}.}
+
+\item{deparse.level}{(Only for cbind)}
 }
 \value{
 \itemize{
@@ -91,4 +96,6 @@ nrow(cells_AUC)
 ncol(cells_AUC)
 colnames(cells_AUC)
 rownames(cells_AUC)
+
+# 
 }

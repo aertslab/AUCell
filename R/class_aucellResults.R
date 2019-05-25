@@ -1,5 +1,5 @@
 #' @title Wrapper to the matrix that stores the AUC or the cell rankings.
-#' @aliases getAUC getRanking show
+#' @aliases getAUC getRanking show cbind
 #' @description
 #' This class extends SummarizedExperiment to contain the AUC matrix and cell
 #' rankings (as 'assays').
@@ -15,6 +15,9 @@
 #'  - "ranking": The assays contains the gene rankings for each cell.
 #'
 #' @param object Results from \code{AUCell_buildRanking}
+#' @param deparse.level (Only for cbind) 
+#' @param ... (Only for cbind) 
+#' 
 #' or \code{AUCell_calcAUC}.
 #' @return
 #' \itemize{
@@ -31,6 +34,7 @@
 #' @rawNamespace import(data.table, except = shift)
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 #' @importMethodsFrom SummarizedExperiment assay assays assayNames
+#' @importFrom methods is
 #' @importFrom utils head
 #' @rdname aucellResults-class
 #' @export aucellResults
@@ -119,27 +123,32 @@ setGeneric("cbind", signature="...")
 ##### Combine objects (by colums):
 #' @name cbind
 #' @rdname aucellResults-class
+# @import BiocGenerics
+# replaceslots not exported...
+# @import S4Vectors
 #' @export
 setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
   args <- list(...)
-  
-  objectType <- unique(sapply(args, function(x) names(assays(x))))
+  objectType <- unique(sapply(args, function(x) names(SummarizedExperiment::assays(x))))
   if(length(objectType)>1) stop("All objects should be of the same type (e.g. ranking OR AUC).")
-  dimNames <- apply(sapply(args, function(x) names(dimnames(assay(x)))), 1, function(x) unique(x))
+  dimNames <- apply(sapply(args, function(x) names(dimnames(SummarizedExperiment::assay(x)))), 1, function(x) unique(x)) # vapply instead...
   if(length(dimNames)!=2)  stop("Dimnames do not match.")
-  
-  allAssays <- lapply(args, assay, withDimnames=TRUE)
-  if(length(unique(sapply(allAssays, nrow)))>1)  stop("Number of rows (",dimNames[1],") do not match.")
-  if(!all(apply(rbind(sapply(allAssays, rownames)), 1, function(x) length(unique(x)))==1))  stop("Rownames (",dimNames[1],") do not match.")
-  if(any(table(unlist(sapply(allAssays, colnames)))>1))  stop("Some column IDs (",dimNames[2],") are duplicated.")
-  
+
+  allAssays <- lapply(args, SummarizedExperiment::assay, withDimnames=TRUE)
+  if(length(unique(sapply(allAssays, nrow)))>1)
+    stop("Number of rows (",dimNames[1],") do not match.")
+  if(!all(apply(rbind(sapply(allAssays, rownames)), 1, function(x) length(unique(x)))==1))
+    stop("Rownames (",dimNames[1],") do not match.")
+  if(any(table(unlist(sapply(allAssays, colnames)))>1))
+    stop("Some column IDs (",dimNames[2],") are duplicated.")
+
   allAssays <- do.call(cbind, allAssays)
   names(dimnames(allAssays)) <- dimNames
-  
+
   old.validity <- S4Vectors:::disableValidity()
   S4Vectors:::disableValidity(TRUE)
   on.exit(S4Vectors:::disableValidity(old.validity))
-  
+
   #### Slots used:
   # new("aucellResults",
   #     SummarizedExperiment::SummarizedExperiment(assays=list(ranking=exprMat)),
@@ -147,9 +156,17 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
   # new("aucellResults",
   #     SummarizedExperiment::SummarizedExperiment(assays=list(AUC=aucMatrix)))
   ####
+
+  ## Error: list()
+  # out <- callNextMethod()
+  # BiocGenerics:::replaceSlots(out,
+  #                             assays=setNames(list(allAssays),  objectType),
+  #                             check=FALSE)
+
   
-  out <- callNextMethod()
-  BiocGenerics:::replaceSlots(out, 
-                              assays=setNames(list(allAssays),  objectType),
-                              check=FALSE)
+  new("aucellResults",
+      SummarizedExperiment::SummarizedExperiment(
+        assays=setNames(list(allAssays),  objectType)
+        ),
+      nGenesDetected=args[[1]]@nGenesDetected) # (nGenesDetected is taken from first object)  
 })

@@ -112,7 +112,7 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
 {
   if(!is.null(varName))
   {
-    if(class(cellInfo[,varName]) != "numeric")
+    if(!methods::is(cellInfo[,varName],"numeric"))
     {
       if(is.null(colVars[[varName]])) {
         varLevels <- as.character(unique(cellInfo[,varName]))
@@ -130,11 +130,11 @@ plotTsne_cellProps <- function(tSNE, cellInfo, colVars=NULL,
       #   colVars[[varName]] <- setNames(rainbow(length(unique(cellInfo[,varName]))), unique(cellInfo[,varName]))
       # } 
       colorPal <- grDevices::colorRampPalette(gradientCols)
-      cellColor <- setNames(adjustcolor(colorPal(10), alpha.f=.8)[as.numeric(cut(cellInfo[,varName],breaks=10, right=F,include.lowest=TRUE))], rownames(cellInfo))
+      cellColor <- setNames(adjustcolor(colorPal(10), alpha.f=.8)[as.numeric(cut(cellInfo[,varName],breaks=10, right=FALSE,include.lowest=TRUE))], rownames(cellInfo))
     }
     
     colsLegend <- colVars[[varName]]
-    if(class(cellInfo[,varName]) == "numeric") 
+    if(methods::is(cellInfo[,varName],"numeric"))
       colsLegend <- setNames(gradientCols[c(length(gradientCols),1)], signif(c(max(cellInfo[,varName]), min(cellInfo[,varName])),2))
     
     plot(tSNE, pch=16, cex=cex,

@@ -124,7 +124,7 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
           error = function(e) {
             return(e)
           })
-  if("error" %in% class(msg)) {
+  if(methods::is(msg,"error")) {
     warning("There has been an error in plotGeneCount() [Message: ",
             msg$message, "]. Proceeding to calculate the rankings...", sep="")
   }else{

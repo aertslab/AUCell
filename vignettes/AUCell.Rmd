@@ -146,7 +146,7 @@ attemptsLeft <- 20
 while(attemptsLeft>0)
 {
   geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE), error=identity) 
-  if("error" %in% class(geoFile)) 
+  if(methods::is(geoFile,"error")) 
   {
     attemptsLeft <- attemptsLeft-1
     Sys.sleep(5)
