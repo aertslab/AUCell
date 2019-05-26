@@ -97,5 +97,8 @@ ncol(cells_AUC)
 colnames(cells_AUC)
 rownames(cells_AUC)
 
-# 
+### Merging 2 objects (ranking or AUC):
+sample1 <- cells_AUC[,10:20]
+sample2 <- cells_AUC[,100:140]
+cbind(sample1, sample2)
 }
