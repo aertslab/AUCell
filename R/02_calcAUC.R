@@ -96,6 +96,13 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
     stop("geneSets should be a named list.")
   if(is.null(names(geneSets)))
     stop("geneSets should be a named list.")
+  if(any(lengths(geneSets)<=0))
+  {
+    warning("Ignoring the following empty sets: ", paste0(names(lengths(geneSets))[which(lengths(geneSets)<=0)], collapse=", "))
+    geneSets <- geneSets[which(lengths(geneSets)>0)]
+  }
+  if(length(geneSets)<=0) stop("No geneSets provided or remaining.")
+  
   if(nCores > length(geneSets))
     nCores <- length(geneSets) # No point in using more...
   if((aucMaxRank < 300) && verbose)
