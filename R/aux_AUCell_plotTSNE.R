@@ -27,12 +27,12 @@
 AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL, 
                             reorderGeneSets=FALSE,
                             cex=1,
-                           alphaOn=1, alphaOff=0.2,
-                           borderColor=adjustcolor("lightgray", alpha.f=0.1),
-                           offColor="lightgray",
-                           plots=c("histogram", "binaryAUC", "AUC", "expression"),
-                           exprCols= c("goldenrod1", "darkorange", "brown"),
-                           asPNG=FALSE, ...)
+                            alphaOn=1, alphaOff=0.2,
+                            borderColor=adjustcolor("lightgray", alpha.f=0.1),
+                            offColor="lightgray",
+                            plots=c("histogram", "binaryAUC", "AUC", "expression"),
+                            exprCols= c("goldenrod1", "darkorange", "brown"),
+                            asPNG=FALSE, ...)
 {
   #library(BiocGenerics)
   #library(AUCell)
@@ -90,9 +90,9 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
     plots <- "expression"
     # warning("no AUC provided... only plotting expression")
   }
-
+  
   cells_trhAssignment <- list()
-
+  
   ####################################
   # Start plots
   dirName <- "./"
@@ -121,14 +121,14 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
         figsMatrix[geneSetName, "histogram"] <- imgFile # paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
         png(paste0(dirName, imgFile))
       }
-
+      
       set.seed(123)
       cells_trhAssignment[[geneSetName]] <- AUCell_exploreThresholds(cellsAUC[geneSetName,], 
                                                                      assignCells=TRUE,
                                                                      plotHist=("histogram" %in% tolower(plots)))[[geneSetName]]
       thisTrheshold <- cells_trhAssignment[[geneSetName]]$aucThr$selected
       thisAssignment <- cells_trhAssignment[[geneSetName]]$assignment
-
+      
       if(asPNG & ("histogram" %in% tolower(plots))) dev.off()
     }else
     {
@@ -140,7 +140,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
           figsMatrix[geneSetName, "histogram"] <- imgFile # paste("<img src=\"", imgFile, "\") height=\"100\" alt=\"",imgFile, "\"></img>", sep = "")
           png(paste0(dirName, imgFile))
         }
-
+        
         ### Plot
         thisTrh <- as.vector(thresholds[geneSetName]) # TODO: Why needed sometimes? https://github.com/aertslab/AUCell/issues/3
         tmp <- .auc_plotHist(auc=getAUC(cellsAUC)[geneSetName,], gSetName=geneSetName,
@@ -148,21 +148,25 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
         
         if(!is.null(thisTrh))
         {
-            abline(v=thisTrh, lwd=3, lty=2, col="darkorange")
+          abline(v=thisTrh, lwd=3, lty=2, col="darkorange")
         }
         if(asPNG) dev.off()
       }
-
-      thisTrheshold <- thresholds[geneSetName]
-      if(is.matrix(cellsAUC)){
-        matrixAUC <- cellsAUC
-      }else{
-        matrixAUC <- getAUC(cellsAUC)
+      
+      cells_trhAssignment[[geneSetName]] <- NULL
+      if(!is.null(cellsAUC))
+      {
+        thisTrheshold <- thresholds[geneSetName]
+        if(is.matrix(cellsAUC)){
+          matrixAUC <- cellsAUC
+        }else{
+          matrixAUC <- getAUC(cellsAUC)
+        }
+        thisAssignment <- names(which(matrixAUC[geneSetName,] > thisTrheshold))
+        cells_trhAssignment[[geneSetName]] <- list("threshold"=thisTrheshold, "assignment"=thisAssignment) 
       }
-      thisAssignment <- names(which(matrixAUC[geneSetName,] > thisTrheshold))
-      cells_trhAssignment[[geneSetName]] <- list("threshold"=thisTrheshold, "assignment"=thisAssignment)
     }
-
+    
     ######### t-SNE 1: binary #############
     # Cells assigned at current threshold
     if(any(grepl("binary", tolower(plots))))
@@ -181,7 +185,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
                           borderColor=borderColor, offColor=offColor, ...)
       if(asPNG) dev.off()
     }
-
+    
     ######### t-SNE 2: Continuous #############
     # Regulon AUC
     if("auc" %in% tolower(plots))
@@ -198,7 +202,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
                             borderColor=borderColor, offColor=offColor, ...)
       if(asPNG) dev.off()
     }
-
+    
     ######### t-SNE 3: expression #############
     # TF expression
     if("expression" %in% tolower(plots))
@@ -232,7 +236,7 @@ AUCell_plotTSNE <- function(tSNE, exprMat=NULL, cellsAUC=NULL, thresholds=NULL,
 asHTML <- function(figsMatrix, imgDir="./")
 {
   figsMatrix <- t(apply(figsMatrix, 1, function(x) paste("<img src=\"", imgDir, x, "\") height=\"100\"></img>", sep = "")))
-
+  
   #file.copy("test.css", ".")
   R2HTML::HTML(figsMatrix, file=R2HTML::HTMLInitFile("."))#, CSSFile="test.css")
   R2HTML::HTMLEndFile()

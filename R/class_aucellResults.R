@@ -39,39 +39,39 @@
 #' @rdname aucellResults-class
 #' @export aucellResults
 aucellResults <- setClass("aucellResults",
-         contains="SummarizedExperiment",
-         representation=representation(
-           nGenesDetected = "numeric"
-         )
+                          contains="SummarizedExperiment",
+                          representation=representation(
+                            nGenesDetected = "numeric"
+                          )
 )
 #' @importFrom R.utils capitalize
 #' @rdname aucellResults-class
 #' @aliases show,aucellResults-method
 setMethod("show",
-  signature="aucellResults",
-  definition = function(object) {
-    message <- paste(R.utils::capitalize(assayNames(object)), " for ",
-           nrow(object)," ", names(dimnames(assay(object)))[1],
-           " (rows) and ",
-           ncol(object)," ", names(dimnames(assay(object)))[2],
-           " (columns).\n", sep="")
-
-    if(assayNames(object) == "AUC")
-      message <- paste(message,
-                       "\nTop-left corner of the AUC matrix:\n", sep="")
-    if(assayNames(object) == "ranking")
-      message <- paste(message,
-                       "\nTop-left corner of the ranking:\n", sep="")
-
-    cat(message)
-    show(head(assay(object)[,seq_len(min(5, ncol(object))),drop=FALSE]))
-
-    if(is.numeric(object@nGenesDetected) &&
-       (length(object@nGenesDetected)>0)) {
-      cat("\nQuantiles for the number of genes detected by cell:\n")
-      show(object@nGenesDetected)
-    }
-  }
+          signature="aucellResults",
+          definition = function(object) {
+            message <- paste(R.utils::capitalize(assayNames(object)), " for ",
+                             nrow(object)," ", names(dimnames(assay(object)))[1],
+                             " (rows) and ",
+                             ncol(object)," ", names(dimnames(assay(object)))[2],
+                             " (columns).\n", sep="")
+            
+            if(assayNames(object) == "AUC")
+              message <- paste(message,
+                               "\nTop-left corner of the AUC matrix:\n", sep="")
+            if(assayNames(object) == "ranking")
+              message <- paste(message,
+                               "\nTop-left corner of the ranking:\n", sep="")
+            
+            cat(message)
+            show(head(assay(object)[,seq_len(min(5, ncol(object))),drop=FALSE]))
+            
+            if(is.numeric(object@nGenesDetected) &&
+               (length(object@nGenesDetected)>0)) {
+              cat("\nQuantiles for the number of genes detected by cell:\n")
+              show(object@nGenesDetected)
+            }
+          }
 )
 ##### Access the matrix:
 #' @name getAUC
@@ -133,7 +133,7 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
   if(length(objectType)>1) stop("All objects should be of the same type (e.g. ranking OR AUC).")
   dimNames <- apply(sapply(args, function(x) names(dimnames(SummarizedExperiment::assay(x)))), 1, function(x) unique(x)) # vapply instead...
   if(length(dimNames)!=2)  stop("Dimnames do not match.")
-
+  
   allAssays <- lapply(args, SummarizedExperiment::assay, withDimnames=TRUE)
   if(length(unique(sapply(allAssays, nrow)))>1)
     stop("Number of rows (",dimNames[1],") do not match.")
@@ -141,14 +141,14 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
     stop("Rownames (",dimNames[1],") do not match.")
   if(any(table(unlist(sapply(allAssays, colnames)))>1))
     stop("Some column IDs (",dimNames[2],") are duplicated.")
-
+  
   allAssays <- do.call(cbind, allAssays)
   names(dimnames(allAssays)) <- dimNames
-
+  
   old.validity <- S4Vectors:::disableValidity()
   S4Vectors:::disableValidity(TRUE)
   on.exit(S4Vectors:::disableValidity(old.validity))
-
+  
   #### Slots used:
   # new("aucellResults",
   #     SummarizedExperiment::SummarizedExperiment(assays=list(ranking=exprMat)),
@@ -156,17 +156,17 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
   # new("aucellResults",
   #     SummarizedExperiment::SummarizedExperiment(assays=list(AUC=aucMatrix)))
   ####
-
+  
   ## Error: list()
   # out <- callNextMethod()
   # BiocGenerics:::replaceSlots(out,
   #                             assays=setNames(list(allAssays),  objectType),
   #                             check=FALSE)
-
+  
   
   new("aucellResults",
       SummarizedExperiment::SummarizedExperiment(
         assays=setNames(list(allAssays),  objectType)
-        ),
+      ),
       nGenesDetected=args[[1]]@nGenesDetected) # (nGenesDetected is taken from first object)  
 })
