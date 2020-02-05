@@ -170,3 +170,42 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
       ),
       nGenesDetected=args[[1]]@nGenesDetected) # (nGenesDetected is taken from first object)  
 })
+
+
+setGeneric("rbind", signature="...")
+##### Combine objects (by colums):
+#' @name cbind
+#' @rdname aucellResults-class
+# @import BiocGenerics
+# replaceslots not exported...
+# @import S4Vectors
+#' @export
+setMethod("rbind", "aucellResults", function(..., deparse.level=1) {
+  args <- list(...)
+  objectType <- unique(sapply(args, function(x) names(SummarizedExperiment::assays(x))))
+  if(length(objectType)>1) stop("All objects should be of the same type (e.g. ranking OR AUC).")
+  dimNames <- apply(sapply(args, function(x) names(dimnames(SummarizedExperiment::assay(x)))), 1, function(x) unique(x)) # vapply instead...
+  if(length(dimNames)!=2)  stop("Dimnames do not match.")
+  
+  allAssays <- lapply(args, SummarizedExperiment::assay, withDimnames=TRUE)
+  if(length(unique(sapply(allAssays, ncol)))>1)
+    stop("Number of columns (",dimNames[2],") do not match.")
+  if(!all(apply(rbind(sapply(allAssays, colnames)), 1, function(x) length(unique(x)))==1))
+    stop("Rownames (",dimNames[2],") do not match.")
+  if(any(table(unlist(sapply(allAssays, rownames)))>1))
+    stop("Some row IDs (",dimNames[1],") are duplicated.")
+  
+  allAssays <- do.call(rbind, allAssays)
+  names(dimnames(allAssays)) <- dimNames
+  
+  old.validity <- S4Vectors:::disableValidity()
+  S4Vectors:::disableValidity(TRUE)
+  on.exit(S4Vectors:::disableValidity(old.validity))
+  
+  new("aucellResults",
+      SummarizedExperiment::SummarizedExperiment(
+        assays=setNames(list(allAssays),  objectType)
+      ),
+      nGenesDetected=args[[1]]@nGenesDetected) # (nGenesDetected is taken from first object)  
+})
+
