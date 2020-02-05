@@ -173,7 +173,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
     aucMatrix <- aucMatrix[which(missingPercent < .80),,drop=FALSE]
   }
 
-  if(sum(missingGenes[,"missing"])>0)
+  if(sum(missingGenes[,"missing"])>.01)
   {
     msg1 <- "Genes in the gene sets NOT available in the dataset: \n"
     msg2 <-  sapply(rownames(missingGenes)[which(missingGenes[,"missing"]>0)],
@@ -188,6 +188,10 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   }
   # (remove missing genes info from AUC matrix)
   aucMatrix <- aucMatrix[,1:(ncol(aucMatrix)-2), drop=FALSE]
+  
+  aucMatrix <- aucMatrix[intersect(names(geneSets), rownames(aucMatrix)),]
+  missingSets <- names(geneSets)[which(!names(geneSets) %in% rownames(aucMatrix))]
+  if(length(missingSets)>0) warning("The AUC for the following sets was not calculated: ", paste(missingSets, collapse=", "))
 
 
   ######################################################################
