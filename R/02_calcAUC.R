@@ -149,9 +149,13 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
                gSetName)
     })
     aucMatrix <- do.call(rbind,
-                         unlist(aucMatrix, recursive = FALSE)[names(geneSets)])
+                         unlist(aucMatrix, recursive=FALSE))
   }
 
+  aucMatrix <- aucMatrix[intersect(names(geneSets), rownames(aucMatrix)),]
+  missingSets <- names(geneSets)[which(!names(geneSets) %in% rownames(aucMatrix))]
+  if(length(missingSets)>0) warning("The AUC for the following sets was not calculated: ", paste(missingSets, collapse=", "))
+  
   ######################################################################
   ##### Messages for missing genes
   missingGenes <- as.matrix(aucMatrix[,c("missing", "nGenes") , drop=FALSE])
@@ -173,10 +177,11 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
     aucMatrix <- aucMatrix[which(missingPercent < .80),,drop=FALSE]
   }
 
-  if(sum(missingGenes[,"missing"])>.01)
+  missingGenes <- missingGenes[rownames(aucMatrix),,drop=FALSE]
+  if(sum(missingGenes[,"missing"])>0)
   {
     msg1 <- "Genes in the gene sets NOT available in the dataset: \n"
-    msg2 <-  sapply(rownames(missingGenes)[which(missingGenes[,"missing"]>0)],
+    msg2 <-  sapply(rownames(missingGenes)[which(missingGenes[,"missing"]>0.01)],
                     function(gSetName){
                       paste("\t", gSetName, ": \t",
                             missingGenes[gSetName,"missing"],
@@ -188,11 +193,6 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   }
   # (remove missing genes info from AUC matrix)
   aucMatrix <- aucMatrix[,1:(ncol(aucMatrix)-2), drop=FALSE]
-  
-  aucMatrix <- aucMatrix[intersect(names(geneSets), rownames(aucMatrix)),]
-  missingSets <- names(geneSets)[which(!names(geneSets) %in% rownames(aucMatrix))]
-  if(length(missingSets)>0) warning("The AUC for the following sets was not calculated: ", paste(missingSets, collapse=", "))
-
 
   ######################################################################
   #### End: Return
