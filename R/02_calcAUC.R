@@ -139,7 +139,10 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   }
   if(nCores>1)
   {
+<<<<<<< HEAD
     if(!mctype %in% c("domc")) stop("Valid 'mctype': 'snow' or 'doMC'")
+=======
+>>>>>>> origin/master
     if(mctype=="snow")
     {
       # library(parallel)
