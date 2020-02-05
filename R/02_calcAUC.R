@@ -4,7 +4,6 @@
 #' @import GSEABase
 #' @importFrom stats setNames
 #' @importFrom methods new
-#'
 #' @title Calculate AUC
 #' @description Calculates the 'AUC' for each gene-set in each cell.
 #' @param geneSets List of gene-sets (or signatures) to test in the cells.
@@ -89,7 +88,9 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   })
 
 # Takes named character list as input
-.AUCell_calcAUC <- function(geneSets, rankings, nCores=1, normAUC=TRUE,
+.AUCell_calcAUC <- function(geneSets, rankings, 
+                            nCores=1, mctype=c("snow","domc")[1],
+                            normAUC=TRUE,
                             aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
 {
   if(!is.list(geneSets))
@@ -135,21 +136,45 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
       .AUC.geneSet(geneSet=geneSets[[gSetName]], rankings=rankings,
                    aucMaxRank=aucMaxRank, gSetName=gSetName))
     aucMatrix <- t(aucMatrix)
-  }else
+  }
+  if(nCores>1)
   {
-   doMC::registerDoMC(nCores)
-   if(verbose)
-     message("Using ", foreach::getDoParWorkers(), " cores.")
-
-   aucMatrix <- foreach::"%dopar%"(foreach::foreach(gSetName=names(geneSets)),
+    if(mctype=="snow")
     {
-      setNames(list(.AUC.geneSet(geneSet=geneSets[[gSetName]],
-                                 rankings=rankings, aucMaxRank=aucMaxRank,
-                                 gSetName=gSetName)),
-               gSetName)
-    })
-    aucMatrix <- do.call(rbind,
-                         unlist(aucMatrix, recursive=FALSE))
+      # library(parallel)
+      # library(doSNOW)
+      # library(plyr)
+      cl <- parallel::makeCluster(nCores, type = "SOCK")
+      doSNOW::registerDoSNOW(cl)
+      if(verbose) message("Using ", length(cl), " cores with SNOW.")
+      # clusterEvalQ(cl, library(AUCell))
+      parallel::clusterExport(cl, c("geneSets", "rankings", "aucMaxRank", ".AUC.geneSet", ".auc", ".AUC.geneSet_norm", ".AUC.geneSet_old"), envir=environment())
+      opts <- list(preschedule=TRUE)
+      # clusterSetRNGStream(cl, seed)
+      aucMatrix <- suppressWarnings(plyr::llply(.data=names(geneSets), 
+                               .fun=function(gSetName) 
+                                 setNames(list(.AUC.geneSet(geneSet=geneSets[[gSetName]], rankings=rankings, aucMaxRank=aucMaxRank, gSetName=gSetName)), gSetName),
+                               .parallel=TRUE, .paropts=list(.options.snow=opts), .inform=FALSE))
+      aucMatrix <- do.call(rbind,
+                           unlist(aucMatrix, recursive=FALSE))
+      parallel::stopCluster(cl)
+    }
+    if(mctype=="domc")
+    {
+     doMC::registerDoMC(nCores)
+     if(verbose)
+       message("Using ", foreach::getDoParWorkers(), " cores with doMC.")
+  
+     aucMatrix <- foreach::"%dopar%"(foreach::foreach(gSetName=names(geneSets)),
+      {
+        setNames(list(.AUC.geneSet(geneSet=geneSets[[gSetName]],
+                                   rankings=rankings, aucMaxRank=aucMaxRank,
+                                   gSetName=gSetName)),
+                 gSetName)
+      })
+      aucMatrix <- do.call(rbind,
+                           unlist(aucMatrix, recursive=FALSE))
+    }
   }
 
   aucMatrix <- aucMatrix[intersect(names(geneSets), rownames(aucMatrix)),]
