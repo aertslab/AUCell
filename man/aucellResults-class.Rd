@@ -24,6 +24,8 @@ getRanking(object)
 \S4method{getRanking}{aucellResults}(object)
 
 \S4method{cbind}{aucellResults}(..., deparse.level = 1)
+
+\S4method{rbind}{aucellResults}(..., deparse.level = 1)
 }
 \arguments{
 \item{object}{Results from \code{AUCell_buildRanking}}
