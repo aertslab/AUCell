@@ -49,6 +49,8 @@ with the function \code{\link{plotGeneCount}}.}
 \item{...}{Other arguments}
 
 \item{assayName}{Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)}
+
+\item{keepZeroesAsNA}{Experimental feature (use at your own risk): convert zeroes to NA instead of locating randomly at the end of the ranking.}
 }
 \value{
 data.table of genes (row) by cells (columns)

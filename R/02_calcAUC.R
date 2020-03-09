@@ -178,7 +178,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
     }
   }
 
-  aucMatrix <- aucMatrix[intersect(names(geneSets), rownames(aucMatrix)),]
+  aucMatrix <- aucMatrix[intersect(names(geneSets), rownames(aucMatrix)),,drop=FALSE]
   missingSets <- names(geneSets)[which(!names(geneSets) %in% rownames(aucMatrix))]
   if(length(missingSets)>0) warning("The AUC for the following sets was not calculated: ", paste(missingSets, collapse=", "))
   

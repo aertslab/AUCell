@@ -119,12 +119,11 @@ setMethod("getRanking",
           }
 )
 
-setGeneric("cbind", signature="...")
 ##### Combine objects (by colums):
 #' @name cbind
 #' @rdname aucellResults-class
-# @import BiocGenerics
-# replaceslots not exported...
+#' @importFrom BiocGenerics cbind
+# replaces slots not exported...
 # @import S4Vectors
 #' @export
 setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
@@ -171,12 +170,10 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
       nGenesDetected=args[[1]]@nGenesDetected) # (nGenesDetected is taken from first object)  
 })
 
-
-setGeneric("rbind", signature="...")
 ##### Combine objects (by colums):
 #' @name cbind
 #' @rdname aucellResults-class
-# @import BiocGenerics
+#' @importFrom BiocGenerics rbind
 # replaceslots not exported...
 # @import S4Vectors
 #' @export

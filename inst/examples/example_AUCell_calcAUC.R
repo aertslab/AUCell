@@ -43,7 +43,7 @@ getAUC(cells_AUC)[,1:5]
 dim(cells_AUC)
 nrow(cells_AUC)
 ncol(cells_AUC)
-colnames(cells_AUC)
+colnames(cells_AUC)[1:4]
 rownames(cells_AUC)
 
 #########################################################

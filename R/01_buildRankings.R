@@ -33,7 +33,7 @@
 #' @param nCores Number of cores to use for computation.
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
 #' @param assayName Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)
-# @param keepZeroesAsNA Experimental, convert zeroes to NA instead of locating randomly at the end of the ranking.
+#' @param keepZeroesAsNA Experimental feature (use at your own risk): convert zeroes to NA instead of locating randomly at the end of the ranking.
 #' @param ... Other arguments
 #' @return data.table of genes (row) by cells (columns)
 #' with the ranking of the gene within the cell.
@@ -106,7 +106,7 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
     .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
   })
 
-.AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, keepZeroesAsNA=FALSE, verbose=TRUE)
+.AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE)
 {
   #### Optional. TODO: test thoroughly!
   if(keepZeroesAsNA){
@@ -141,32 +141,66 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
 
   }else
   {
-    # doRNG::registerDoRNG(nCores)
-    doParallel::registerDoParallel()
-    options(cores=nCores)
-
-    if(verbose)
-      message("Using ", foreach::getDoParWorkers(), " cores.")
-
     # Expected warning: Not multiple
-    suppressWarnings(colsNamsGroups <- split(colsNam,
-                                             (seq_along(colsNam)) %% nCores))
+    suppressWarnings(colsNamsGroups <- split(colsNam, (seq_along(colsNam)) %% nCores))
     rowNams <- exprMat$rn
-
     colsGr <- NULL
-    "%dopar%"<- foreach::"%dopar%"
-    suppressPackageStartupMessages(exprMat <-
-                      doRNG::"%dorng%"(foreach::foreach(colsGr=colsNamsGroups,
-                                                        .combine=cbind),
+    
+    if(!mctype %in% c("domc")) stop("Valid 'mctype': doMC")
+    # if(mctype=="snow") # Error in do.ply(i) : task 1 failed - "Check that is.data.table(DT) == TRUE. Otherwise, := and `:=`(...) are defined for use in j, once only and in particular ways. See help(":=")."
+    # {
+    #   cl <- parallel::makeCluster(nCores, type = "SOCK")
+    #   doSNOW::registerDoSNOW(cl)
+    #   if(verbose) message("Using ", length(cl), " cores with SNOW.")
+    #   parallel::clusterEvalQ(cl, library(data.table))
+    #   parallel::clusterExport(cl, c("exprMat"), envir=environment())
+    #   opts <- list(preschedule=TRUE)
+    #   # clusterSetRNGStream(cl, seed)
+    #   tmp <- suppressWarnings(plyr::llply(.data=colsNamsGroups,
+    #                                             .fun=function(colsGr)
+    #                                             {
+    #                                               # library(data.table)
+    #                                               # Edits by reference: how to make it work in paralell...?
+    #                                               subMat <- exprMat[,colsGr, with=FALSE]
+    #                                               subMat[, (colsGr):=lapply(-.SD, data.table::frank, ties.method="random", na.last="keep"), .SDcols=colsGr]
+    #                                             },
+    #                                             .parallel=TRUE, .paropts=list(.options.snow=opts), .inform=FALSE))
+    #   parallel::stopCluster(cl)
+    #   
+    #   exprMat <- do.call(cbind, tmp)
+    #   # Keep initial order & recover rownames
+    #   exprMat <- data.table::data.table(rn=rowNams, exprMat[,colsNam, with=FALSE])
+    #   data.table::setkey(exprMat, "rn")
+    # }
+    if(mctype=="domc")
     {
-      # Edits by reference: how to make it work in paralell...?
-      subMat <- exprMat[,colsGr, with=FALSE]
-      subMat[, (colsGr):=lapply(-.SD, data.table::frank, ties.method="random", na.last="keep"),
-             .SDcols=colsGr]
-    }))
-    # Keep initial order & recover rownames
-    exprMat <- data.table::data.table(rn=rowNams, exprMat[,colsNam, with=FALSE])
-    data.table::setkey(exprMat, "rn")
+      # doRNG::registerDoRNG(nCores)
+      doParallel::registerDoParallel()
+      options(cores=nCores)
+  
+      if(verbose)
+        message("Using ", foreach::getDoParWorkers(), " cores.")
+  
+      # Expected warning: Not multiple
+      suppressWarnings(colsNamsGroups <- split(colsNam,
+                                               (seq_along(colsNam)) %% nCores))
+      rowNams <- exprMat$rn
+  
+      colsGr <- NULL
+      "%dopar%"<- foreach::"%dopar%"
+      suppressPackageStartupMessages(exprMat <-
+                        doRNG::"%dorng%"(foreach::foreach(colsGr=colsNamsGroups,
+                                                          .combine=cbind),
+      {
+        # Edits by reference: how to make it work in paralell...?
+        subMat <- exprMat[,colsGr, with=FALSE]
+        subMat[, (colsGr):=lapply(-.SD, data.table::frank, ties.method="random", na.last="keep"),
+               .SDcols=colsGr]
+      }))
+      # Keep initial order & recover rownames
+      exprMat <- data.table::data.table(rn=rowNams, exprMat[,colsNam, with=FALSE])
+      data.table::setkey(exprMat, "rn")
+    }
   }
 
   rn <- exprMat$rn

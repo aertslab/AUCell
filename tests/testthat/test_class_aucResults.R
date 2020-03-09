@@ -40,8 +40,10 @@ test_aucellResults <- function()
                                       paste("Cell", 500:505, sep="")))
   cells_rankings2 <- suppressWarnings(AUCell_buildRankings(exprMatrix2, plotStats=FALSE, verbose=FALSE))
   
-  testthat::expect_error(cbind(cells_rankings, cells_rankings2[1:5,]))
+  ok <- cbind(cells_rankings, cells_rankings2[,-1]) 
+  testthat::expect_error(cbind(cells_rankings, cells_rankings2[1:3,]))
   testthat::expect_error(cbind(cells_rankings, cells_rankings2))
+  testthat::expect_error(rbind(cells_rankings, cells_rankings2))
 }
 
 test_that("aucellResults tests", test_aucellResults())
