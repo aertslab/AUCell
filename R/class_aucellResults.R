@@ -125,7 +125,7 @@ setMethod("getRanking",
 #' @importFrom BiocGenerics cbind
 # replaces slots not exported...
 # @import S4Vectors
-#' @export
+#' @export 
 setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
   args <- list(...)
   objectType <- unique(sapply(args, function(x) names(SummarizedExperiment::assays(x))))
@@ -144,9 +144,9 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
   allAssays <- do.call(cbind, allAssays)
   names(dimnames(allAssays)) <- dimNames
   
-  old.validity <- S4Vectors:::disableValidity()
-  S4Vectors:::disableValidity(TRUE)
-  on.exit(S4Vectors:::disableValidity(old.validity))
+  # old.validity <- S4Vectors:::disableValidity()
+  # S4Vectors:::disableValidity(TRUE)
+  # on.exit(S4Vectors:::disableValidity(old.validity))
   
   #### Slots used:
   # new("aucellResults",
@@ -170,13 +170,13 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
       nGenesDetected=args[[1]]@nGenesDetected) # (nGenesDetected is taken from first object)  
 })
 
-##### Combine objects (by colums):
-#' @name cbind
+##### Combine objects (by rows):
+#' @name rbind
 #' @rdname aucellResults-class
 #' @importFrom BiocGenerics rbind
 # replaceslots not exported...
 # @import S4Vectors
-#' @export
+#' @export 
 setMethod("rbind", "aucellResults", function(..., deparse.level=1) {
   args <- list(...)
   objectType <- unique(sapply(args, function(x) names(SummarizedExperiment::assays(x))))
@@ -195,9 +195,9 @@ setMethod("rbind", "aucellResults", function(..., deparse.level=1) {
   allAssays <- do.call(rbind, allAssays)
   names(dimnames(allAssays)) <- dimNames
   
-  old.validity <- S4Vectors:::disableValidity()
-  S4Vectors:::disableValidity(TRUE)
-  on.exit(S4Vectors:::disableValidity(old.validity))
+  # old.validity <- S4Vectors:::disableValidity()
+  # S4Vectors:::disableValidity(TRUE)
+  # on.exit(S4Vectors:::disableValidity(old.validity))
   
   new("aucellResults",
       SummarizedExperiment::SummarizedExperiment(

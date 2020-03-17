@@ -4,8 +4,14 @@
 \alias{AUCell_createViewerApp}
 \title{Create AUCell viewer app}
 \usage{
-AUCell_createViewerApp(auc, thresholds = NULL, tSNE = NULL,
-  exprMat = NULL, cellInfo = NULL, colVars = NULL)
+AUCell_createViewerApp(
+  auc,
+  thresholds = NULL,
+  tSNE = NULL,
+  exprMat = NULL,
+  cellInfo = NULL,
+  colVars = NULL
+)
 }
 \arguments{
 \item{auc}{AUC object returned by \code{\link{AUCell_calcAUC}}}
@@ -58,7 +64,7 @@ cellInfo <- data.frame(cellType1=sample(LETTERS[1:3],ncol(exprMatrix), replace=T
 ######
 
 
-library(shiny); library(rbokeh)
+library(shiny); requireNamespace(rbokeh)
 
 # Create app 
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 

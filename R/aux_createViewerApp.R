@@ -38,7 +38,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
   # Choose according to whether the t-SNE is provided
   if(!is.null(tSNE))
   {
-    require(rbokeh)
+    requireNamespace(rbokeh)
     
     app$ui <- fluidPage(
       titlePanel("AUCell"),

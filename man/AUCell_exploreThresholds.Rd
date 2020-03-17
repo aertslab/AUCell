@@ -6,9 +6,17 @@
 \alias{getAssignments}
 \title{AUCell_exploreThresholds}
 \usage{
-AUCell_exploreThresholds(cellsAUC, thrP = 0.01, nCores = 1,
-  smallestPopPercent = 0.25, plotHist = TRUE, densAdjust = 2,
-  assignCells = FALSE, nBreaks = 100, verbose = TRUE)
+AUCell_exploreThresholds(
+  cellsAUC,
+  thrP = 0.01,
+  nCores = 1,
+  smallestPopPercent = 0.25,
+  plotHist = TRUE,
+  densAdjust = 2,
+  assignCells = FALSE,
+  nBreaks = 100,
+  verbose = TRUE
+)
 
 getThresholdSelected(aucellThresholds)
 

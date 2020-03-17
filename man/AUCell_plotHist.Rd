@@ -4,8 +4,14 @@
 \alias{AUCell_plotHist}
 \title{Plot AUC histogram}
 \usage{
-AUCell_plotHist(cellsAUC, aucThr = max(cellsAUC), nBreaks = 100,
-  onColor = "dodgerblue4", offColor = "slategray2", ...)
+AUCell_plotHist(
+  cellsAUC,
+  aucThr = max(cellsAUC),
+  nBreaks = 100,
+  onColor = "dodgerblue4",
+  offColor = "slategray2",
+  ...
+)
 }
 \arguments{
 \item{cellsAUC}{Subset of the object returned by \code{\link{AUCell_calcAUC}}

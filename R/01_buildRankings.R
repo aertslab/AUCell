@@ -33,6 +33,7 @@
 #' @param nCores Number of cores to use for computation.
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
 #' @param assayName Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)
+#' @param mctype Experimental feature (use at your own risk): Alternative methods to run the parallel compuations (e.g. through different packages)
 #' @param keepZeroesAsNA Experimental feature (use at your own risk): convert zeroes to NA instead of locating randomly at the end of the ranking.
 #' @param ... Other arguments
 #' @return data.table of genes (row) by cells (columns)
@@ -53,7 +54,7 @@
 #' @rdname AUCell_buildRankings
 #' @export
 setGeneric("AUCell_buildRankings", signature="exprMat",
-  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE, ...)
+  function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE, ...)
   {
    standardGeneric("AUCell_buildRankings")
   })
@@ -61,25 +62,25 @@ setGeneric("AUCell_buildRankings", signature="exprMat",
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,matrix-method
 setMethod("AUCell_buildRankings", "matrix",
-  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE)
   {
-    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores,  mctype=mctype, keepZeroesAsNA=keepZeroesAsNA, verbose=verbose)
   })
 
 # Sparse matrix
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,dgCMatrix-method
 setMethod("AUCell_buildRankings", "dgCMatrix",
-  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE)
   {
     exprMat <- as.matrix(exprMat)
-    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores,  mctype=mctype, keepZeroesAsNA=keepZeroesAsNA, verbose=verbose)
   })
 
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,SummarizedExperiment-method
 setMethod("AUCell_buildRankings", "SummarizedExperiment",
-function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE, assayName=NULL)
+function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE, assayName=NULL)
   {
     if(is.null(assayName))
     {
@@ -94,16 +95,16 @@ function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE, assayName=NULL)
       exprMat <- SummarizedExperiment::assays(exprMat)[[assayName]]
     }
       
-    .AUCell_buildRankings(exprMat=as.matrix(exprMat), plotStats=plotStats, nCores=nCores, verbose=verbose)
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores,  mctype=mctype, keepZeroesAsNA=keepZeroesAsNA, verbose=verbose)
   })
 
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,ExpressionSet-method
 setMethod("AUCell_buildRankings", "ExpressionSet",
-  function(exprMat, plotStats=TRUE, nCores=1, verbose=TRUE)
+  function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE)
   {
     exprMat <- Biobase::exprs(exprMat)
-    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores, verbose=verbose)
+    .AUCell_buildRankings(exprMat=exprMat, plotStats=plotStats, nCores=nCores,  mctype=mctype, keepZeroesAsNA=keepZeroesAsNA, verbose=verbose)
   })
 
 .AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE)

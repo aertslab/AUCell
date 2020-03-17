@@ -82,7 +82,8 @@ BiocManager::install(c("doMC", "doRNG"))
 # For the main example:
 BiocManager::install(c("mixtools", "GEOquery", "SummarizedExperiment"))
 # For the examples in the follow-up section of the tutorial:
-BiocManager::install(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh"))
+BiocManager::install(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh",
+                       "dynamicTreeCut","R2HTML","Rtsne", "zoo"))
 ```
 
 ## Some tips...

@@ -4,8 +4,15 @@
 \alias{plotTsne_cellProps}
 \title{plotTsne_cellProps}
 \usage{
-plotTsne_cellProps(tSNE, cellInfo, colVars = NULL, cex = 1, sub = "",
-  gradientCols = c("yellow", "orange", "red"), showLegend = TRUE)
+plotTsne_cellProps(
+  tSNE,
+  cellInfo,
+  colVars = NULL,
+  cex = 1,
+  sub = "",
+  gradientCols = c("yellow", "orange", "red"),
+  showLegend = TRUE
+)
 }
 \arguments{
 \item{tSNE}{t-SNE coordinates (e.g. \code{tSNE$Y})}

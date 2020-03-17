@@ -24,7 +24,7 @@ cellInfo <- data.frame(cellType1=sample(LETTERS[1:3],ncol(exprMatrix), replace=T
 ######
 
 
-library(shiny); library(rbokeh)
+library(shiny); requireNamespace(rbokeh)
 
 # Create app 
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 
