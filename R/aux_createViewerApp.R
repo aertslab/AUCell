@@ -39,6 +39,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
   if(!is.null(tSNE))
   {
     requireNamespace(rbokeh)
+    requireNamespace(shiny)
     
     app$ui <- fluidPage(
       titlePanel("AUCell"),
