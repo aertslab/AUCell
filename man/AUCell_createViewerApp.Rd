@@ -63,15 +63,13 @@ cellInfo <- data.frame(cellType1=sample(LETTERS[1:3],ncol(exprMatrix), replace=T
                        row.names=colnames(exprMatrix))
 ######
 
-
-library(shiny); requireNamespace(rbokeh)
-
 # Create app 
 aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 
                                     tSNE=cellsTsne, exprMat=exprMatrix, cellInfo=cellInfo)
 
 # The exact commands to lauch the app depend on the R settings 
 # For example:
+# library(shiny)
 # options(shiny.host="0.0.0.0") 
 # savedSelections <- runApp(aucellApp) 
 # (see Shiny's doc for help)
