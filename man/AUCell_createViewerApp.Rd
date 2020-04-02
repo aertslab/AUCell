@@ -54,7 +54,8 @@ geneSets <- list(geneSet1=sample(rownames(exprMatrix), 10),
 cells_rankings <- AUCell_buildRankings(exprMatrix)
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=5, nCores=1)
 selectedThresholds <- NULL
-cellsTsne<- Rtsne::Rtsne(t(exprMatrix),max_iter = 10)$Y
+# cellsTsne<- Rtsne::Rtsne(t(exprMatrix),max_iter = 10)$Y
+cellsTsne<- tsne::tsne(t(exprMatrix),max_iter = 10)
 rownames(cellsTsne) <- colnames(exprMatrix)
 
 cellInfo <- data.frame(cellType1=sample(LETTERS[1:3],ncol(exprMatrix), replace=TRUE), 

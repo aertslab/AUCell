@@ -38,74 +38,79 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
   # Choose according to whether the t-SNE is provided
   if(!is.null(tSNE))
   {
-    requireNamespace(rbokeh)
-    requireNamespace(shiny)
-    
-    app$ui <- fluidPage(
-      titlePanel("AUCell"),
-      tabsetPanel(
-        tabPanel("Threshold selection", 
-                 sidebarPanel(
-                   selectInput(inputId = "geneSet",
-                               label = "Gene set:",
-                               choices=rownames(auc)
+    if(!"rbokeh" %in% rownames(installed.packages()))
+    {
+      warning("Package rbokeh is not available.")
+    }else{
+      requireNamespace(rbokeh)
+      requireNamespace(shiny)
+      
+      app$ui <- fluidPage(
+        titlePanel("AUCell"),
+        tabsetPanel(
+          tabPanel("Threshold selection", 
+                   sidebarPanel(
+                     selectInput(inputId = "geneSet",
+                                 label = "Gene set:",
+                                 choices=rownames(auc)
+                     ),
+                     uiOutput("threshold_slider"),
+                     actionButton("saveThr", "Save threshold"),
+                     br(),
+                     plotOutput(outputId = "histPlot")),
+                   
+                   mainPanel(plotOutput(outputId = "tsnePlot"),
+                             # Extra properties (e.g. expression or cell info)
+                             conditionalPanel(c("false","true")[as.numeric(!is.null(cellInfo) | !is.null(exprMat))+1],
+                                              fluidRow(
+                                                conditionalPanel(c("false","true")[as.numeric(!is.null(exprMat))+1],
+                                                                 column(6,
+                                                                        uiOutput("gene_selection")
+                                                                 )),
+                                                conditionalPanel(c("false","true")[as.numeric(!is.null(cellInfo))+1],
+                                                                 column(6,
+                                                                        selectInput(inputId = "phenodata_selection",
+                                                                                    label = "Cell info:",
+                                                                                    choices=colnames(cellInfo),
+                                                                                    selected=colnames(cellInfo)[1])
+                                                                 )),
+                                                plotOutput(outputId = "tsnePlot_expression_cellInfo")
+                                              )),
+                             
+                             
+                             
+                             sliderInput(inputId = "size",
+                                         label = "Point size:",
+                                         min = 0.01,
+                                         max = 3,
+                                         value = 0.5)
+                   ) 
+                   
+          ),
+          tabPanel("Cell selection", 
+                   column(6,
+                          selectInput(inputId = "geneSetBokeh",
+                                      label = "Gene set:",
+                                      choices=rownames(auc)),
+                          rbokeh::rbokehOutput("tsne_rbokeh"),
+                          sliderInput(inputId = "size_bokeh",
+                                      label = "Point size:",
+                                      min = 0.01,
+                                      max = 10,
+                                      value = 1)
                    ),
-                   uiOutput("threshold_slider"),
-                   actionButton("saveThr", "Save threshold"),
-                   br(),
-                   plotOutput(outputId = "histPlot")),
-                 
-                 mainPanel(plotOutput(outputId = "tsnePlot"),
-                           # Extra properties (e.g. expression or cell info)
-                           conditionalPanel(c("false","true")[as.numeric(!is.null(cellInfo) | !is.null(exprMat))+1],
-                                            fluidRow(
-                                              conditionalPanel(c("false","true")[as.numeric(!is.null(exprMat))+1],
-                                                               column(6,
-                                                                      uiOutput("gene_selection")
-                                                               )),
-                                              conditionalPanel(c("false","true")[as.numeric(!is.null(cellInfo))+1],
-                                                               column(6,
-                                                                      selectInput(inputId = "phenodata_selection",
-                                                                                  label = "Cell info:",
-                                                                                  choices=colnames(cellInfo),
-                                                                                  selected=colnames(cellInfo)[1])
-                                                               )),
-                                              plotOutput(outputId = "tsnePlot_expression_cellInfo")
-                                            )),
-                           
-                           
-                           
-                           sliderInput(inputId = "size",
-                                       label = "Point size:",
-                                       min = 0.01,
-                                       max = 3,
-                                       value = 0.5)
-                 ) 
-                 
+                   column(6,
+                          wellPanel(
+                            fixedRow(textInput(inputId = "cellGroupName", 
+                                               label="Group name", value = "group1"),
+                                     actionButton("saveCells", "Save cells")),
+                            textOutput("cellSelectedText")))
+                   #column(6, DT::dataTableOutput("cellSelectedTable"))
+          )
         ),
-        tabPanel("Cell selection", 
-                 column(6,
-                        selectInput(inputId = "geneSetBokeh",
-                                    label = "Gene set:",
-                                    choices=rownames(auc)),
-                        rbokeh::rbokehOutput("tsne_rbokeh"),
-                        sliderInput(inputId = "size_bokeh",
-                                    label = "Point size:",
-                                    min = 0.01,
-                                    max = 10,
-                                    value = 1)
-                 ),
-                 column(6,
-                        wellPanel(
-                          fixedRow(textInput(inputId = "cellGroupName", 
-                                             label="Group name", value = "group1"),
-                                   actionButton("saveCells", "Save cells")),
-                          textOutput("cellSelectedText")))
-                 #column(6, DT::dataTableOutput("cellSelectedTable"))
-        )
-      ),
-      title="AUCell"
-    )
+        title="AUCell"
+      )
+    }
   }else{
     # If no t-SNE: Histogram on the main panel
     app$ui <- fluidPage(
