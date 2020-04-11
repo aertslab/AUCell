@@ -42,7 +42,7 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
     {
       warning("Package rbokeh is not available.")
     }else{
-      requireNamespace(rbokeh)
+      #requireNamespace(rbokeh)
       requireNamespace(shiny)
       
       app$ui <- fluidPage(
@@ -226,13 +226,18 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
       }
     })
     
-    output$tsne_rbokeh <- rbokeh::renderRbokeh({
-      rbokeh::figure(logo=NULL) %>%
-        rbokeh::ly_points(tsne1, tsne2, data=tSNE.df, hover=cell, size=input$size_bokeh,
-                          color = getAUC(auc)[input$geneSetBokeh,rownames(tSNE.df)], legend=FALSE, lname = "cells") %>%
-        rbokeh::set_palette(continuous_color = rbokeh::pal_gradient(c("lightgrey", "pink", "red"))) %>%
-        rbokeh::tool_lasso_select(callback = rbokeh::shiny_callback(id="cellsSelected"), "cells")
-    })
+    if("rbokeh" %in% rownames(installed.packages()))
+    {
+      output$tsne_rbokeh <- rbokeh::renderRbokeh({
+        rbokeh::figure(logo=NULL) %>%
+          rbokeh::ly_points(tsne1, tsne2, data=tSNE.df, hover=cell, size=input$size_bokeh,
+                            color = getAUC(auc)[input$geneSetBokeh,rownames(tSNE.df)], legend=FALSE, lname = "cells") %>%
+          rbokeh::set_palette(continuous_color = rbokeh::pal_gradient(c("lightgrey", "pink", "red"))) %>%
+          rbokeh::tool_lasso_select(callback = rbokeh::shiny_callback(id="cellsSelected"), "cells")
+      })
+    }else{
+      output$tsne_rbokeh <- NULL
+    }
     
     # output$cellSelectedTable <- DT::renderDataTable({
     #   data.frame("Cells selected"= rownames(tSNE)[input$cellsSelected])
