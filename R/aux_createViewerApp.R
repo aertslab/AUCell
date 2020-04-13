@@ -38,12 +38,12 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
   # Choose according to whether the t-SNE is provided
   if(!is.null(tSNE))
   {
-    if(!"rbokeh" %in% rownames(installed.packages()))
+    if(!all(c("rbokeh","shiny") %in% rownames(installed.packages())))
     {
       warning("Package rbokeh is not available.")
     }else{
       #requireNamespace(rbokeh)
-      requireNamespace(shiny)
+      #requireNamespace(shiny)
       
       app$ui <- fluidPage(
         titlePanel("AUCell"),

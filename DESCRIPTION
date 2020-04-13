@@ -2,8 +2,8 @@ Package: AUCell
 Type: Package
 Title: AUCell: Analysis of 'gene set' activity in single-cell RNA-seq data
     (e.g. identify cells with specific gene signatures)
-Version: 1.9.7
-Date: 2020-04-11
+Version: 1.9.8
+Date: 2020-04-13
 Author: Sara Aibar, Stein Aerts. Laboratory of Computational Biology.
     VIB-KU Leuven Center for Brain & Disease Research. Leuven, Belgium.
 Maintainer: Sara Aibar <sara.aibar@kuleuven.vib.be>
