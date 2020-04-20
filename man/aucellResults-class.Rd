@@ -11,7 +11,9 @@
 \alias{show,aucellResults-method}
 \alias{getAUC,aucellResults-method}
 \alias{getRanking,aucellResults-method}
+\alias{cbind,aucellResults-method}
 \alias{rbind}
+\alias{rbind,aucellResults-method}
 \title{Wrapper to the matrix that stores the AUC or the cell rankings.}
 \usage{
 \S4method{show}{aucellResults}(object)

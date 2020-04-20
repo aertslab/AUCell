@@ -122,6 +122,7 @@ setMethod("getRanking",
 ##### Combine objects (by colums):
 #' @name cbind
 #' @rdname aucellResults-class
+#' @aliases cbind,aucellResults-method
 #' @importFrom BiocGenerics cbind
 # replaces slots not exported...
 # @import S4Vectors
@@ -173,6 +174,7 @@ setMethod("cbind", "aucellResults", function(..., deparse.level=1) {
 ##### Combine objects (by rows):
 #' @name rbind
 #' @rdname aucellResults-class
+#' @aliases rbind,aucellResults-method
 #' @importFrom BiocGenerics rbind
 # replaceslots not exported...
 # @import S4Vectors
