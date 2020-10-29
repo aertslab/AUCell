@@ -89,7 +89,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
 
 # Takes named character list as input
 .AUCell_calcAUC <- function(geneSets, rankings, 
-                            nCores=1, mctype=c("snow","domc")[1],
+                            nCores=1, mctype=c("domc","snow")[1],
                             normAUC=TRUE,
                             aucMaxRank=ceiling(0.05*nrow(rankings)), verbose=TRUE)
 {
@@ -139,7 +139,7 @@ setMethod("AUCell_calcAUC", "GeneSetCollection",
   }
   if(nCores>1)
   {
-    if(!mctype %in% c("domc")) stop("Valid 'mctype': 'snow' or 'doMC'")
+    if(!mctype %in% c("domc")) stop("Valid 'mctype': 'doMC'") # 'snow'  
     if(mctype=="snow")
     {
       # library(parallel)
