@@ -19,13 +19,15 @@
 #' @example inst/examples/example_AUCell_createViewerApp.R
 #' @export
 AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL, 
-                                   exprMat=NULL, cellInfo=NULL, colVars=NULL)
+                                   exprMat=NULL, cellInfo=NULL, colVars=NULL,
+                                   includeCellSelectionTab=TRUE) # includeThresholdSelectionTab=TRUE, 
 {
   if(!methods::is(auc,"aucellResults")) stop("Please provide an aucellResults object.")
   if(is.null(thresholds)) thresholds <- setNames(rep(0, nrow(auc)), rownames(auc))
   
   commonCells <- as.character(intersect(colnames(auc), rownames(tSNE)))
   tSNE.df <- data.frame(tSNE[commonCells,,drop=FALSE], cell=commonCells, t(getAUC(auc)[,commonCells, drop=FALSE]), stringsAsFactors=FALSE)
+  colnames(tSNE.df)[1:2] <- c("tsne1","tsne2")
   #colnames(tSNE.df)[which(!colnames(tSNE.df) %in% c("tsne1", "tsne2", "cell", rownames(auc)))] # to add other props?
   
   app <- list()
@@ -38,9 +40,9 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
   # Choose according to whether the t-SNE is provided
   if(!is.null(tSNE))
   {
-    if(!all(c("rbokeh","shiny") %in% rownames(installed.packages())))
+    if(!all(c("rbokeh") %in% rownames(installed.packages()))) # "shiny"
     {
-      warning("Package rbokeh is not available.")
+      if(includeCellSelectionTab) warning("Package rbokeh is not available.")
     }else{
       #requireNamespace(rbokeh)
       #requireNamespace(shiny)
@@ -87,25 +89,26 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
                    ) 
                    
           ),
-          tabPanel("Cell selection", 
-                   column(6,
-                          selectInput(inputId = "geneSetBokeh",
-                                      label = "Gene set:",
-                                      choices=rownames(auc)),
-                          rbokeh::rbokehOutput("tsne_rbokeh"),
-                          sliderInput(inputId = "size_bokeh",
-                                      label = "Point size:",
-                                      min = 0.01,
-                                      max = 10,
-                                      value = 1)
-                   ),
-                   column(6,
-                          wellPanel(
-                            fixedRow(textInput(inputId = "cellGroupName", 
-                                               label="Group name", value = "group1"),
-                                     actionButton("saveCells", "Save cells")),
-                            textOutput("cellSelectedText")))
-                   #column(6, DT::dataTableOutput("cellSelectedTable"))
+          if(includeCellSelectionTab) 
+            tabPanel("Cell selection", 
+               column(6,
+                      selectInput(inputId = "geneSetBokeh",
+                                  label = "Gene set:",
+                                  choices=rownames(auc)),
+                      rbokeh::rbokehOutput("tsne_rbokeh"),
+                      sliderInput(inputId = "size_bokeh",
+                                  label = "Point size:",
+                                  min = 0.01,
+                                  max = 10,
+                                  value = 1)
+               ),
+               column(6,
+                      wellPanel(
+                        fixedRow(textInput(inputId = "cellGroupName", 
+                                           label="Group name", value = "group1"),
+                                 actionButton("saveCells", "Save cells")),
+                        textOutput("cellSelectedText")))
+               #column(6, DT::dataTableOutput("cellSelectedTable"))
           )
         ),
         title="AUCell"
@@ -220,13 +223,13 @@ AUCell_createViewerApp <- function(auc, thresholds=NULL, tSNE=NULL,
           plot.new()
         }else{
           .cellProps_plotTsne(tSNE, cellInfo, 
-                varName=input$phenodata_selection, cex=input$size,
-                colVars=colVars, sub="")
+                              varName=input$phenodata_selection, cex=input$size,
+                              colVars=colVars, sub="")
         }
       }
     })
     
-    if("rbokeh" %in% rownames(installed.packages()))
+    if("rbokeh" %in% rownames(installed.packages()) & includeCellSelectionTab)
     {
       output$tsne_rbokeh <- rbokeh::renderRbokeh({
         rbokeh::figure(logo=NULL) %>%
