@@ -1,6 +1,6 @@
 VERSION 1.13.+
 ----------------------
-- New function: plotEmb_rgb()
+- New function: plotEmb_rgb() and getSetNames()
 
 VERSION 1.7.+
 ----------------------

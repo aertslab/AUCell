@@ -5,23 +5,23 @@
 \title{plotEmb_rgb}
 \usage{
 plotEmb_rgb(
-  mat4col,
+  aucMat,
   embedding,
-  geneSetNames,
-  aucType,
-  aucMaxContrast,
-  offColor,
-  showPlot,
-  showLegend,
+  geneSetsByCol,
+  aucType = "AUC",
+  aucMaxContrast = 0.8,
+  offColor = "#c0c0c030",
+  showPlot = TRUE,
+  showLegend = TRUE,
   ...
 )
 }
 \arguments{
-\item{mat4col}{AUC matrix (continuous or binary)}
+\item{aucMat}{AUC matrix (continuous or binary)}
 
 \item{embedding}{AUC matrix (continuous or binary)}
 
-\item{geneSetNames}{Gene sets to plot}
+\item{geneSetsByCol}{Gene sets to plot}
 
 \item{aucType}{"AUC" or "Binary"}
 

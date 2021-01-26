@@ -1,8 +1,8 @@
 #' @title plotEmb_rgb
 #' @description Colors the embeddings (t-SNE/Umap) based on the activity of 3 (groups of) geneSets
-#' @param mat4col AUC matrix (continuous or binary)
+#' @param aucMat AUC matrix (continuous or binary)
 #' @param embedding AUC matrix (continuous or binary)
-#' @param geneSetNames Gene sets to plot
+#' @param geneSetsByCol Gene sets to plot
 #' @param aucType "AUC" or "Binary"
 #' @param aucMaxContrast To increase the AUC contrast decrease the value.
 #' @param offColor Color por the cells completelly off. To deactivate (color as black), set to NULL.
@@ -23,37 +23,37 @@
 #                      blue=c("Sox8"))
 # cellCol <- plotEmb_rgb(mat2col, emb, setNames, aucType="Binary")
 
+
 #' @export
-plotEmb_rgb <- function(mat4col, embedding, geneSetNames, aucType, 
-                         aucMaxContrast, offColor, 
-                         showPlot, showLegend, ...)
+plotEmb_rgb <- function(aucMat, embedding, geneSetsByCol, 
+                        aucType="AUC", 
+                        aucMaxContrast=0.8, offColor="#c0c0c030", 
+                        showPlot=TRUE, showLegend=TRUE, ...)
 {
   # Check format
-  if(length(geneSetNames)>3) stop("To plot more than three regulons, group them by color.")
-  if(any(!names(geneSetNames) %in% c("red","green", "blue"))) 
-    stop('If a list, the names of geneSetNames should be "red","green", and/or"blue".')
+  if(length(geneSetsByCol)>3) stop("To plot more than three regulons, group them by color.")
+  if(any(!names(geneSetsByCol) %in% c("red","green", "blue"))) 
+    stop('If a list, the names of geneSetsByCol should be "red","green", and/or"blue".')
   if(aucMaxContrast<=0 | aucMaxContrast>1) stop("aucMaxContrast should be between 0 and 1")
+  if(!tolower(aucType) %in% c("binary","bin", "auc","continuous","cont")) stop("aucType should be binary or auc/continuous")
   
-  
-  if(is.null(names(geneSetNames)) && length(geneSetNames)<=3) names(geneSetNames) <- c("red","green", "blue")[seq_along(geneSetNames)]
-  
-  mat4col <- mat4col[onlyNonDuplicatedExtended(rownames(mat4col)),,drop=FALSE]
-  reguCols <- lapply(geneSetNames, function(x) unlist(sapply(x, function(tf) {
-    rownames(mat4col)[which(gsub("_extended","",getTF(rownames(mat4col))) %in% tf)] 
+  if(is.null(names(geneSetsByCol)) && length(geneSetsByCol)<=3) {
+    names(geneSetsByCol) <- c("red","green", "blue")[seq_along(geneSetsByCol)]
+    geneSetsByCol <- as.list(geneSetsByCol)
   }
-  )))
-  reguCols <- reguCols[lengths(reguCols)>0]
+  
+  geneSetsByCol <- geneSetsByCol[lengths(geneSetsByCol)>0]
   
   # Average of binary...
-  if(aucType=="binary")
-    cellColChan <- sapply(reguCols, function(modsCol) apply(mat4col[modsCol,, drop=FALSE], 2, mean))
+  if(tolower(aucType) %in% c("binary","bin"))
+    cellColChan <- sapply(geneSetsByCol, function(modsCol) apply(getAUC(aucMat)[modsCol,, drop=FALSE], 2, mean))
   # Color if all modules are "on"
-  # cellColChan <- sapply(reguCols, function(modsCol) apply(mat4col[modsCol,, drop=FALSE], 2, function(x) as.numeric(sum(x)==length(x))))
+  # cellColChan <- sapply(geneSetsByCol, function(modsCol) apply(aucMat[modsCol,, drop=FALSE], 2, function(x) as.numeric(sum(x)==length(x))))
   
   # AUC
-  if(aucType=="auc") {
-    cellColChan <- sapply(reguCols, function(regCol) {
-      aucAvg <- colMeans(mat4col[regCol,, drop=FALSE])
+  if(tolower(aucType) %in% c("auc","continuous","cont")) {
+    cellColChan <- sapply(geneSetsByCol, function(regCol) {
+      aucAvg <- base::colMeans(getAUC(aucMat[regCol,, drop=FALSE]))
       setNames(sapply(as.numeric(aucAvg/(max(aucAvg)*aucMaxContrast)), min, 1), names(aucAvg))
     })
   }
@@ -64,17 +64,17 @@ plotEmb_rgb <- function(mat4col, embedding, geneSetNames, aucType,
     cellColChan <- cbind(cellColChan, matrix(rep(0, nrow(cellColChan)*length(missingCol)),ncol=length(missingCol), dimnames=list(NULL,missingCol)))
   cellCol <- apply(cellColChan, 1, function(x) rgb(x["red"], x["green"], x["blue"], alpha=.8))
   if(!is.null(offColor)) cellCol[which(cellCol=="#000000CC")] <- offColor # mostly for binary
-  names(cellCol) <- colnames(mat4col)
+  names(cellCol) <- colnames(aucMat)
   
   if(aucType=="binary") attr(cellCol,"Description") <- "Color: average of BINARY regulon activity"
   if(aucType=="auc") attr(cellCol,"Description") <- "Color: average of regulon activity (AUC)"
-  attr(cellCol, "red") <- paste0(reguCols$red, collapse=", ")
-  attr(cellCol, "green") <- paste0(reguCols$green, collapse=", ")
-  attr(cellCol, "blue") <- paste0(reguCols$blue, collapse=", ")
+  attr(cellCol, "red") <- paste0(geneSetsByCol$red, collapse=", ")
+  attr(cellCol, "green") <- paste0(geneSetsByCol$green, collapse=", ")
+  attr(cellCol, "blue") <- paste0(geneSetsByCol$blue, collapse=", ")
   
   if(showPlot) 
   {
-    plot(tSNE$Y, col=cellCol[rownames(tSNE$Y)], pch=16, 
+    plot(embedding, col=cellCol[rownames(embedding)], pch=16, 
          sub=attr(cellCol, "Description"), axes=FALSE, ...)
     
     if(showLegend)
@@ -82,10 +82,10 @@ plotEmb_rgb <- function(mat4col, embedding, geneSetNames, aucType,
       cellColChan[which(cellColChan < (aucMaxContrast/2), arr.ind = T)] <- 0
       cellColChan <- cellColChan[which(apply(cellColChan, 1, function(x) any(x>0))),]
       cellLabels <- setNames(colnames(cellColChan)[apply(cellColChan, 1, function(x) which.max(x))], rownames(cellColChan))
-      labsCoords <- t(sapply(split(data.frame(tSNE$Y), as.character(cellLabels[rownames(tSNE$Y)])), colMeans));
+      labsCoords <- t(sapply(split(data.frame(embedding), as.character(cellLabels[rownames(embedding)])), colMeans));
       
-      geneSetNames[rownames(labsCoords)] <- sapply(geneSetNames[rownames(labsCoords)], paste, collapse=", ")
-      for(i in rownames(labsCoords)) text(mean(labsCoords[i,1]), mean(labsCoords[i,2]), geneSetNames[i], cex=1, col="black")
+      geneSetsByCol[rownames(labsCoords)] <- sapply(geneSetsByCol[rownames(labsCoords)], paste, collapse=", ")
+      for(i in rownames(labsCoords)) text(mean(labsCoords[i,1]), mean(labsCoords[i,2]), geneSetsByCol[i], cex=1, col="black")
     }
   }
   invisible(cellCol)
