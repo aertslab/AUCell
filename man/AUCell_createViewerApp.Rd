@@ -10,7 +10,8 @@ AUCell_createViewerApp(
   tSNE = NULL,
   exprMat = NULL,
   cellInfo = NULL,
-  colVars = NULL
+  colVars = NULL,
+  includeCellSelectionTab = TRUE
 )
 }
 \arguments{

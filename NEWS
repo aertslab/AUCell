@@ -1,3 +1,7 @@
+VERSION 1.13.+
+----------------------
+- New function: plotEmb_rgb()
+
 VERSION 1.7.+
 ----------------------
 - Added function cbind()
