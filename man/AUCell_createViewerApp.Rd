@@ -28,6 +28,8 @@ The column names should be "tsne1" and "tsne2".}
 \item{cellInfo}{Phenodata (optional)}
 
 \item{colVars}{Color for the phenodata variables (as list, optional)}
+
+\item{includeCellSelectionTab}{Whether to include the cell selection tab}
 }
 \value{
 Thresholds and cells selected within the app (as list).
@@ -55,8 +57,8 @@ geneSets <- list(geneSet1=sample(rownames(exprMatrix), 10),
 cells_rankings <- AUCell_buildRankings(exprMatrix)
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=5, nCores=1)
 selectedThresholds <- NULL
-# cellsTsne<- Rtsne::Rtsne(t(exprMatrix),max_iter = 10)$Y
-cellsTsne<- tsne::tsne(t(exprMatrix),max_iter = 10)
+cellsTsne<- Rtsne::Rtsne(t(exprMatrix),max_iter = 10)$Y
+# cellsTsne<- tsne::tsne(t(exprMatrix),max_iter = 10)
 rownames(cellsTsne) <- colnames(exprMatrix)
 
 cellInfo <- data.frame(cellType1=sample(LETTERS[1:3],ncol(exprMatrix), replace=TRUE), 

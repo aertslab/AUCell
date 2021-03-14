@@ -13,6 +13,7 @@
 #' @param exprMat Expression matrix (optional)
 #' @param cellInfo Phenodata (optional)
 #' @param colVars Color for the phenodata variables (as list, optional)
+#' @param includeCellSelectionTab Whether to include the cell selection tab
 #' @note 
 #' With lasso: "To make a multiple selection, press the SHIFT key. To clear the selection, press the ESC key."
 #' @return Thresholds and cells selected within the app (as list).
