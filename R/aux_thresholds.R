@@ -4,7 +4,11 @@
 getThresholdSelected <- function(aucellThresholds){
   sapply(aucellThresholds, function(x) {
     ret <- x # already only one threshold
-    if(length(x) > 1) ret <- unname(x$aucThr$selected)
+    if(length(x) > 1) {
+      #otherwise do not modify, it might already be the selected
+      if(("aucThr" %in% names(x)) & ("selected" %in% names(x$aucThr)))  
+        ret <- unname(x$aucThr$selected)
+    }
     return(ret)
   })
 }
