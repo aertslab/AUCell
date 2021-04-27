@@ -30,6 +30,7 @@ Imports:
     SummarizedExperiment,
     BiocGenerics,
     S4Vectors,
+    DelayedArray,
     utils
 Enhances: doMC, doRNG, doParallel, foreach
 Suggests:
