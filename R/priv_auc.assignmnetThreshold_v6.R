@@ -56,7 +56,7 @@
     skipGlobal <- FALSE
 
     # aucThrs["outlierOfGlobal"] <- meanAUC + 2*sdAUC
-    aucThrs["outlierOfGlobal"] <- qnorm(1-(thrP/nCells), mean=meanAUC, sd=sdAUC)
+    aucThrs["outlierOfGlobal"] <- qnorm(1-thrP, mean=meanAUC, sd=sdAUC)
   }
 
   #V6
