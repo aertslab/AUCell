@@ -109,11 +109,9 @@ setMethod("AUCell_buildRankings", "ExpressionSet",
 
 .AUCell_buildRankings <- function(exprMat, plotStats=TRUE, nCores=1, mctype=c("domc")[1], keepZeroesAsNA=FALSE, verbose=TRUE)
 {
-  #### Optional. TODO: test thoroughly!
   if(keepZeroesAsNA){
     exprMat[which(exprMat==0, arr.ind=TRUE)] <- NA 
   }
-  #### 
   
   if(!data.table::is.data.table(exprMat))
     exprMat <- data.table::data.table(exprMat, keep.rownames=TRUE)

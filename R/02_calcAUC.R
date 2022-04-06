@@ -31,7 +31,6 @@
 #'
 # @docType methods
 #' @rdname AUCell_calcAUC
-#'
 #' @export
 setGeneric("AUCell_calcAUC", signature="geneSets",
   function(geneSets, rankings, nCores=1, normAUC=TRUE,
