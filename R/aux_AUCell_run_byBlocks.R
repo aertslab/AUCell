@@ -19,6 +19,7 @@
 #' @param normAUC Whether to normalize the maximum possible AUC to 1 (Default: TRUE).
 #' @param aucMaxRank Threshold to calculate the AUC (see 'details' section)
 #' @param BPPARAM Set to use multiple cores. Only used if 'splitByBlocks=TRUE'
+#' @param assayName Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)
 #' @param ... Other arguments
 #' @return Matrix with the AUC values (gene-sets as rows, cells as columns).
 #' @details In a simplified way, the AUC value represents the fraction of genes,
@@ -51,7 +52,7 @@ setGeneric("AUCell_run", signature="exprMat",
 
 # Sparse matrix
 #' @rdname AUCell_run
-#' @aliases AUCell_buildRankings,dgCMatrix-method
+#' @aliases AUCell_run,dgCMatrix-method
 setMethod("AUCell_run", "dgCMatrix", 
           function(exprMat, 
                    geneSets, 

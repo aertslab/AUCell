@@ -3,7 +3,6 @@
 \name{AUCell_run}
 \alias{AUCell_run}
 \alias{AUCell_run,dgCMatrix-method}
-\alias{AUCell_buildRankings,dgCMatrix-method}
 \alias{AUCell_run,matrix-method}
 \alias{AUCell_run,SummarizedExperiment-method}
 \title{Run AUCell}
@@ -77,6 +76,8 @@ The gene-sets should be provided as \code{\link{GeneSet}},
 \item{BPPARAM}{Set to use multiple cores. Only used if 'splitByBlocks=TRUE'}
 
 \item{...}{Other arguments}
+
+\item{assayName}{Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)}
 }
 \value{
 Matrix with the AUC values (gene-sets as rows, cells as columns).
