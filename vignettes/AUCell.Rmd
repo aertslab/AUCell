@@ -40,29 +40,23 @@ knitr::opts_knit$set(root.dir = 'AUCell_tutorial')
 
 # Overview of the workflow
 AUCell allows to identify cells with active gene sets (e.g. signatures, gene modules) in single-cell RNA-seq data. 
-In brief, the workflow to run AUCell is based on three steps:
 
-1. Build the rankings
-
-2. Calculate the Area Under the Curve (AUC)
-
-3. Set the assignment thresholds
+In brief, AUCell is run with these commands:
 
 ```{r Overview, eval=FALSE}
 library(AUCell)
-cells_rankings <- AUCell_buildRankings(exprMatrix)
+geneSets <- list(geneSet1=c("gene1", "gene2", "gene3"))
 
-genes <- c("gene1", "gene2", "gene3")
-geneSets <- list(geneSet1=genes)
-# geneSets <- GSEABase::GeneSet(genes, setName="geneSet1") # alternative
-cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05)
+# Calculate enrichment scores
+cells_AUC <- AUCell_run(exprMatrix, geneSets, aucMaxRank=nrow(cells_rankings)*0.05)
 
+# Optional: Set the assignment thresholds
 par(mfrow=c(3,3))
 set.seed(123)
 cells_assignment <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE, nCores=1, assign=TRUE)
 ```
 
-In the following sections we explain and explore the output of each of these steps. The details of the methods behind AUCell are described in the following article:t
+In the following sections we explain the rationale behind the canculations and explore the output of each step. The details of the methods behind AUCell are described in the following article:
 ```{r citation, echo=FALSE}
 print(citation("AUCell")[1], style="textVersion")
 ```
@@ -123,16 +117,18 @@ setwd("AUCell_tutorial") # or in the first code chunk (kntr options), if running
 ```
 
 ### Expression matrix
-The expression matrix, from a single-cell RNA-seq dataset, should be formatted with the genes/features as rows and cells as columns.
+The expression matrix, from a single-cell RNA-seq dataset, should be formatted with the genes/features as rows and cells as columns. Ideally, the matrix will be stored in sparse format to save memory.
 
 Typically, this matrix will be loaded from a counts file, or from another R object. i.e.:
 ```{r loadingExprMat, eval=FALSE}
 # i.e. Reading from a text file
 exprMatrix <- read.table("myCountsMatrix.tsv")
-exprMatrix <- as.matrix(exprMatrix)
 
-# or using an expression set
-exprMatrix <- exprs(myExpressionSet)
+# or single-cell experiment
+exprMatrix <- assay(mySingleCellExperiment)
+
+### Convert to sparse:
+exprMatrix <- as(exprMatrix, "dgCMatrix")
 ```
 
 In this tutorial we use a dataset containing 3005 cells from mouse cortex and hippocampus. The dataset can be downloaded from GEO accession number GSE60361.
@@ -141,12 +137,13 @@ In this tutorial we use a dataset containing 3005 cells from mouse cortex and hi
 
 
 ```{r GEOdataset, cache=TRUE, results='hide', message=FALSE, eval=TRUE}
+# gse <- getGEO('GSE60361')
 # (This may take a few minutes)
 library(GEOquery)
 attemptsLeft <- 20
 while(attemptsLeft>0)
 {
-  geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE), error=identity) 
+  geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE, filter_regex=".txt.gz"), error=identity) 
   if(methods::is(geoFile,"error")) 
   {
     attemptsLeft <- attemptsLeft-1
@@ -158,20 +155,18 @@ while(attemptsLeft>0)
 
 gzFile <- grep(".txt.gz", basename(rownames(geoFile)), fixed=TRUE, value=TRUE)
 message(gzFile)
-txtFile <- gsub(".gz", "", gzFile, fixed=TRUE)
-message(txtFile)
-gunzip(filename=gzFile, destname=txtFile, remove=TRUE)
 
 library(data.table)
-geoData <- fread(txtFile, sep="\t")
+geoData <- fread(gzFile, sep="\t")
 geneNames <- unname(unlist(geoData[,1, with=FALSE]))
 exprMatrix <- as.matrix(geoData[,-1, with=FALSE])
 rm(geoData)
 dim(exprMatrix)
 rownames(exprMatrix) <- geneNames
 exprMatrix[1:5,1:4]
+exprMatrix <- as(exprMatrix, "dgCMatrix")
 
-# Remove file
+# Remove temp file
 file.remove(txtFile)
 
 # Save for future use
@@ -253,7 +248,25 @@ names(geneSets)
 Since we are using an expression matrix with only 5000 random genes, most of these genes are acutally not available in the dataset. 
 However, AUCell is robust enough to use this 'noisy' data. 
 
-## 1. Build gene-expression rankings for each cell
+## 1. Score gene signatures 
+
+The function `AUCell_run` calculates calculates the signature enrichment scores on each cell:
+```{r runAUCell, cache=TRUE,}
+cells_AUC <- AUCell_run(exprMatrix, geneSets)
+save(cells_AUC, file="cells_AUC.RData")
+```
+
+> To run in parallel, you can add the argument `BPPARAM=BiocParallel::MulticoreParam(5)`. Modifiying `5` to the number of cores to use.
+
+After obtaining the AUC scores, you can go directly to "Step 2" and "Follow up examples". However, you can keep reading through section 1.1 and 1.2 if you want to understand better what these scores mean, or if you would like to run AUCell across many gene-sets that need further manipulation.
+
+In brief, the AUC scores are calculated in two steps: 1. Building the rankings (`AUCell_buildRankings`) and 2. Calculate enrichment (`AUCell_calcAUC`). i.e. using `AUCell_run` is equivalent to running:
+```{r }
+cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=1, plotStats=TRUE)
+cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
+```
+
+### 1.1. Build gene-expression rankings for each cell
 The first step to calculate the enrichment of a signature is to create the "rankings". These rankings are only an intermediate step to calculate the AUC, but they are kept as a separate step in the workflow in order to provide more flexibility (i.e. to save them for future analyses, to merge datasets, or process them by parts).
 
 For each cell, the genes are ranked from highest to lowest value. The genes with same expression value are shuffled. Therefore, genes with expression '0' are randomly sorted at the end of the ranking. It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (`aucMaxRank` in `calcAUC()`). The histogram provided by `AUCell_buildRankings()` allows to quickly check this distribution. `plotGeneCount(exprMatrix)` allows to obtain only the plot before building the rankings.
@@ -274,7 +287,7 @@ The "rankings" can be seen as a new representation of the original dataset. Once
 save(cells_rankings, file="cells_rankings.RData")
 ```
 
-## 2. Calculate enrichment for the gene signatures (AUC)
+### 1.2. Calculate enrichment for the gene signatures (AUC)
 To determine whether the gene set is enriched at the top of the gene-ranking for each cell, AUCell uses the "Area Under the Curve" (AUC) of the recovery curve.
 
 ```{r explainAUC, echo=FALSE}
@@ -314,7 +327,7 @@ save(cells_AUC, file="cells_AUC.RData")
 In order to calculate the AUC, by default only the top 5% of the genes in the ranking are used (i.e. checks whether the genes in the gene-set or signature are within the top 5%). This allows faster execution on bigger datasets, and reduce the effect of the noise at the bottom of the ranking (e.g. where many genes might be tied at 0 counts). The percentage to take into account can be modified with the argument *aucMaxRank*. 
 For datasets where most cells express many genes (e.g. a filtered dataset), or these have high expression values, it might be good to increase this threshold. Check the histogram provided by `AUCell_buildRankings` to get an estimation on where this threshold lies within the dataset.
 
-## 3. Determine the cells with the given gene signatures or active gene sets
+## 2. Determine the cells with the given gene signatures or active gene sets
 
 > *In summary:* The AUC represents the proportion of expressed genes in the signature, and their relative expression value compared to the other genes within the cell. 
 We can use this propperty to explore the population of cells that are present in the dataset according to the expression of the gene-set. 
@@ -428,6 +441,7 @@ load("exprMatrix_AUCellVignette_MouseBrain.RData")
 sumByGene <- apply(mouseBrainExprMatrix, 1, sum)
 exprMatSubset <- mouseBrainExprMatrix[which(sumByGene>0),]
 logMatrix <- log2(exprMatSubset+1)
+logMatrix <- as.matrix(logMatrix)
 
 library(Rtsne)
 set.seed(123)

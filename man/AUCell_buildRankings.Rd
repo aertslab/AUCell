@@ -2,92 +2,114 @@
 % Please edit documentation in R/01_buildRankings.R
 \name{AUCell_buildRankings}
 \alias{AUCell_buildRankings}
-\alias{AUCell_buildRankings,matrix-method}
 \alias{AUCell_buildRankings,dgCMatrix-method}
-\alias{AUCell_buildRankings,SummarizedExperiment-method}
+\alias{AUCell_buildRankings,matrix-method}
 \alias{AUCell_buildRankings,ExpressionSet-method}
+\alias{AUCell_buildRankings,SummarizedExperiment-method}
 \title{Build gene expression rankings for each cell}
 \usage{
 AUCell_buildRankings(
   exprMat,
+  featureType = "genes",
   plotStats = TRUE,
-  nCores = 1,
-  mctype = c("domc")[1],
+  splitByBlocks = FALSE,
+  BPPARAM = NULL,
   keepZeroesAsNA = FALSE,
   verbose = TRUE,
+  nCores = NULL,
+  mctype = NULL,
   ...
-)
-
-\S4method{AUCell_buildRankings}{matrix}(
-  exprMat,
-  plotStats = TRUE,
-  nCores = 1,
-  mctype = c("domc")[1],
-  keepZeroesAsNA = FALSE,
-  verbose = TRUE
 )
 
 \S4method{AUCell_buildRankings}{dgCMatrix}(
   exprMat,
+  featureType = "genes",
   plotStats = TRUE,
-  nCores = 1,
-  mctype = c("domc")[1],
-  keepZeroesAsNA = FALSE,
-  verbose = TRUE
-)
-
-\S4method{AUCell_buildRankings}{SummarizedExperiment}(
-  exprMat,
-  plotStats = TRUE,
-  nCores = 1,
-  mctype = c("domc")[1],
+  splitByBlocks = FALSE,
+  BPPARAM = NULL,
   keepZeroesAsNA = FALSE,
   verbose = TRUE,
-  assayName = NULL
+  nCores = NULL,
+  mctype = NULL
+)
+
+\S4method{AUCell_buildRankings}{matrix}(
+  exprMat,
+  featureType = "genes",
+  plotStats = TRUE,
+  splitByBlocks = FALSE,
+  BPPARAM = NULL,
+  keepZeroesAsNA = FALSE,
+  verbose = TRUE,
+  nCores = NULL,
+  mctype = NULL
 )
 
 \S4method{AUCell_buildRankings}{ExpressionSet}(
   exprMat,
+  featureType = "genes",
   plotStats = TRUE,
-  nCores = 1,
-  mctype = c("domc")[1],
+  splitByBlocks = FALSE,
+  BPPARAM = NULL,
   keepZeroesAsNA = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  nCores = NULL,
+  mctype = NULL
+)
+
+\S4method{AUCell_buildRankings}{SummarizedExperiment}(
+  exprMat,
+  featureType = "genes",
+  plotStats = TRUE,
+  splitByBlocks = FALSE,
+  BPPARAM = NULL,
+  keepZeroesAsNA = FALSE,
+  verbose = TRUE,
+  assayName = NULL,
+  nCores = NULL,
+  mctype = NULL
 )
 }
 \arguments{
 \item{exprMat}{Expression matrix (genes as rows, cells as columns)
-The expression matrix can also be provided as one of the Bioconductor classes:
+The expression matrix can also be provided as one of the R/Bioconductor classes:
 \itemize{
+\item \link[Matrix]{dgCMatrix-class}:
+Sparse matrix 
 \item \link{RangedSummarizedExperiment} and derived classes (e.g. \link[SingleCellExperiment]{SingleCellExperiment} ):
 The matrix will be obtained through assay(exprMatrix),
 -which will extract the first assay (usually the counts)-
 or the assay name given in 'assayName'
-\item \link[Matrix]{dgCMatrix-class}:
-Sparse matrix 
 \item \code{ExpressionSet}:
 The matrix will be obtained through exprs(exprMatrix)
 }}
+
+\item{featureType}{Name for the rows (e.g. "genes"). Only for naming the rankings, not used internally.}
 
 \item{plotStats}{Should the function plot the expression boxplots/histograms?
 (TRUE / FALSE). These plots can also be produced
 with the function \code{\link{plotGeneCount}}.}
 
-\item{nCores}{Number of cores to use for computation.}
+\item{splitByBlocks}{Whether to split the matrix by blocks in the ranking calculation. 
+Allows using multiple cores.
+FALSE by default. Required for using sparse matrices.}
 
-\item{mctype}{Experimental feature (use at your own risk): Alternative methods to run the parallel compuations (e.g. through different packages)}
+\item{BPPARAM}{Set to use multiple cores. Only used if 'splitByBlocks=TRUE'}
 
-\item{keepZeroesAsNA}{Experimental feature (use at your own risk): convert zeroes to NA instead of locating randomly at the end of the ranking.}
+\item{keepZeroesAsNA}{Convert zeroes to NA instead of locating randomly at the end of the ranking.}
 
 \item{verbose}{Should the function show progress messages? (TRUE / FALSE)}
+
+\item{nCores}{Deprecated}
+
+\item{mctype}{Deprecated}
 
 \item{...}{Other arguments}
 
 \item{assayName}{Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)}
 }
 \value{
-data.table of genes (row) by cells (columns)
-with the ranking of the gene within the cell.
+Ranking of the feature within the cell (features as rows, cells as columns)
 }
 \description{
 Builds the "rankings" for each cell:
@@ -121,7 +143,7 @@ exprMatrix <- matrix(data=sample(c(rep(0, 5000), sample(1:3, 5000, replace=TRUE)
                                    paste("Cell", 1:500, sep="")))
 ##################################################
 
-cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, nCores=1)
 cells_rankings
 }
 \seealso{
