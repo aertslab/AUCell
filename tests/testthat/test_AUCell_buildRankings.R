@@ -26,16 +26,11 @@ test_AUCell_buildRankings <- function()
 
   sexp <- SummarizedExperiment::SummarizedExperiment(assays=list(counts=exprMatrix))
   rSexp <- AUCell_buildRankings(sexp, plotStats=FALSE)
-  testthat::expect_equal(class(rEset)[1], "aucellResults")
+  testthat::expect_equal(class(rSexp)[1], "aucellResults")
 
-  ### Multicore
-  # set.seed(123)
-  # cells_rankings_multicore_1 <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, verbose=FALSE, nCores=2)
-  # set.seed(123)
-  # cells_rankings_multicore_2 <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, verbose=FALSE, nCores=2)
-  #
-  # testthat::expect_equal(getRanking(cells_rankings_multicore_1), getRanking(cells_rankings_multicore_2))
-  # .check_AUCell_buildRankings_output(cells_rankings_multicore_1)
+  sparseMat <- as(exprMatrix, "dgCMatrix")
+  rSparse <- AUCell_buildRankings(sparseMat, plotStats=FALSE, splitByBlocks=TRUE)
+  testthat::expect_equal(class(rSparse)[1], "aucellResults")
 }
 
 .check_AUCell_buildRankings_output <- function(cells_rankings)
