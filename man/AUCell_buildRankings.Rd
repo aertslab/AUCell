@@ -143,7 +143,7 @@ exprMatrix <- matrix(data=sample(c(rep(0, 5000), sample(1:3, 5000, replace=TRUE)
                                    paste("Cell", 1:500, sep="")))
 ##################################################
 
-cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, nCores=1)
 cells_rankings
 }
 \seealso{
