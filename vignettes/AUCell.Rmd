@@ -166,9 +166,6 @@ rownames(exprMatrix) <- geneNames
 exprMatrix[1:5,1:4]
 exprMatrix <- as(exprMatrix, "dgCMatrix")
 
-# Remove temp file
-file.remove(txtFile)
-
 # Save for future use
 mouseBrainExprMatrix <- exprMatrix
 save(mouseBrainExprMatrix, file="exprMatrix_AUCellVignette_MouseBrain.RData")
