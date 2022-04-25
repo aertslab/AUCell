@@ -248,7 +248,7 @@ However, AUCell is robust enough to use this 'noisy' data.
 ## 1. Score gene signatures 
 
 The function `AUCell_run` calculates calculates the signature enrichment scores on each cell:
-```{r runAUCell, cache=TRUE,}
+```{r runAUCell, cache=TRUE}
 cells_AUC <- AUCell_run(exprMatrix, geneSets)
 save(cells_AUC, file="cells_AUC.RData")
 ```
@@ -259,7 +259,7 @@ After obtaining the AUC scores, you can go directly to "Step 2" and "Follow up e
 
 In brief, the AUC scores are calculated in two steps: 1. Building the rankings (`AUCell_buildRankings`) and 2. Calculate enrichment (`AUCell_calcAUC`). i.e. using `AUCell_run` is equivalent to running:
 ```{r }
-cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=1, plotStats=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=FALSE, splitByBlocks=TRUE)
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
 ```
 
@@ -271,7 +271,7 @@ For each cell, the genes are ranked from highest to lowest value. The genes with
 Since the rankings are created individually for each cell, in principle, it is possible to merge cell-rankings from different datasets. However, the datasets should be similar in regards to their "sensitivity" (e.g. the number of genes detected in the cells of each datasets), and the genes they include (e.g. same gene IDs).
 
 ```{r buildRankings, cache=TRUE, fig.width=5, fig.height=5}
-cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=1, plotStats=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, splitByBlocks=TRUE)
 ```
 
 ```{r}
