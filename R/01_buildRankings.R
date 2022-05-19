@@ -179,7 +179,8 @@ function(exprMat, featureType="genes", plotStats=TRUE, splitByBlocks=FALSE,
   ## Rank genes
   rowNames <- rownames(exprMat)
   colNames <- colnames(exprMat)
-
+  exprMat <- -exprMat # ro rank decreasingly
+  
   # Would prefer not to use the block inside the function... but
   # the method for sparse matrices does not allow ties.method='random'
   if(splitByBlocks){
@@ -190,7 +191,7 @@ function(exprMat, featureType="genes", plotStats=TRUE, splitByBlocks=FALSE,
                                   BPPARAM=BPPARAM,
                                   grid=colAutoGrid(exprMat))) 
   }else{
-    exprMat <- DelayedMatrixStats::colRanks(exprMat, ties.method="random", preserveShape=TRUE) 
+    exprMat <- DelayedMatrixStats::colRanks(exprMat, ties.method="random", preserveShape=TRUE, decreasing=TRUE) 
   }
   
   rownames(exprMat) <- rowNames
