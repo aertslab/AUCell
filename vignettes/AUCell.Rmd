@@ -30,6 +30,7 @@ library(DT)
 library(NMF)
 library(plotly)
 library(GEOquery)
+library(Matrix)
 # library(doMC);library(doRNG) # Loaded by AUCell, to avoid messages. Not available in windows?
 })
 
@@ -74,7 +75,7 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 # To support paralell execution:
 BiocManager::install(c("doMC", "doRNG","doSNOW"))
 # For the main example:
-BiocManager::install(c("mixtools", "GEOquery", "SummarizedExperiment"))
+BiocManager::install(c("mixtools", "SummarizedExperiment"))
 # For the examples in the follow-up section of the tutorial:
 BiocManager::install(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh",
                        "dynamicTreeCut","R2HTML","Rtsne", "zoo"))
@@ -137,43 +138,37 @@ In this tutorial we use a dataset containing 3005 cells from mouse cortex and hi
 
 
 ```{r GEOdataset, cache=TRUE, results='hide', message=FALSE, eval=TRUE}
-# gse <- getGEO('GSE60361')
-# (This may take a few minutes)
+# (Downloads the data)
+if (!requireNamespace("GEOquery", quietly = TRUE)) BiocManager::install("GEOquery")
 library(GEOquery)
-attemptsLeft <- 20
-while(attemptsLeft>0)
-{
-  geoFile <- tryCatch(getGEOSuppFiles("GSE60361", makeDirectory=FALSE, filter_regex=".txt.gz"), error=identity) 
-  if(methods::is(geoFile,"error")) 
-  {
-    attemptsLeft <- attemptsLeft-1
-    Sys.sleep(5)
-  }
-  else
-    attemptsLeft <- 0
-}
-
-gzFile <- grep(".txt.gz", basename(rownames(geoFile)), fixed=TRUE, value=TRUE)
-message(gzFile)
+# gse <- getGEO('GSE60361') # does not work, the matrix is in a suppl file
+geoFile <- "GSE60361_C1-3005-Expression.txt.gz"
+download.file("https://ftp.ncbi.nlm.nih.gov/geo/series/GSE60nnn/GSE60361/suppl/GSE60361_C1-3005-Expression.txt.gz", destfile = geoFile)
 
 library(data.table)
-geoData <- fread(gzFile, sep="\t")
-geneNames <- unname(unlist(geoData[,1, with=FALSE]))
-exprMatrix <- as.matrix(geoData[,-1, with=FALSE])
-rm(geoData)
-dim(exprMatrix)
+exprMatrix <- fread(geoFile, sep="\t")
+geneNames <- unname(unlist(exprMatrix[,1, with=FALSE]))
+exprMatrix <- as.matrix(exprMatrix[,-1, with=FALSE])
 rownames(exprMatrix) <- geneNames
+exprMatrix <- exprMatrix[unique(rownames(exprMatrix)),]
+dim(exprMatrix)
 exprMatrix[1:5,1:4]
+
+# Remove file(s) downloaded:
+file.remove(geoFile)
+
+# Convert to sparse
+library(Matrix)
 exprMatrix <- as(exprMatrix, "dgCMatrix")
 
 # Save for future use
 mouseBrainExprMatrix <- exprMatrix
-save(mouseBrainExprMatrix, file="exprMatrix_AUCellVignette_MouseBrain.RData")
+save(mouseBrainExprMatrix, file="exprMatrix_MouseBrain.RData")
 ```
 
 To speed-up the execution of the tutorial, we will use only 5000 random genes from this dataset.
 ```{r randomSamples}
-# load("exprMatrix_AUCellVignette_MouseBrain.RData")
+# load("exprMatrix_MouseBrain.RData")
 set.seed(333)
 exprMatrix <- mouseBrainExprMatrix[sample(rownames(mouseBrainExprMatrix), 5000),]
 ```
@@ -412,8 +407,8 @@ aheatmap(miniAssigMat, scale="none", color="black", legend=FALSE)
 
 Some interactive options (output not shown):
 ```{r assignHeatmap_interactive, eval=FALSE}
-library(d3heatmap)
-d3heatmap(matrix(miniAssigMat), scale="none", colors=c("white", "black"))
+# if (!requireNamespace("d3heatmap", quietly = TRUE)) BiocManager::install("d3heatmap")
+# d3heatmap(matrix(miniAssigMat), scale="none", colors=c("white", "black"))
 
 library(DT)
 datatable(assignmentTable, options = list(pageLength = 10), filter="top")
