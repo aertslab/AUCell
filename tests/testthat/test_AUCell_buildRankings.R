@@ -37,6 +37,9 @@ test_AUCell_buildRankings <- function()
 {
   testthat::expect_equal(ncol(cells_rankings), 500)
   testthat::expect_equal(nrow(cells_rankings), 20)
+  
+  testthat::expect_equal(getRanking(cells_rankings)['Gene13','Cell2'], 1)
+  
 
   testthat::expect_equal(class(cells_rankings)[1], "aucellResults")
   testthat::expect_equal(SummarizedExperiment::assayNames(cells_rankings)[1], "ranking")
