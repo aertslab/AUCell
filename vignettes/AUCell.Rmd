@@ -105,6 +105,12 @@ file.copy(vignetteFile, ".")
 Stangle(vignetteFile)
 ```
 
+### Video tutorial
+
+A video tutorial, created by a user ([Mark Sanborn](https://twitter.com/Sanbomics)), is also available in  [YouTube](https://www.youtube.com/watch?v=XtjZRZFzUVw).
+
+*(Thank you Mark!)*
+
 # Running AUCell
 
 ## 0. Load scRNA-seq dataset and gene sets
