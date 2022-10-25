@@ -143,13 +143,20 @@ thresholds$geneSet1$aucThr
 # 2. Obtain cells over a given threshold:
 names(which(getAUC(cells_AUC)["geneSet1",] > 0.19))
 
-# Alternative: assign cells according to the 'automatic' threshold
+# Alternative 1: assign cells according to the 'automatic' threshold
 cells_assignment <- AUCell_exploreThresholds(cells_AUC,
                                              plotHist=FALSE, assignCells=TRUE)
 # Cells assigned:
 getAssignments(cells_assignment)
 # Threshold applied:
 getThresholdSelected(cells_assignment)
+
+# Alternative 2: choose a threshold manually and assign cells
+newThresholds = getThresholdSelected(cells_assignment)
+newThresholds['geneSet1'] = 0.8
+newAssignments = AUCell_assignCells(cells_AUC, newThresholds)
+getAssignments(newAssignments)
+
 
 
 }
