@@ -35,7 +35,7 @@
 #' with the function \code{\link{plotGeneCount}}.
 #' @param splitByBlocks Whether to split the matrix by blocks in the ranking calculation. 
 #' Allows using multiple cores.
-#' FALSE by default. Required for using sparse matrices.
+#' FALSE by default. If using sparse matrices it is automatically set to TRUE.
 #' @param BPPARAM Set to use multiple cores. Only used if 'splitByBlocks=TRUE'
 #' @param verbose Should the function show progress messages? (TRUE / FALSE)
 #' @param assayName Name of the assay containing the expression matrix (e.g. in \link[SingleCellExperiment]{SingleCellExperiment} objects)
@@ -72,12 +72,12 @@ setGeneric("AUCell_buildRankings", signature="exprMat",
 #' @rdname AUCell_buildRankings
 #' @aliases AUCell_buildRankings,dgCMatrix-method
 setMethod("AUCell_buildRankings", "dgCMatrix",
-          function(exprMat, featureType="genes", plotStats=TRUE, splitByBlocks=FALSE,
+          function(exprMat, featureType="genes", plotStats=TRUE, splitByBlocks=TRUE,
                    BPPARAM=NULL,
                    keepZeroesAsNA=FALSE, verbose=TRUE, nCores=NULL, mctype=NULL)
           {
             .AUCell_buildRankings(exprMat=exprMat, featureType=featureType,
-                                  splitByBlocks=splitByBlocks, BPPARAM=BPPARAM,
+                                  splitByBlocks=TRUE, BPPARAM=BPPARAM,
                                   plotStats=plotStats, keepZeroesAsNA=keepZeroesAsNA, verbose=verbose,
                                   nCores=nCores, mctype=mctype)
           })
@@ -150,7 +150,8 @@ function(exprMat, featureType="genes", plotStats=TRUE, splitByBlocks=FALSE,
                                   nCores=NULL, mctype=NULL)
 {
   if((!splitByBlocks) && ("dgCMatrix" %in% class(exprMat)))
-    stop("To use a dgCMatrix as input set 'splitByBlocks=TRUE'.")
+    splitByBlocks <- TRUE
+  
   if(!is.null(nCores))
       warning("nCores is no longer used. It will be deprecated in the next AUCell version.")
     

@@ -25,7 +25,7 @@ AUCell_buildRankings(
   exprMat,
   featureType = "genes",
   plotStats = TRUE,
-  splitByBlocks = FALSE,
+  splitByBlocks = TRUE,
   BPPARAM = NULL,
   keepZeroesAsNA = FALSE,
   verbose = TRUE,
@@ -92,7 +92,7 @@ with the function \code{\link{plotGeneCount}}.}
 
 \item{splitByBlocks}{Whether to split the matrix by blocks in the ranking calculation. 
 Allows using multiple cores.
-FALSE by default. Required for using sparse matrices.}
+FALSE by default. If using sparse matrices it is automatically set to TRUE.}
 
 \item{BPPARAM}{Set to use multiple cores. Only used if 'splitByBlocks=TRUE'}
 
@@ -143,7 +143,7 @@ exprMatrix <- matrix(data=sample(c(rep(0, 5000), sample(1:3, 5000, replace=TRUE)
                                    paste("Cell", 1:500, sep="")))
 ##################################################
 
-cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, nCores=1)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE)
 cells_rankings
 }
 \seealso{

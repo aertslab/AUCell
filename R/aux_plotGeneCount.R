@@ -43,7 +43,12 @@
 
 plotGeneCount <- function(exprMat, plotStats=TRUE, verbose=TRUE)
 {
-  countByCell <- colSums(exprMat>0, na.rm=TRUE)
+  if(is(exprMat, "dgCMatrix"))
+  {
+    countByCell <- Matrix::colSums(exprMat>0, na.rm=TRUE) 
+  }else{
+    countByCell <- colSums(exprMat>0, na.rm=TRUE) 
+  }
   
   if(plotStats){
     sampleType <- "cell"

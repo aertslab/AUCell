@@ -254,7 +254,7 @@ After obtaining the AUC scores, you can go directly to "Step 2" and "Follow up e
 
 In brief, the AUC scores are calculated in two steps: 1. Building the rankings (`AUCell_buildRankings`) and 2. Calculate enrichment (`AUCell_calcAUC`). i.e. using `AUCell_run` is equivalent to running:
 ```{r }
-cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=FALSE, splitByBlocks=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=FALSE)
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
 ```
 
@@ -266,7 +266,7 @@ For each cell, the genes are ranked from highest to lowest value. The genes with
 Since the rankings are created individually for each cell, in principle, it is possible to merge cell-rankings from different datasets. However, the datasets should be similar in regards to their "sensitivity" (e.g. the number of genes detected in the cells of each datasets), and the genes they include (e.g. same gene IDs).
 
 ```{r buildRankings, cache=TRUE, fig.width=5, fig.height=5}
-cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE, splitByBlocks=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE)
 ```
 
 ```{r}
@@ -289,13 +289,13 @@ gSetRanks <- cells_rankings[geneIds(geneSet),]
 par(mfrow=c(1,2))
 set.seed(222)
 aucMaxRank <- nrow(cells_rankings)*0.05
-na <- sapply(sample(1:3005, 2), function(i){
+na <- sapply(c(1, 2000), function(i){
   x <- sort(getRanking(gSetRanks[,i]))
   aucCurve <- cbind(c(0, x, nrow(cells_rankings)), c(0:length(x), length(x)))
   op <- par(mar=c(5, 6, 4, 2) + 0.1)
   plot(aucCurve, 
        type="s", col="darkblue", lwd=1, 
-       xlab="Gene rank", ylab="# genes in the gene set \n Gene set: Astrocyte markers", 
+       xlab="Gene rank", ylab=paste("# genes in the gene set \n Gene set:", setName(geneSet)), 
        xlim=c(0, aucMaxRank*2), ylim=c(0, nGenes(geneSet)*.20), 
        main="Recovery curve", 
        sub=paste("Cell:", colnames(gSetRanks)[i]))
@@ -339,7 +339,7 @@ To ease the exploration of the distributions, the function `AUCell_exploreThresh
      `install.packages("BiocManager"); BiocManager::install("mixtools")`
 
 ```{r exploreThresholds, warning=FALSE, fig.width=7, fig.height=7}
-set.seed(123)
+set.seed(333)
 par(mfrow=c(3,3)) 
 cells_assignment <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE, assign=TRUE) 
 warningMsg <- sapply(cells_assignment, function(x) x$aucThr$comment)
@@ -451,7 +451,7 @@ For this example we have used the thresholds assigned automatically:
 ```{r plotTsneCode, fig.width=7, fig.height=6}
 selectedThresholds <- getThresholdSelected(cells_assignment)
 par(mfrow=c(2,3)) # Splits the plot into two rows and three columns
-for(geneSetName in names(selectedThresholds))
+for(geneSetName in names(selectedThresholds)[1:6])
 {
   nBreaks <- 5 # Number of levels in the color palettes
   # Color palette for the cells that do not pass the threshold
@@ -510,19 +510,25 @@ cellInfoFile <- paste(file.path(system.file('examples', package='AUCell')),
 "mouseBrain_cellLabels.tsv", sep="/")
 cellInfo <- read.table(cellInfoFile, row.names=1, header=TRUE, sep="\t")
 head(cellInfo)
+
+# To modify the cell assignment based on those thresholds:
+newAssignments <- AUCell_assignCells(cells_AUC, thresholds=savedSelections$thresholds)
+newAssignments <- getAssignments(newAssignments)
+lengths(newAssignments)# number of cells assigned
 ```
+
 
 
 Another example for interactive plot (e.g. to save as html, no need to keep the server running):
 ```{r tSNE_interactive, eval=FALSE}
-geneSetName <- "Astrocyte_Cahoy (555g)"
+geneSetName <- "Astrocyte_Cahoy (526g)"
 
 library(rbokeh)
 tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
 figure() %>%
-ly_points(tsne1, tsne2, data=tSNE.df, size=1, legend = FALSE,
-hover=cell, color=getAUC(cells_AUC)[geneSetName,rownames(tSNE.df)]) %>%
-set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red")))
+  ly_points(tsne1, tsne2, data=tSNE.df, size=1, legend = FALSE,
+    hover=cell, color=getAUC(cells_AUC)[geneSetName,rownames(tSNE.df)]) %>%
+  set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red")))
 ```
 
 # Why to use AUCell? 
