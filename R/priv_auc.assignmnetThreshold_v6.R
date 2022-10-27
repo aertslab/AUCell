@@ -37,13 +37,25 @@
   aucThrs <- c()
 
   notPopPercent <- 1 - smallestPopPercent
+  highValCells <- signif(sum(auc > 0.20)/length(auc),2)
+  if(highValCells < 0.05)
+  {
+    # skipGlobal <- FALSE
+    commentMsg <- paste0(commentMsg,
+               "Few cells have high AUC values (",highValCells,"% cells with AUC> 0.20). ", sep="")
+  }
+  
   if(sum(auc==0) > (nCells*notPopPercent))
   {
     skipGlobal <- FALSE
-    commentMsg <- paste(commentMsg,
+    commentMsg <- paste0(commentMsg,
                  round((sum(auc==0)/nCells)*100),
                  "% (more than ", notPopPercent,"%) of AUC are zero. ", sep="")
   }
+  
+  
+  
+  
 
   meanAUC <- mean(auc)
   sdAUC <- sd(auc)
@@ -170,16 +182,18 @@
         skipGlobal <- FALSE
 
         if(globalInclInFirst && includedInGlobal)
-          commentMsg <- paste(commentMsg,
+          commentMsg <- paste0(commentMsg,
                 "The global distribution overlaps the partial distributions. ")
         if(taller && !includedInGlobal)
-          commentMsg <- paste(commentMsg, "The right distribution is taller. ")
+          commentMsg <- paste0(commentMsg, "The right distribution is taller. ")
       }
     }
   }else{
     warning("Package 'mixtools' is not available to calculate the sub-distributions.")
   }
 
+  # stop()
+  # print(paste(gSetName, '---here'))
   glProb <- 1-(thrP/nCells + smallestPopPercent)   ## CORRECT?!?!
   aucThrs["Global_k1"] <- qnorm(glProb,# qnorm(1-(thrP/nCells),
                                 mean=distrs[["Global_k1"]][["mu"]][1],
