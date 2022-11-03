@@ -6,6 +6,7 @@
 #' @importFrom graphics boxplot
 #' @importFrom graphics mtext
 #' @importFrom stats quantile
+#' @importFrom Matrix colSums
 #'
 #' @rawNamespace import(data.table, except = shift)
 #' @title plotGeneCount
