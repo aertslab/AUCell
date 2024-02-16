@@ -1,3 +1,7 @@
+VERSION 1.25.+
+----------------------
+- Remove shiny app to modify thresholds as rbokeh is deprecated.
+
 VERSION 1.19.+
 ----------------------
 - New function: AUCell_assignCells()

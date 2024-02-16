@@ -77,8 +77,8 @@ BiocManager::install(c("doMC", "doRNG","doSNOW"))
 # For the main example:
 BiocManager::install(c("mixtools", "SummarizedExperiment"))
 # For the examples in the follow-up section of the tutorial:
-BiocManager::install(c("DT", "plotly", "NMF", "d3heatmap", "shiny", "rbokeh",
-                       "dynamicTreeCut","R2HTML","Rtsne", "zoo"))
+BiocManager::install(c("DT", "plotly", "NMF", "d3heatmap",
+                       "dynamicTreeCut", "R2HTML", "Rtsne", "zoo"))
 ```
 
 ## Some tips...
@@ -489,52 +489,6 @@ selectedThresholds[2] <-  0.25
 par(mfrow=c(2,3))
 AUCell_plotTSNE(tSNE=cellsTsne, exprMat=exprMatrix, 
 cellsAUC=cells_AUC[1:2,], thresholds=selectedThresholds)
-```
-
-
-### Interactive threshold selection
-
-To help select the thresholds, there is also an interactive Shiny app:
-```{r eval=FALSE}
-library(shiny); library(rbokeh)
-exprMat <- log2(mouseBrainExprMatrix+1) # (back to the full matrix)
-
-# Create app 
-aucellApp <- AUCell_createViewerApp(auc=cells_AUC, thresholds=selectedThresholds, 
-tSNE=cellsTsne, exprMat=exprMat)
-
-# Run (the exact commands depend on the R settings, see Shiny's doc for help)
-options(shiny.host="0.0.0.0") 
-savedSelections <- runApp(aucellApp) 
-
-# Other common settings:
-# host = getOption("shiny.host", "127.0.0.1") 
-# shinyApp(ui=aucellApp$ui, server=aucellApp$server)
-
-# Optional: Visualize extra information about the cells (categorical variable)
-cellInfoFile <- paste(file.path(system.file('examples', package='AUCell')), 
-"mouseBrain_cellLabels.tsv", sep="/")
-cellInfo <- read.table(cellInfoFile, row.names=1, header=TRUE, sep="\t")
-head(cellInfo)
-
-# To modify the cell assignment based on those thresholds:
-newAssignments <- AUCell_assignCells(cells_AUC, thresholds=savedSelections$thresholds)
-newAssignments <- getAssignments(newAssignments)
-lengths(newAssignments)# number of cells assigned
-```
-
-
-
-Another example for interactive plot (e.g. to save as html, no need to keep the server running):
-```{r tSNE_interactive, eval=FALSE}
-geneSetName <- "Astrocyte_Cahoy (526g)"
-
-library(rbokeh)
-tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
-figure() %>%
-  ly_points(tsne1, tsne2, data=tSNE.df, size=1, legend = FALSE,
-    hover=cell, color=getAUC(cells_AUC)[geneSetName,rownames(tSNE.df)]) %>%
-  set_palette(continuous_color = pal_gradient(c("lightgrey", "pink", "red")))
 ```
 
 # Why to use AUCell? 
