@@ -2,11 +2,11 @@ Package: AUCell
 Type: Package
 Title: AUCell: Analysis of 'gene set' activity in single-cell RNA-seq data
     (e.g. identify cells with specific gene signatures)
-Version: 1.25.1
-Date: 2024-02-23
+Version: 1.25.2
+Date: 2024-03-03
 Author: Sara Aibar, Stein Aerts. Laboratory of Computational Biology.
     VIB-KU Leuven Center for Brain & Disease Research. Leuven, Belgium.
-Maintainer: Sara Aibar <sara.aibar@kuleuven.vib.be>
+Maintainer: Gert Hulselmans <Gert.Hulselmans@kuleuven.be>
 Description: AUCell allows to identify cells with active gene sets
     (e.g. signatures, gene modules...) in single-cell RNA-seq data.
     AUCell uses the "Area Under the Curve" (AUC) to calculate whether a critical
