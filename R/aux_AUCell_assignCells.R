@@ -69,8 +69,8 @@ AUCell_assignCells <- function(cellsAUC, thresholds, nCores=1)
   {
     # Run each geneSet in parallel
     doRNG::registerDoRNG(nCores)
-    if(verbose)
-      message("Using ", foreach::getDoParWorkers(), " cores.")
+    # if(verbose)
+    message("Using ", foreach::getDoParWorkers(), " cores.")
 
     "%dopar%"<- foreach::"%dopar%"
     suppressPackageStartupMessages(assigment <-
