@@ -10,6 +10,7 @@
 #' @param showLegend Whether to plot add a legend to the plot.
 #' @param ... Other arguments to pass to the \code{plot} function.
 #' @return The cell colors (invisible)
+#' @importFrom grDevices rgb
 #' @examples 
 # par(mfrow=c(1,2))
 # 
